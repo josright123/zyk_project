@@ -1,0 +1,15 @@
+---
+label: "MatterSensorOverThreadSolution_uIP"
+quality: "production"
+description: "Matter workspace container both a Matter bootloader and Sensor over\
+  \ Thread Example"
+project:
+- id: "application"
+  path: "SaturnW_uIP.slcp"
+  output: "."
+- id: "bootloader"
+  path: "../Matter-Bootloader_3/Matter-Bootloader_3.slcp"
+  output: "../Matter-Bootloader_3"
+post_build:
+  profile: ""
+  path: "../../SDKs/simplicity_sdk_2/extension/matter_extension/slc/postbuild/ws_default_application_bootloader.slpb"

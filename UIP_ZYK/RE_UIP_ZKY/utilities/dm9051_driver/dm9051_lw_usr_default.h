@@ -1,23 +1,14 @@
 #ifndef __DM9051_LW_USR_H
 #define __DM9051_LW_USR_H
 
-#define freeRTOS_CONF	1 //1 //1 //0
-#define freeRTOS_ENABLE_MUTEX	0 //1 //0
+//#define freeRTOS_CONF	1 //...
 
-#undef MCU_SPECIFY_CONFIG //optional
-
-#define DRV_INTR_MODE
+#define DRV_INTR_MODE /* define 'DRV_INTR_MODE' to configure the mcu EXTINT */
 //#undef DRV_INTR_MODE
 
-#define IRQ_HANDLER_ACCEPTED	0 //when 'DRV_INTR_MODE', accept INT active (default active low) trigger.
-
-/*#define _DRV_INTR_MODE*/
-/*#undef _DRV_INTR_MODE*/
-/*#define _appINTR_MODE*/
-/*#undef _appINTR_MODE*/
-/*#define _intrAPP_READY*/
-/*#undef _intrAPP_READY*/
-
 //#define _AT32F437xx
+
+#define FORCE_MODE_10M
+//#undef FORCE_MODE_10M
 
 #endif //__DM9051_LW_USR_H

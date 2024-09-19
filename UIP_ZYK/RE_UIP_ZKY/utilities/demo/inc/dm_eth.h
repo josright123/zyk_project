@@ -6,7 +6,7 @@
 //extern SemaphoreHandle_t xSemaphore_RX;
 //typedef QueueHandle_t SemaphoreHandle_t;
 //extern QueueHandle_t xSemaphore_RX;
-extern int flgSemaphore_r;
+extern int flgSemaphore_r; .......................uuy,y,iy..............
 
 void DM_Eth_Open(void);
 //void DM_Eth_Initialize(void);

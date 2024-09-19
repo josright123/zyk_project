@@ -57,15 +57,15 @@
 //#include "mutex_jj0.h"
 #include "dm9051opts.h"
 #include "dm9051_lw.h"
-#include "dm9051_cboard.h"
-#include "dm9051_lw_cint.h"
+//#include "dm9051_cboard.h"
+//#include "dm9051_lw_cint.h"
 //.#include "dm9051_lw_can_fix_tool_xxx.h"
 //.#include "ethernetif.h"
 
 //#define _PBUF_POOL_BUFSIZE				1514
 #define PBUF_POOL_BUFSIZE                	2000
 
-#include "dm_eth.h"
+//#include "dm_eth.h"
 
 #include <string.h>
 

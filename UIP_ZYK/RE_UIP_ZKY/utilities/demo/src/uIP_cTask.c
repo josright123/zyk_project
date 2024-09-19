@@ -54,24 +54,27 @@
 #include "queue.h"
 
 #if 1
-#include "dm9051opts.h"
-#include "dm9051_lw.h"
-#include "dm9051_cboard.h"
-#include "../dm9051_lw_mcu_default.h"
-#include "dm9051_lw_conf_types.h"
-#include "dm9051_lw_cint.h"
+//#include "dm9051opts.h"
+//#include "dm9051_lw.h"
+//#include "cboard/dm9051_lw_mcu_default_IN.h"
+#include "dm9051_env.h"
+
+//#include "dm9051_cboard.h"
+//#include "../dm9051_lw_mcu_default.h"
+//#include "dm9051_lw_conf_types.h"
+//#include "dm9051_lw_cint.h"
 
 #define tapdev_send()		DM_ETH_Output((uint8_t *)uip_buf, uip_len) //dm9051_tx((uint8_t *)uip_buf, uip_len)
 //#define tapdev_read()		DM_ETH_Input((uint8_t *)uip_buf) //_DM_ETH_RXHandler((uint8_t *)uip_buf) //dm9051_rx((uint8_t *)uip_buf)
 //#define BUF ((struct uip_eth_hdr *)&uip_buf[0])
 
 #else
-#include "DM9051.h"
+//#include "DM9051.h"
 //#include "RttPrintf.h"
 #endif
 
 #include "dhcpc.h"
-#include "dm_eth.h"
+#include "dm_eth/dm_eth.h" //#include "dm_eth.h"
 
 #ifndef NULL
     #define NULL (void *)0
@@ -127,7 +130,9 @@ void vuIP_Task(void *pvParameters)
     /* FreeRTOS  task delay */
     timer_set(&periodic_timer, CLOCK_SECOND / 2); 		//500ms
     timer_set(&arp_timer, CLOCK_SECOND * 10);         // 10sec
-	DM_ETH_Init(&uip_ethaddr.addr[0]); //DM_Eth_Open();
+	
+	DM9051_init(); //DM_ETH_Init(&uip_ethaddr.addr[0]); //DM_Eth_Open();
+	
     uip_init();
     uip_arp_init(); // Clear arp table.
 

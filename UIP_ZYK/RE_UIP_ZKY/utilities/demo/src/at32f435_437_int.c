@@ -32,8 +32,9 @@
 #include "semphr.h"
 #include "dm9051opts.h"
 #include "dm9051_lw.h"
-#include "dm9051_cboard.h"
-#include "dm9051_lw_cint.h"
+//#include "dm9051_cboard.h"
+//#include "dm9051_lw_cint.h"
+#include "cboard/dm9051_cboard_data_API.h"
 //#include "../freertos_tasks_debug.h"
 
 /** @addtogroup AT32F437_periph_examples

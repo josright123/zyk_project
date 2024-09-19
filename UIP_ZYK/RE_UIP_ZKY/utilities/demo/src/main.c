@@ -40,7 +40,7 @@
 //const uint8_t *dm9051_init1(const uint8_t *adr);
 //const uint8_t *test_init1(const uint8_t *adr);
 
-#include "dm_eth.h"
+#include "dm_eth/dm_eth.h" //#include "dm_eth.h"
 
 #if 0
   #include "../freertos_tasks_debug.h"

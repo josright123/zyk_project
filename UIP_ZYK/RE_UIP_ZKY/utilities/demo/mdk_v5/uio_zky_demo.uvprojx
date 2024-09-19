@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER,AT_START_F437_V1</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\uIP;..\..\apps\dhcpc;..\..\apps\webserver;..\inc;..\src;..\..\..\libraries\drivers\inc;..\..\..\libraries\cmsis\cm4\device_support;..\..\..\libraries\cmsis\cm4\core_support;..\..\..\middlewares\freertos\source\include;..\..\..\middlewares\freertos\source\portable\memmang;..\..\..\project\at32f435_437_board;..\..\DM9051;..\..\dm9051_driver\dm9051_lw;..\..\..\middlewares\freertos_lwip_header;..\..\..\middlewares\freertos_lwip_header\port;..\..\..\middlewares\freertos_lwip_header\port\arch</IncludePath>
+              <IncludePath>..\..\uIP;..\..\apps\dhcpc;..\..\apps\webserver;..\inc;..\src;..\..\..\libraries\drivers\inc;..\..\..\libraries\cmsis\cm4\device_support;..\..\..\libraries\cmsis\cm4\core_support;..\..\..\middlewares\freertos\source\include;..\..\..\middlewares\freertos\source\portable\memmang;..\..\..\project\at32f435_437_board;..\..\DM9051;..\..\dm9051_driver\dm9051_u;..\..\dm9051_driver\dm9051_lw;..\..\..\middlewares\freertos_lwip_header;..\..\..\middlewares\freertos_lwip_header\port;..\..\..\middlewares\freertos_lwip_header\port\arch</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -705,34 +705,19 @@
           <GroupName>dm9051_lw</GroupName>
           <Files>
             <File>
-              <FileName>dm9051_rtos.c</FileName>
+              <FileName>dm_eth_status.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\dm9051_driver\dm9051_lw\dm9051_rtos.c</FilePath>
+              <FilePath>..\..\dm9051_driver\dm_eth_status.c</FilePath>
             </File>
             <File>
-              <FileName>dm9051_lw_function_code.c</FileName>
+              <FileName>dm_eth_main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\dm9051_driver\dm9051_lw\dm9051_lw_function_code.c</FilePath>
+              <FilePath>..\..\dm9051_driver\dm_eth_main.c</FilePath>
             </File>
             <File>
-              <FileName>dm9051_lw_control_cblock.c</FileName>
+              <FileName>dm9051_env.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\dm9051_driver\dm9051_lw\dm9051_lw_control_cblock.c</FilePath>
-            </File>
-            <File>
-              <FileName>dm9051_lw_data.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\dm9051_driver\dm9051_lw\dm9051_lw_data.c</FilePath>
-            </File>
-            <File>
-              <FileName>dm9051_lw.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\dm9051_driver\dm9051_lw\dm9051_lw.c</FilePath>
-            </File>
-            <File>
-              <FileName>dm_eth.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\dm_eth.c</FilePath>
+              <FilePath>..\..\dm9051_driver\dm9051_u\dm9051_env.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -740,29 +725,19 @@
           <GroupName>dm9051_cboard</GroupName>
           <Files>
             <File>
-              <FileName>dm9051_crst_cgpio.c</FileName>
+              <FileName>dm9051_cstate.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\dm9051_driver\dm9051_lw\dm9051_crst_cgpio.c</FilePath>
-            </File>
-            <File>
-              <FileName>dm9051_cint.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\dm9051_driver\dm9051_lw\dm9051_cint.c</FilePath>
+              <FilePath>..\..\dm9051_driver\dm9051_u\cboard\dm9051_cstate.c</FilePath>
             </File>
             <File>
               <FileName>dm9051_cspi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\dm9051_driver\dm9051_lw\dm9051_cspi.c</FilePath>
+              <FilePath>..\..\dm9051_driver\dm9051_u\cboard\dm9051_cspi.c</FilePath>
             </File>
             <File>
-              <FileName>dm9051_cboard.c</FileName>
+              <FileName>dm9051_cboard_data_IMPORT.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\dm9051_driver\dm9051_lw\dm9051_cboard.c</FilePath>
-            </File>
-            <File>
-              <FileName>dm9051_cboard_data.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\dm9051_driver\dm9051_lw\dm9051_cboard_data.c</FilePath>
+              <FilePath>..\..\dm9051_driver\dm9051_u\cboard\dm9051_cboard_data_IMPORT.c</FilePath>
             </File>
           </Files>
         </Group>

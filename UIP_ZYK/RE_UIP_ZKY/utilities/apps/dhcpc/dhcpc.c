@@ -39,7 +39,9 @@
 #include "timer.h"
 #include "pt.h"
 #include "dhcpc.h"
-#include "dm9051_lw_cint.h"
+
+#include "dm9051opts.h"
+//#include "dm9051_lw_cint.h"
 
 #if defined PORT_APP_MAPPER
     bool dhcpc_running = 0;
@@ -285,7 +287,14 @@ static PT_THREAD(handle_dhcp(void))
     dhcpc_running = 1;
 #endif
 
-	printf("sys %s mode\r\n", intr_gpio_mptr() ? "interrupt" : "polling");
+	printf("sys %s mode\r\n",
+		#ifdef DM9051_DRIVER_INTERRUPT
+		"interrupt"
+		#else
+		"polling" .................nmbnmbnmb..........
+		#endif
+		//intr_gpio_mptr() ? "interrupt" : "polling"
+		);
     printf("handle_dhcp...\n");
 
     if (s.state == STATE_RENEW)

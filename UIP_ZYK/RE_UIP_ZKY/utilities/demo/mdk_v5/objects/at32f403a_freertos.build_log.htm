@@ -21,20 +21,72 @@ Target DLL:      CMSIS_AGDI.dll V1.28.3.0
 Dialog DLL:      TCM.DLL V1.32.0.0
  
 <h2>Project:</h2>
-D:\basic_2Git\UIP_ZKY\Testing_UIP_ZKY\utilities\demo\mdk_v5\uio_zky_demo.uvprojx
-Project File Date:  07/29/2024
+D:\basic_2Git\uGIT_ZYK3\git_zyk\UIP_ZYK\RE_UIP_ZKY\utilities\demo\mdk_v5\uio_zky_demo.uvprojx
+Project File Date:  09/19/2024
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'at_start_f437'
-compiling freertos_tasks_debug.c...
-..\..\dm9051_driver\dm9051_lw\dm9051opts.h(61): warning:  #1215-D: #warning directive: "freeRTOS is defined"
-  #warning "freeRTOS is defined"
-..\freertos_tasks_debug.c: 1 warning, 0 errors
+compiling dm9051_cboard_data_IMPORT.c...
+..\..\dm9051_driver\dm9051_u\cboard\dm9051_cboard_data_IMPORT.c(35): warning:  #223-D: function "SPI_SET_SS_LOW" declared implicitly
+  	SPI_SET_SS_LOW(SPI1);
+..\..\dm9051_driver\dm9051_u\cboard\dm9051_cboard_data_IMPORT.c(40): warning:  #223-D: function "SPI_SET_SS_HIGH" declared implicitly
+  	SPI_SET_SS_HIGH(SPI1);
+..\..\dm9051_driver\dm9051_u\cboard\dm9051_cboard_data_IMPORT.c(44): warning:  #223-D: function "SPI_WRITE_TX0" declared implicitly
+      SPI_WRITE_TX0(SPI1, (uint32_t)byte);
+..\..\dm9051_driver\dm9051_u\cboard\dm9051_cboard_data_IMPORT.c(45): warning:  #223-D: function "SPI_IS_BUSY" declared implicitly
+      while (SPI_IS_BUSY(SPI1));
+..\..\dm9051_driver\dm9051_u\cboard\dm9051_cboard_data_IMPORT.c(46): warning:  #223-D: function "SPI_READ_RX0" declared implicitly
+      SPI_READ_RX0(SPI1);
+..\..\dm9051_driver\dm9051_u\cboard\dm9051_cboard_data_IMPORT.c(61): warning:  #223-D: function "SPI_WRITE_TX0" declared implicitly
+  	SPI_WRITE_TX0(SPI1, 0x0);           //Dummy for read register value.
+..\..\dm9051_driver\dm9051_u\cboard\dm9051_cboard_data_IMPORT.c(62): warning:  #223-D: function "SPI_GET_RX_FIFO_EMPTY_FLAG" declared implicitly
+  	while (SPI_GET_RX_FIFO_EMPTY_FLAG(SPI1));
+..\..\dm9051_driver\dm9051_u\cboard\dm9051_cboard_data_IMPORT.c(63): warning:  #223-D: function "SPI_READ_RX0" declared implicitly
+  	return (SPI_READ_RX0(SPI1) & 0xFF);
+..\..\dm9051_driver\dm9051_u\cboard\dm9051_cboard_data_IMPORT.c(67): warning:  #223-D: function "SPI_IS_BUSY" declared implicitly
+      while (SPI_IS_BUSY(SPI1));
+..\..\dm9051_driver\dm9051_u\cboard\dm9051_cboard_data_IMPORT.c(70): warning:  #223-D: function "SPI_ClearTxFIFO" declared implicitly
+      SPI_ClearTxFIFO(SPI1);
+..\..\dm9051_driver\dm9051_u\cboard\dm9051_cboard_data_IMPORT.c(74): warning:  #223-D: function "SPI_GET_TX_FIFO_FULL_FLAG" declared implicitly
+  	while (SPI_GET_TX_FIFO_FULL_FLAG(SPI1));
+..\..\dm9051_driver\dm9051_u\cboard\dm9051_cboard_data_IMPORT.c(75): warning:  #223-D: function "SPI_WRITE_TX0" declared implicitly
+  	SPI_WRITE_TX0(SPI1, (uint32_t)byte);
+..\..\dm9051_driver\dm9051_u\cboard\dm9051_cboard_data_IMPORT.c(78): warning:  #223-D: function "SPI_IS_BUSY" declared implicitly
+      while (SPI_IS_BUSY(SPI1));
+..\..\dm9051_driver\dm9051_u\cboard\dm9051_cboard_data_IMPORT.c(81): warning:  #223-D: function "SPI_ClearRxFIFO" declared implicitly
+      SPI_ClearRxFIFO(SPI1);
+..\..\dm9051_driver\dm9051_u\cboard\dm9051_cboard_data_IMPORT.c(135): warning:  #223-D: function "clock_time" declared implicitly
+  	uint32_t startTick = 
+ys_now();
+..\..\dm9051_driver\dm9051_u\cboard\dm9051_cboard_data_IMPORT.c(150): warning:  #223-D: function "clock_time" declared implicitly
+  	uint32_t startTick = 
+ys_now();
+..\..\dm9051_driver\dm9051_u\cboard\dm9051_cboard_data_IMPORT.c: 16 warnings, 0 errors
+compiling at32f435_437_int.c...
+compiling dm9051_cspi.c...
 linking...
-Program Size: Code=38364 RO-data=8128 RW-data=680 ZI-data=46752  
-FromELF: creating hex file...
-".\objects\at32f403a_freertos.axf" - 0 Error(s), 1 Warning(s).
+.\objects\at32f403a_freertos.axf: Error: L6218E: Undefined symbol DM_ETH_Output (referred from .\objects\uip_ctask.o).
+.\objects\at32f403a_freertos.axf: Error: L6218E: Undefined symbol DM_ETH_RXHandler (referred from .\objects\uip_ctask.o).
+.\objects\at32f403a_freertos.axf: Error: L6218E: Undefined symbol DM_ETH_RXHandler_Poll (referred from .\objects\uip_ctask.o).
+.\objects\at32f403a_freertos.axf: Error: L6218E: Undefined symbol intr_gpio_mptr (referred from .\objects\uip_ctask.o).
+.\objects\at32f403a_freertos.axf: Error: L6218E: Undefined symbol dm9051_init (referred from .\objects\dm_eth_main.o).
+.\objects\at32f403a_freertos.axf: Error: L6218E: Undefined symbol dm9051_rx (referred from .\objects\dm_eth_main.o).
+.\objects\at32f403a_freertos.axf: Error: L6218E: Undefined symbol dm9051_tx (referred from .\objects\dm_eth_main.o).
+.\objects\at32f403a_freertos.axf: Error: L6218E: Undefined symbol spi_add (referred from .\objects\dm_eth_main.o).
+.\objects\at32f403a_freertos.axf: Error: L6218E: Undefined symbol SPI_ClearRxFIFO (referred from .\objects\dm9051_cboard_data_import.o).
+.\objects\at32f403a_freertos.axf: Error: L6218E: Undefined symbol SPI_ClearTxFIFO (referred from .\objects\dm9051_cboard_data_import.o).
+.\objects\at32f403a_freertos.axf: Error: L6218E: Undefined symbol SPI_GET_RX_FIFO_EMPTY_FLAG (referred from .\objects\dm9051_cboard_data_import.o).
+.\objects\at32f403a_freertos.axf: Error: L6218E: Undefined symbol SPI_GET_TX_FIFO_FULL_FLAG (referred from .\objects\dm9051_cboard_data_import.o).
+.\objects\at32f403a_freertos.axf: Error: L6218E: Undefined symbol SPI_IS_BUSY (referred from .\objects\dm9051_cboard_data_import.o).
+.\objects\at32f403a_freertos.axf: Error: L6218E: Undefined symbol SPI_READ_RX0 (referred from .\objects\dm9051_cboard_data_import.o).
+.\objects\at32f403a_freertos.axf: Error: L6218E: Undefined symbol SPI_SET_SS_HIGH (referred from .\objects\dm9051_cboard_data_import.o).
+.\objects\at32f403a_freertos.axf: Error: L6218E: Undefined symbol SPI_SET_SS_LOW (referred from .\objects\dm9051_cboard_data_import.o).
+.\objects\at32f403a_freertos.axf: Error: L6218E: Undefined symbol SPI_WRITE_TX0 (referred from .\objects\dm9051_cboard_data_import.o).
+Not enough information to list image symbols.
+Not enough information to list load addresses in the image map.
+Finished: 2 information, 0 warning and 17 error messages.
+".\objects\at32f403a_freertos.axf" - 17 Error(s), 16 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -48,6 +100,7 @@ Package Vendor: ArteryTek
   C:\Keil_v5\ARM\PACK\ArteryTek\AT32F435_437_DFP\2.1.4\Device\Include
 
 <h2>Collection of Component Files used:</h2>
+Target not created.
 Build Time Elapsed:  00:00:01
 </pre>
 </body>

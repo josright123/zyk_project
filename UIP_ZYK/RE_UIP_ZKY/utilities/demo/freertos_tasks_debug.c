@@ -1,7 +1,11 @@
 //
 // freertos_tasks_debug.c
 //
-#include "dm9051opts.h"
+//#include "dm9051opts.h"
+
+#define freeRTOS_CONF	1 //...
+#include "FreeRTOS.h" //#include "task.h"
+
 #include "../freertos_tasks_debug.h"
 
 #define LIST_BASE_COUNT	30000

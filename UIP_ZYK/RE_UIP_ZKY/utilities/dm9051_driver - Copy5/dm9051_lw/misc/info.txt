@@ -1,0 +1,143 @@
+--------------------
+advance versions:
+--------------------
+dm9051_lw version 5.09, 20240613. Joseph CHANG.
+		  APIs:
+			dm9051.c: dm9051_boards_initialize
+			dm9051.c: dm9051_init
+			dm9051.c: dm9051_rx
+			dm9051.c: dm9051_tx
+			dm9051_lw.c: dm9051_bmcr_update
+dm9051_lw version 5.08, 20240308. yicheng.
+		  Introduce:
+		    v5.08 dm9051_lw_debug.h(new), redefine printf to DM9051_DEBUGF.
+
+dm9051_lw version 5.07, 20240305. Joseph CHANG.
+		  Introduce:
+		    v5.07 identify_eth_mac (new), identify_tcpip_ip/identify_tcpip_gw/identify_tcpip_mask (new).
+
+dm9051_lw version 5.06 plus, 20240304. Joseph CHANG.
+		  Introduce:
+		    v5.06 plus mac address re-arranage OK.
+
+dm9051_lw version 5.06, 20240304. Joseph CHANG.
+		  Introduce:
+		    v5.06 mac address is to re-arranage.
+
+dm9051_lw version 5.05, 20240301. Joseph CHANG.
+		  Introduce:
+		    v5.05 rename MACRO, rename function_name, and everythings well renamed!
+		    Add include "dm9051_lw_usr.h" which is only belong to the project's main.
+		    But refered by "dm9051opts.h"
+
+dm9051_lw version 5.03, 20240228. yicheng.
+		  Introduce:
+		    v5.03 for Options for Target > C/C++ > Preprocessor Definitions > Add > _AT32F4xxxx
+
+dm9051_lw version 5.02, 20240227. Joseph CHANG.
+		  Introduce:
+		    v5.02 support freertos with uvTaskDelay() by #define freeRTOS. and #if freeRTOS
+
+dm9051_lw version 5.01, 20240227. Joseph CHANG.
+		  Introduce:
+		    v5.01 support freertos with uvTaskDelay() by #define freeRTOS.
+
+dm9051_lw version 5.00, 20240227. Joseph CHANG. (A repository dm_shares which contain dm9051 driver and else every thing.)
+		  Introduce:
+		    v5.00 is start it's work, here.
+			dm9051opts.h is the container for dm9051_lw_conf.h, dm9051_lw_log.h...
+			Include interface can only : dm9051opts.h, dm9051_lw.h
+
+--------------------
+moving versions:
+--------------------
+
+dm9051_lw version 3.20, 20240226. Joseph CHANG. (x2web verification, at32f437)
+		  Introduce:
+		    v3.20 is start it's work, here.
+
+--------------------
+moving versions:
+--------------------
+
+dm9051_lw version 3.19, 20240215. Joseph CHANG. (mqttc verification, at32f437)
+		  Introduce:
+		    v3.19 is start it's work, here.
+dm9051_lw version 3.18, 20240207. Joseph CHANG. (mqttc verification, at32f437)
+		  Introduce "cnf_types.h":
+		    v3.17 "dm_types.h" is good for if add new varibles.
+dm9051_lw version 3.17, 20240205. Joseph CHANG. (mqttc verification, at32f437)
+		  Introduce "dm_types.h":
+		    v3.17 "dm_types.h" is good for if add new varibles.
+
+--------------------
+Older versions:
+--------------------
+
+dm9051_lw version 3.0, 20240119. Joseph CHANG.
+dm9051_lw version 3.1, 20240119. Joseph CHANG.
+dm9051_lw version 3.11, 20240120. Joseph CHANG.
+		  Using APIs:
+			display:
+			  ethcnt_ifdiplay_iomode() //attributes
+			control:
+			  dm9051_board_initialize()
+			  dm9051_init(macaddr)
+			-- TEST_PLAN_MODE 1/ HELLO_DRIVER_API 1/ HELLO_DRIVER_OPTS_DISPLAY_API 0/ HELLO_DRIVER_INTERNAL 1
+
+dm9051_lw version 3.12, 20240123. Joseph CHANG. (Hello driver verification)
+		  Using APIs:
+			control:
+			  dm9051_board_initialize()
+			  ethernet_interfaces_initialize()
+			-- TEST_PLAN_MODE 0/ HELLO_DRIVER_API 1/ HELLO_DRIVER_OPTS_DISPLAY_API 1/ HELLO_DRIVER_INTERNAL 1
+
+dm9051_lw version 3.13, 20240124. Joseph CHANG. (Hello driver verification)
+		  Add APIs:
+		    TRANS_CONN support
+			-- TEST_PLAN_MODE 0/ HELLO_DRIVER_API 1/ HELLO_DRIVER_OPTS_DISPLAY_API 1/ HELLO_DRIVER_INTERNAL 1
+
+dm9051_lw version 3.15, 20240129. Joseph CHANG. (Hello x2web verification, at32f413)
+		  Add APIs:
+		    Interrupt mode skelton function support,
+
+			/*
+			In xxx_int.c, below function can call the 'dm9051_irqlines_proc()',
+			To have interrupt mode support function.
+
+				void EXINT9_5_IRQHandler(void)
+				{
+				  dm9051_irqlines_proc();
+				}
+			*/
+
+			void dm9051_irqlines_proc(void)
+			{
+			  void ethernetif_line7_proc(void);
+			  int i;
+
+			  for (i = 0; i < ETHERNET_COUNT; i++) { //get_eth_interfaces()
+				  if (exint_exister()) {  //[To be enum , e.g. intr_pack[i], if multi-cards]
+					  if (exint_flag_get(exint_extline()) != RESET) //if (exint_flag_get(EXINT_LINE_7) != RESET)
+					  {
+						#if 0
+						//ethernetif_line7_proc();
+						#endif
+						exint_flag_clear(exint_extline()); //exint_flag_clear(EXINT_LINE_7);
+					  }
+				  }
+			  }
+			}
+dm9051_lw version 3.16, 20240130. Joseph CHANG. (Hello x2web verification, at32f413)
+		  Add APIs:
+		    v3.16 function support integrated to mqttc f437. Both ncr reset and phy pwron
+				  use the same call models.
+		    v3.16 Alicloud mqtt function support OK, 20240202.
+
+--------------------
+Options description:
+--------------------
+	TEST_PLAN_MODE, to be checked whether disable can be ok
+	HELLO_DRIVER_API, a driver essential api (enable for an app plan to use this driver)
+	HELLO_DRIVER_OPTS_DISPLAY_API, some opts info display (disable is possible)
+	HELLO_DRIVER_INTERNAL, a driver essential api (Compiler only with header files, disable to test)

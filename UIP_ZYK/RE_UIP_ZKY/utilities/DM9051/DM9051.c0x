@@ -1,0 +1,403 @@
+/***************************************************/
+/* File: DM9051_spi_fun.c                           */
+/* Author: DAVICOM                                 */
+/***************************************************/
+#include "DM9051.h"
+#include "stdio.h"
+#include "stdint.h"
+#include "uip-conf.h"
+#include "uip.h"
+//#include "sl_udelay.h"
+//#include "sl_spidrv_instances.h"
+#include "RttPrintf.h"
+#include "string.h"
+#
+//define SPI_HANDLE                  sl_spidrv_eusart_exp_handle
+
+#define DM9051_RESET_PORT gpioPortB
+#define DM9051_RESET_PIN 3
+
+/* Private function prototypes */
+//static void uint16_t(...
+//static void phy_write(uint16_t uReg, uint16_t uValue);
+
+//static void _DM9051_Delay(uint32_t uDelay);
+//static void _DM9051_Delay_ms(uint32_t uDelay);
+
+int DM9051_INT_FLAG;
+
+//uint8_t DM9051_Read_Reg(uint8_t Reg_Off){
+//    return result[1];
+//}
+
+//void DM9051_Write_Reg(uint8_t Reg_Off, uint8_t spi_data){
+//}
+
+//void DM9051_Read_Mem(uint8_t *pu8data, uint32_t datalen){
+//}
+
+//void DM9051_Write_Mem(uint8_t *pu8data, uint32_t datalen){
+//}
+
+/*********************************************************************************************************//**
+  * @brief  Rx function.
+  * @retval pbuf
+  ***********************************************************************************************************/
+uint16_t DM9051_RX(void)
+{
+	return dm9051_rx((uint8_t *)uip_buf);
+//    uint8_t rxbyte;
+
+//    uint16_t calc_MRR;
+//    uint16_t rx_len = 0;
+
+//    /* Check packet ready or not                                                                              */
+//    rxbyte = DM9051_Read_Reg(DM9051_MRCMDX);
+//    rxbyte = DM9051_Read_Reg(DM9051_MRCMDX);
+
+//    //printf("DM9051_rx process...1st byte = 0x%x\n",rxbyte);
+
+//    if ((rxbyte != 1) && (rxbyte != 0))
+//    {
+//        printf("rxbyte = %02X.\n", rxbyte);
+//        DM9051_TRACE2("DM9051 rx: rx error, stop device \n");
+
+//        /* Reset RX FIFO pointer */
+//        DM9051_Write_Reg(DM9051_RCR, RCR_DEFAULT);  //RX disable
+//        DM9051_Write_Reg(DM9051_MPCR, 0x01);        //Reset RX FIFO pointer
+//        _DM9051_Delay(2);
+//        DM9051_Write_Reg(DM9051_RCR, (RCR_DEFAULT | RCR_RXEN));     //RX Enable
+//        return 0;
+//    }
+
+//    if (rxbyte)
+//    {
+//        uint16_t rx_status;
+//        uint8_t ReceiveData[4];
+
+//        DM9051_Read_Reg(DM9051_MRCMDX);     //dummy read
+//        DM9051_Read_Mem(ReceiveData, 4);
+//        rx_status = ReceiveData[0] + (ReceiveData[1] << 8);
+//        rx_len = ReceiveData[2] + (ReceiveData[3] << 8);
+
+//#ifdef uIP_NOOS
+//        DM9051_Read_Mem((u8_t *)uip_buf, rx_len);
+//#endif  //uIP_NOOS
+
+//        if ((rx_status & 0xbf00) || (rx_len < 0x40) || (rx_len > DM9051_PKT_MAX))
+//        {
+//            DM9051_TRACE2("rx error: status %04x, rx_len: %d \n", rx_status, rx_len);
+
+//            if (rx_status & 0x100)
+//            {
+//                DM9051_TRACE2("rx fifo error \n");
+//            }
+
+//            if (rx_status & 0x200)
+//            {
+//                DM9051_TRACE2("rx crc error \n");
+//            }
+
+//            if (rx_status & 0x8000)
+//            {
+//                DM9051_TRACE2("rx length error \n");
+//            }
+
+//            if (rx_len > DM9051_PKT_MAX)
+//            {
+//                DM9051_TRACE2("rx length too big \n");
+//                /* RESET device                                                                                     */
+//                //_DM9051_WriteReg(DM9051_NCR, NCR_RST);
+//                //_DM9051_Delay_ms(5);
+//            }
+//        }
+//    }
+//    return rx_len;
+}
+
+/*********************************************************************************************************//**
+  * @brief  Tx function.
+  * @param  pbuf: buffer link list
+  * @retval Always 0
+  ***********************************************************************************************************/
+#ifdef uIP_NOOS
+    uint32_t DM9051_TX(void)
+#else
+    uint32_t DM9051_TX(struct netif *netif, struct pbuf *p)
+#endif  //uIP_NOOS
+{
+	dm9051_tx((uint8_t *)uip_buf, uip_len);
+    return 0;
+}
+
+#ifdef DM9051_INT
+/*********************************************************************************************************//**
+ * @brief   This function handles EXTI interrupt.
+ * @retval  None
+ ************************************************************************************************************/
+void DM9051_IRQHandler(void)
+{
+//    if (GPIO_GET_INT_FLAG(PD, BIT2))
+//    {
+//        GPIO_CLR_INT_FLAG(PD, BIT2);
+//        DM9051_INT_FLAG = 1;
+//        //DM9051_isr();
+//    }
+}
+
+/*********************************************************************************************************//**
+  * @brief  Interrupt service routine.
+  * @retval None
+  ***********************************************************************************************************/
+void DM9051_isr(void)
+{
+//    uint16_t int_status;
+//    DM9051_Write_Reg(DM9051_IMR, DM9051_IMR_OFF);     //Clear interrupt flag
+
+//    /* Got DM9051 interrupt status  */
+//    int_status = DM9051_Read_Reg(DM9051_ISR);
+
+//    DM9051_Write_Reg(DM9051_ISR, (u8)int_status);    /* Clear ISR status                                          */
+
+//    /* receive overflow                                                                                       */
+//    if (int_status & ISR_ROS)
+//    {
+//        DM9051_TRACE2("overflow \n");
+//    }
+
+//    if (int_status & ISR_ROOS)
+//    {
+//        DM9051_TRACE2("overflow counter overflow \n");
+//    }
+
+//    /* Received the coming packet                                                                             */
+//    if (int_status & ISR_PRS)
+//    {
+//        uip_len = DM9051_RX();
+//        /* disable receive interrupt                                                                            */
+//        DM9051_device.imr_all &= ~IMR_PRM;
+//        DM9051_Write_Reg(DM9051_IMR, DM9051_device.imr_all);
+//        DM9051_device.imr_all = IMR_OFF;        //Disable all interrupt.
+//        DM9051_Write_Reg(DM9051_IMR, DM9051_device.imr_all);
+//    }
+
+//#if 0
+//    /* Transmit Interrupt check                                                                               */
+//    if (int_status & ISR_PTS)
+//    {
+//        /* transmit done                                                                                        */
+//        int tx_status = DM9051_Read_Reg(DM9051_NSR);    /* Got TX status                                        */
+
+//        if (tx_status & (NSR_TX2END | NSR_TX1END))
+//        {
+//            /* unlock DM9051 device                                                                               */
+//            //OSSemPost(DM9051_sem_ack);  //For TX interrupt
+//        }
+//    }
+//#endif  //0
+//    DM9051_device.imr_all = IMR_DEFAULT;      //Enable all interrupt.
+//    DM9051_Write_Reg(DM9051_IMR, DM9051_device.imr_all);
+}
+#endif //uIP_NOOS
+
+/*********************************************************************************************************//**
+  * @brief  Hardware related configuration.
+  * @retval None
+  ***********************************************************************************************************/
+static void DM9051_Configuration(void) {
+	dm9051_boards_initialize();
+//  GPIO_PinModeSet(DM9051_RESET_PORT, DM9051_RESET_PIN, gpioModePushPull, 0);
+//  sl_udelay_wait(1200);
+//  GPIO_PinOutSet(DM9051_RESET_PORT, DM9051_RESET_PIN);
+//  sl_udelay_wait(200);
+#ifdef DM9051_INT
+#endif  //DM9051_INT
+}
+
+//static void _DM9051_Delay(uint32_t uDelay)
+//{
+////    sl_udelay_wait(uDelay);
+//}
+
+//static void _DM9051_Delay_ms(uint32_t uDelay)
+//{
+////  sl_udelay_wait(uDelay*1000);
+//}
+
+/*********************************************************************************************************//**
+  * @brief  DM9051 init function.
+  * @retval -1 or 0
+  ***********************************************************************************************************/
+int32_t DM9051_INIT()
+{
+	dm9051_init(NULL);
+	return 0;
+
+//    int i, oft, lnk;
+//    uint32_t value;
+
+//    DM9051_Configuration();
+
+
+//    value  = DM9051_Read_Reg(DM9051_VIDL);
+//    value |= DM9051_Read_Reg(DM9051_VIDH) << 8;
+//    value |= DM9051_Read_Reg(DM9051_PIDL) << 16;
+//    value |= DM9051_Read_Reg(DM9051_PIDH) << 24;
+
+//    value  = DM9051_Read_Reg(DM9051_VIDL);
+//    value |= DM9051_Read_Reg(DM9051_VIDH) << 8;
+//    value |= DM9051_Read_Reg(DM9051_PIDL) << 16;
+//    value |= DM9051_Read_Reg(DM9051_PIDH) << 24;
+
+//    DM9051_TRACE2("DM9051 id: 0x%x \n", value);
+
+//    DM9051_device.type  = TYPE_DM9051;
+//#ifdef FORCE_10M
+//    DM9051_device.mode    = DM9051_10M;
+//#else
+//    DM9051_device.mode    = DM9051_AUTO;
+//#endif  //FORCE_10M   
+//    DM9051_device.packet_cnt = 0;
+//    DM9051_device.queue_packet_len = 0;
+
+//    /* SRAM Tx/Rx pointer automatically return to start address                                               */
+//    /* Packet Transmitted, Packet Received                                                                    */
+//    DM9051_device.imr_all = IMR_PAR | IMR_PRM; //RX interrupt enable
+//    //DM9051_device.imr_all = IMR_DEFAULT;
+//    //DM9051_device.imr_all = 0x81;
+
+//#ifdef uIP_NOOS
+//    DM9051_device.dev_addr[0] = emacETHADDR0;
+//    DM9051_device.dev_addr[1] = emacETHADDR1;
+//    DM9051_device.dev_addr[2] = emacETHADDR2;
+//    DM9051_device.dev_addr[3] = emacETHADDR3;
+//    DM9051_device.dev_addr[4] = emacETHADDR4;
+//    DM9051_device.dev_addr[5] = emacETHADDR5;
+//#endif
+
+
+//    /* RESET device                                                                                           */
+//    DM9051_Write_Reg(DM9051_NCR, DM9051_REG_RESET);
+//    _DM9051_Delay(1); //1us
+//    DM9051_Write_Reg(DM9051_NCR, 0);
+
+//    /* RESET device                                                                                           */
+//    DM9051_Write_Reg(DM9051_NCR, DM9051_REG_RESET);
+//    _DM9051_Delay(1);
+//    _DM9051_Delay_ms(1);
+//    DM9051_Write_Reg(DM9051_NCR, 0);
+
+//    DM9051_Write_Reg(DM9051_GPCR, GPCR_GEP_CNTL);
+//    DM9051_Write_Reg(DM9051_GPR, 0x00);       //Power on PHY
+
+//    /* Set PHY                                                                                                */
+//    phy_mode_set(DM9051_device.mode);
+
+//    //_DM9051_Delay_ms(50000);
+//    //printf("PHY REG_0 = 0x%4x\n", phy_read(0));
+//    //printf("PHY REG_4 = 0x%4x\n", phy_read(4));
+//    /* set mac address                                                                                        */
+//    for (i = 0, oft = DM9051_PAR; i < 6; i++, oft++)
+//    {
+//        DM9051_Write_Reg(oft, DM9051_device.dev_addr[i]);
+//    }
+
+//    /* set multicast address      */
+//    for (i = 0; i < 8; i++)                                /* �M�� ���d�h���]�m */
+//        DM9051_Write_Reg(DM9051_MAR + i, (7 == i) ? 0x80 : 0x00); /* �t�]�m �s���] �]�m */
+
+//    /*
+//      for (i = 0, oft = DM9051_MAR; i < 8; i++, oft++)
+//      {
+//        DM9051_Write_Reg(oft, 0xff);
+//      }
+//    */
+
+//    DM9051_TRACE2("DM9051 MAC: ");
+
+//    for (i = 0, oft = DM9051_PAR; i < 6; i++, oft++)
+//    {
+//        DM9051_TRACE2("%X:", DM9051_Read_Reg(oft));
+//    }
+
+//    DM9051_TRACE2("\n");
+
+//    /* Activate DM9051                                                                                        */
+//    /* Setup DM9051 Registers */
+//    DM9051_Write_Reg(DM9051_NCR, NCR_DEFAULT);
+//    DM9051_Write_Reg(DM9051_TCR, TCR_DEFAULT);
+//    //DM9051_Write_Reg(DM9051_TCR, 0x20);                     //Disable underrun retry.
+//    DM9051_Write_Reg(DM9051_RCR, RCR_DEFAULT);
+//    DM9051_Write_Reg(DM9051_BPTR, BPTR_DEFAULT);
+//    //DM9051_Write_Reg(DM9051_FCTR, FCTR_DEAFULT);
+//    DM9051_Write_Reg(DM9051_FCTR, 0x3A);
+//    DM9051_Write_Reg(DM9051_FCR,  FCR_DEFAULT);
+//    //DM9051_Write_Reg(DM9051_FCR,  0x0);                 //Disable Flow_Control
+//    DM9051_Write_Reg(DM9051_SMCR, SMCR_DEFAULT);
+//    DM9051_Write_Reg(DM9051_TCR2, DM9051_TCR2_SET);
+//    //DM9051_Write_Reg(DM9051_TCR2, 0x80);
+//    DM9051_Write_Reg(DM9051_INTR, 0x1);
+
+//    /* Clear status */
+//    DM9051_Write_Reg(DM9051_NSR, NSR_CLR_STATUS);
+//    DM9051_Write_Reg(DM9051_ISR, ISR_CLR_STATUS);
+
+
+//    //if (DM9051_device.mode == DM9051_AUTO)
+//    if ((DM9051_device.mode == DM9051_AUTO) || (DM9051_device.mode == DM9051_10M))
+//    {
+//        //printf("DM9051_REG_1fh = 0x%X.\n", DM9051_Read_Reg(0x1f));
+//        while (!(phy_read(1) & 0x20))
+//        {
+//            /* autonegation complete bit                                                                          */
+//            _DM9051_Delay(2);
+//            //printf("PHY_REG00h = 0x%04X, PHY_REG01h = 0x%04X.\n", phy_read(0), phy_read(1));
+//            i++;
+
+//            if (i == 255)
+//            {
+//                DM9051_TRACE2("could not establish link \n");
+//                //LCD_ShowString(Line5, LEFT_WIDTH, LEFT_ALIGNMENT, Color_White, FONT_12, "Operation Mode: Connecting");
+//                //return 0;
+//                break;
+//            }
+//        }
+//    }
+
+//    /* see what we've got                                                                                     */
+//    lnk = phy_read(17) >> 12;
+//    DM9051_TRACE2("operating at ");
+
+//    switch (lnk)
+//    {
+//        case 1:
+//            DM9051_TRACE2("10M half duplex ");
+//            //LCD_ShowString(Line5, LEFT_WIDTH, LEFT_ALIGNMENT, Color_White, FONT_12, "Operation Mode: 10M half duplex");
+//            break;
+
+//        case 2:
+//            DM9051_TRACE2("10M full duplex ");
+//            //LCD_ShowString(Line5, LEFT_WIDTH, LEFT_ALIGNMENT, Color_White, FONT_12, "Operation Mode: 10M full duplex");
+//            break;
+
+//        case 4:
+//            DM9051_TRACE2("100M half duplex ");
+//            //LCD_ShowString(Line5, LEFT_WIDTH, LEFT_ALIGNMENT, Color_White, FONT_12, "Operation Mode: 100M half duplex");
+//            break;
+
+//        case 8:
+//            DM9051_TRACE2("100M full duplex ");
+//            //LCD_ShowString(Line5, LEFT_WIDTH, LEFT_ALIGNMENT, Color_White, FONT_12, "Operation Mode: 100M full duplex");
+//            break;
+
+//        default:
+//            DM9051_TRACE2("unknown: %d ", lnk);
+//            break;
+//    }
+
+//    DM9051_TRACE2("mode \n");
+
+//    DM9051_Write_Reg(DM9051_IMR, DM9051_device.imr_all);    /* Enable TX/RX interrupt mask                    */
+//    DM9051_Write_Reg(DM9051_RCR, (RCR_DEFAULT | RCR_RXEN));  /* Enable RX */
+//    return 0;
+}

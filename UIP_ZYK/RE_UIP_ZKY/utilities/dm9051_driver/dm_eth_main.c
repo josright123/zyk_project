@@ -23,7 +23,7 @@
 #include "cboard/dm9051_cboard_data_API.h"
 
 	//=[DM9051_Interript_Configuration]
-	void DM9051_Interript_Configuration(void) {
+	void NU_DM9051_Interript_Configuration(void) {
 		identify_irq_stat(ISTAT_IRQ_CFG);
 		trace_irq_stat(ISTAT_IRQ_CFG);
 		identify_irq_stat(ISTAT_LOW_TRIGGER);
@@ -32,13 +32,13 @@
 		// add user's mcu irq configuration code here.
 	}
 	
-	void intr_add(void) {
+	void NU_intr_add(void) {
 #ifdef DM9051_DRIVER_INTERRUPT
-		DM9051_Interript_Configuration();
+		NU_DM9051_Interript_Configuration();
 #endif
 	}
 
-void cint_disable_mcu_irq(void)
+void NU_cint_disable_mcu_irq(void)
 {
 #ifdef DM9051_DRIVER_INTERRUPT
 	deidentify_irq_stat(ISTAT_IRQ_ENAB);
@@ -48,7 +48,7 @@ void cint_disable_mcu_irq(void)
 #endif
 }
 
-void cint_enable_mcu_irq(void)
+void NU_cint_enable_mcu_irq(void)
 {
 #ifdef DM9051_DRIVER_INTERRUPT
 	identify_irq_stat(ISTAT_IRQ_ENAB);
@@ -135,8 +135,8 @@ int32_t DM9051_init(void)
 //		emacETHADDR5
 //	};
 
+    //DM9051_Configuration_NU();
 	dm9051_boards_initialize();
-    //DM9051_Configuration();
 	
 	dm9051_init(&uip_ethaddr.addr[0]);
 	return 0;

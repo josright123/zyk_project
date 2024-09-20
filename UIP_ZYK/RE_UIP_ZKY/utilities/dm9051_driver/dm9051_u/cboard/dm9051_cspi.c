@@ -31,11 +31,11 @@
 
 #include "dm9051_cstate.h"
 
-#if POLL_ON == POLL_ON_RXPADIFF //(DM_ETH_DEBUG_MODE || (POLL_ON == POLL_ON_RXPADIFF)) && 1
+//#if POLL_ON == POLL_ON_RXPADIFF //(DM_ETH_DEBUG_MODE || (POLL_ON == POLL_ON_RXPADIFF)) && 1
 uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e) {
 	return (rwpa_e >= rwpa_s) ? rwpa_e - rwpa_s : (rwpa_e + 0x4000 - 0xc00) - rwpa_s;
 }
-#endif
+//#endif
 
 #define dm9051if_cs_lo() spi_cs_lo()
 #define dm9051if_cs_hi() spi_cs_hi()

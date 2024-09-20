@@ -64,10 +64,6 @@
 //#include "dm9051_lw_conf_types.h"
 //#include "dm9051_lw_cint.h"
 
-#define tapdev_send()		DM_ETH_Output((uint8_t *)uip_buf, uip_len) //dm9051_tx((uint8_t *)uip_buf, uip_len)
-//#define tapdev_read()		DM_ETH_Input((uint8_t *)uip_buf) //_DM_ETH_RXHandler((uint8_t *)uip_buf) //dm9051_rx((uint8_t *)uip_buf)
-//#define BUF ((struct uip_eth_hdr *)&uip_buf[0])
-
 #else
 //#include "DM9051.h"
 //#include "RttPrintf.h"
@@ -75,6 +71,16 @@
 
 #include "dhcpc.h"
 #include "dm_eth/dm_eth.h" //#include "dm_eth.h"
+//#include "_dm_eth.h"
+
+//[version_0.ok]
+//#define tapdev_send()		DM_ETH_Output((uint8_t *)uip_buf, uip_len) //dm9051_tx((uint8_t *)uip_buf, uip_len)
+//#define tapdev_read()		DM_ETH_Input((uint8_t *)uip_buf) //_DM_ETH_RXHandler((uint8_t *)uip_buf) //dm9051_rx((uint8_t *)uip_buf)
+//[version_1]
+#define tapdev_send()		DM9051_tx()
+#define tapdev_read()		DM9051_rx()
+//#define	input_intr()	DM9051_rx()
+#define BUF ((struct uip_eth_hdr *)&uip_buf[0])
 
 #ifndef NULL
     #define NULL (void *)0
@@ -113,6 +119,83 @@ uint32_t LED_flag;
 //	}
 //	return 0;
 //}
+
+#if defined(DM9051_DRIVER_INTERRUPT)
+
+uint16_t isrSemaphore_src;
+int isrSemaphore_n = 0;
+
+#if DM_ETH_DEBUG_MODE
+//static
+extern uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e);
+
+static void debug_packets(int n) {
+//	printf("(%d packets)\r\n", n);
+}
+
+static uint16_t DM_ETH_Diff_rx_pointers(int stamp, uint16_t *rwpa_wtp, uint16_t *mdra_rdp)
+{
+	static uint16_t /*rwpa_wts,*/ mdra_rds;
+
+	//DM9051_MUTEX_OPS((freeRTOS), sys_mutex_lock_start(&lock_dm9051_core));
+	dm9051_read_rx_pointers(rwpa_wtp, mdra_rdp);
+	//DM9051_MUTEX_OPS((freeRTOS), sys_mutex_unlock_end(&lock_dm9051_core));
+
+	if (stamp == 0) {
+		//rwpa_wts = *rwpa_wtp;
+		mdra_rds = *mdra_rdp;
+		return 0;
+	}
+
+	//diffs = _wrpadiff(rwpa_wts, *rwpa_wtp);
+	//diffs = _wrpadiff(mdra_rds, *mdra_rdp);
+	return wrpadiff(mdra_rds, *mdra_rdp);
+}
+#endif
+
+void diff_rx_pointers_s(uint16_t *pMdra_rds) {
+#if DM_ETH_DEBUG_MODE
+	uint16_t rwpa_wts, /*mdra_rds*/;
+	DM_ETH_Diff_rx_pointers(0, &rwpa_wts, pMdra_rds);
+#endif
+}
+
+void diff_rx_pointers_e(uint16_t *pMdra_rds, int n) {
+#if DM_ETH_DEBUG_MODE
+	uint16_t rwpa_wt, mdra_rd, diff;
+	if (n >= 3) {
+		diff = DM_ETH_Diff_rx_pointers(1, &rwpa_wt, &mdra_rd);
+		diff = wrpadiff(*pMdra_rds, mdra_rd);
+		printf("INTR.mdra.s %02x%02x mdra.e %02x%02x diff %02x%02x (%d packets)\r\n",
+			*pMdra_rds >> 8, *pMdra_rds & 0xff,
+			mdra_rd >> 8, mdra_rd & 0xff,
+			diff >> 8, diff & 0xff,
+			n);
+		debug_packets(n);
+	}
+#endif
+}
+
+int input_intr(void)
+{
+	uip_len = tapdev_read();
+	return (uip_len > 0) ? 1 : 0;
+}
+
+#endif
+
+#if defined(DM9051_DRIVER_POLL)
+.......... old version_0..
+uint16_t DM_ETH_RXHandler_Poll(void)
+{
+	uip_len = tapdev_read();
+	if (uip_len)
+		/* Polling, per 1 packet */
+		rcx_handler_direct();
+	return uip_len;
+}
+#endif
+
 /*---------------------------------------------------------------------------*/
 #if 1 //0 [!!TEST]
 void vuIP_Task(void *pvParameters)
@@ -165,48 +248,85 @@ void vuIP_Task(void *pvParameters)
 
     while (1)
     {
-		#if ETHERNET_INTERRUPT_MODE
-		/* Interrupt */
-		if (intr_gpio_mptr()) {
+#if 0
+//[version_0.ok]
+/* Interrupt */
+//		if (intr_gpio_mptr()) {
+//			if (DM_ETH_RXHandler())
+//				continue;
+//		}
+/* Polling */
+//		else {
+//			if (DM_ETH_RXHandler_Poll())
+//				continue;
+//		}
+#endif
+#if 1
+#if defined(DM9051_DRIVER_INTERRUPT)
+//[version_1]
+/* Interrupt */
+		//if (DM_ETH_RXHandler())
+		//	continue;
+		if (flgSemaphore_r == 1) {
+			flgSemaphore_r = 0; //for next to direct no-limited change-in
 
-			if (DM_ETH_RXHandler())
-				continue;
-				
-//			uip_len = 0; //(rx_wrapper_read())
-//			if (flgSemaphore_r) {
-//				if (n == 0) {
-//					DM_ETH_IRQDisable();
-//				}
-//				uip_len = tapdev_read();
-//				if (uip_len) {
-//					n++;
-//					rcx_handler_direct();
-//					continue;
-//				}
-//				else {
-//					flgSemaphore_r = 0;
-//					if (n >= 3)
-//						printf("tapdev_read exint9_5_handler(void) EXINT_LINE_%d, set flgSemaphore_r %d (conti %d packets)\r\n",
-//								de_enum(dm9051_irq_exint_line(0)), flgSemaphore_r, n);
-//					DM_ETH_IRQEnable();
-//					n = 0;
-//				}
-//			}
-		}
-		/* Polling */
-		else {
-			if (DM_ETH_RXHandler_Poll())
-				continue;
-		}
-		#else
-		#error "Please use ETHERNET_INTERRUPT_MODE, otherwise: uip_len = tapdev_read();"
-		#endif
+			isrSemaphore_src = 0x5555 >> 8;
+			do { //[isrSemaphore_n = net_pkts_handle_intr(tcpip_stack_netif());]
+				uint16_t mdra_rds;
+				diff_rx_pointers_s(&mdra_rds);
 
-//		  //[can insteaded, used for common-used of interrupt/polling]
-//        if (uip_len > 0)
-//        {
-//			rcx_handler_direct();
-//        } else
+				isrSemaphore_n = 0;
+				while (input_intr()) {
+					//= [original uip_processing code]
+					if (BUF->type == htons(UIP_ETHTYPE_IP))
+					{
+						uip_input();        // uip_process(UIP_DATA)
+
+						/* If the above function invocation resulted in data that
+						should be sent out on the network, the global variable
+						uip_len is set to a value > 0. */
+						if (uip_len > 0)
+						{
+							uip_arp_out();
+							tapdev_send();
+						}
+					}
+					else if (BUF->type == htons(UIP_ETHTYPE_ARP))
+					{
+						uip_arp_arpin();
+
+						/* If the above function invocation resulted in data that
+						   should be sent out on the network, the global variable
+						   uip_len is set to a value > 0. */
+						if (uip_len > 0)
+						{
+							tapdev_send();
+						}
+					}
+					isrSemaphore_n++;
+				}
+
+				diff_rx_pointers_e(&mdra_rds, isrSemaphore_n);
+			} while(0);
+			
+			//DM9051_MUTEX_OPS((freeRTOS), sys_mutex_lock_start(&lock_dm9051_core));
+			cspi_isr_enab(); //DM_ETH_IRQEnable(); //dm9051_isr_enab();
+			//DM9051_MUTEX_OPS((freeRTOS), sys_mutex_unlock_end(&lock_dm9051_core));
+			//nExpireCount = 0; //= dm_eth_semaphore_renew();
+		}
+#else
+//[version_1, to be continued.]
+/* Polling */
+		if (DM_ETH_RXHandler_Poll())
+			continue;
+#endif
+#endif
+
+		//uip_len = .. ; 
+		//;[can insteaded, used for common-used of interrupt/polling]
+        //if (uip_len > 0) {
+		//	rcx_handler_direct();
+        //} else
         if (timer_expired(&periodic_timer))
         {
             timer_reset(&periodic_timer);

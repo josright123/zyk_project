@@ -7,7 +7,13 @@
 #include "dm_eth_user_default.h"
 #include "dm_eth_driver_define.h"
 
+#if defined(DM9051_DRIVER_INTERRUPT)
+extern int flgSemaphore_r;
+#endif
+
 int32_t DM9051_init(void);
+uint16_t DM9051_rx(void);
+uint32_t DM9051_tx(void);
 
 #if 0
 	void DM_ETH_Init(struct netif *netif, const uint8_t *adr);

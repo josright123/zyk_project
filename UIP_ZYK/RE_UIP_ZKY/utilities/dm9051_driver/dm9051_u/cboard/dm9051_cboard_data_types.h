@@ -87,30 +87,14 @@
 		const struct modscfg_st *intr_cfg;
 	};
 	#endif
-
-	#define FIELD_SPIDEV(field)			devconf[0].field
-	#define spi_number()						FIELD_SPIDEV(spidef.spi_num)
-	#define pin_wire_sck()					FIELD_SPIDEV(wire_sck)
-	#define pin_wire_mi()						FIELD_SPIDEV(wire_mi)
-	#define pin_wire_mo()						FIELD_SPIDEV(wire_mo)
-	#define pin_cs()								FIELD_SPIDEV(wire_cs)
-
-	#ifdef DRV_INTR_MODE
-	//[cint]
-	#define intr_pointer()				devconf[0].intr_cfg	//FIELD_SPIDEV(intr_cfg)
-	#define intr_data_scfg()			&devconf[0].intr_cfg->extend1 //PTR_EXINTD(extend)
-
-	#define PTR_EXINTD(nextfield)		devconf[0].intr_cfg->nextfield
-	#define intr_gpio_ptr()				((const pin_t *)(&PTR_EXINTD(option1.pin)))
-	#define scfg_info()					devconf[0].intr_cfg->scfg_inf
-
-	#define scfg_crm()					PTR_EXINTD(scfg_init.scfg_clk)
-	#define scfg_port()					PTR_EXINTD(scfg_init.scfg_port_src)
-	#define scfg_pin()					PTR_EXINTD(scfg_init.scfg_pin_src)
-
-	//#define exint_enable_info()			PTR_EXINTD(extend1.irq_enable_inf)
-	//#define exint_extline()				PTR_EXINTD(extend1.extline.extline)
-	#define exint_crm()					PTR_EXINTD(extend1.extline.intr_crm_clk)
-	#endif
 #endif
 //#include "dm9051_cboard_data_IMPORT.c"
+
+extern const struct spi_dev_t devconf[1];
+
+void pin_config(const pin_t *pin, gpio_pull_type gppull);
+void spi_config(void);
+
+void intr_gpio_pin_config(const pin_t *pin, gpio_pull_type pull);
+void intr_irqline_config(const struct extscfg_st *pexint_set, exint_polarity_config_type polarity);
+void log_intr_qpio_pin_config(void);

@@ -62,13 +62,11 @@ void AT_spi_mem_write(uint8_t *buf, uint16_t len);
 
 void cint_exint9_5_handler(void);
 
-//void dm9051_boards_initialize(void);
-#define dm9051_boards_initialize() \
-	spi_add(); \
-	intr_add()
+void DM9051_Configuration_NU(void); //NU
+void dm9051_boards_initialize(void); //AT
 
-void DM9051_Configuration(void);
-
+//void NU_cint_disable_mcu_irq(void);
+//void NU_cint_enable_mcu_irq(void);
 void cint_disable_mcu_irq(void);
 void cint_enable_mcu_irq(void);
 

@@ -5,7 +5,8 @@
 #include "dm9051_lw.h"
 //#include "dm9051_cboard.h"
 
-#if 0
+#if 1
+//[AT cspi]
 	#define  IO_MUX_NULL                    	((uint16_t)0x0000) /*!< subordinate  */
 	#define  IO_MUX_PINREMAP                 	((uint16_t)0x0001) /*!< subordinate mode a (such as f413)*/
 	#define  IO_MUX_GPIOMUX                 	((uint16_t)0x0002) /*!< subordinate mode b (such as f437) */

@@ -1,0 +1,6 @@
+-c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I..\..\uIP -I..\..\apps\dhcpc -I..\..\apps\webserver -I..\inc -I..\src -I..\..\..\libraries\drivers\inc -I..\..\..\libraries\cmsis\cm4\device_support -I..\..\..\libraries\cmsis\cm4\core_support -I..\..\..\middlewares\freertos\source\include -I..\..\..\middlewares\freertos\source\portable\memmang -I..\..\..\project\at32f435_437_board -I..\..\DM9051 -I..\..\dm9051_driver\dm9051_u -I..\..\dm9051_driver\dm9051_lw -I..\..\..\middlewares\freertos_lwip_header -I..\..\..\middlewares\freertos_lwip_header\port -I..\..\..\middlewares\freertos_lwip_header\port\arch
+-I C:\basic_2Git\zyk_project\zyk\UIP_ZYK\RE_UIP_ZKY\utilities\demo\mdk_v5\RTE
+-I C:\Keil_v5\ARM\PACK\ArteryTek\AT32F435_437_DFP\2.1.9\Device\Include
+-I C:\Keil_v5\ARM\CMSIS\Include
+-D__UVISION_VERSION="515" -DAT32F437ZMT7 -DUSE_STDPERIPH_DRIVER -DAT_START_F437_V1
+-o .\objects\dm9051_cboard_data_import.o --omf_browse .\objects\dm9051_cboard_data_import.crf --depend .\objects\dm9051_cboard_data_import.d "..\..\dm9051_driver\dm9051_u\cboard\dm9051_cboard_data_IMPORT.c"

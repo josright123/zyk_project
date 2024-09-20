@@ -43,12 +43,22 @@
 
 void spi_cs_lo(void);
 void spi_cs_hi(void);
-//uint8_t spi_exc_data(uint8_t byte);
-void spi_exc_data_head(uint8_t byte);
-uint8_t spi_exc_data_read(void);
-void spi_exc_data_read_end(void);
-void spi_exc_data_write(uint8_t byte);
-void spi_exc_data_write_end(void);
+	 
+uint8_t spi_exc_data(uint8_t byte);
+	 
+void NU_spi_exc_data_head(uint8_t byte);
+uint8_t NU_spi_exc_data_read(void);
+void NU_spi_exc_data_read_end(void);
+void NU_spi_exc_data_write(uint8_t byte);
+void NU_spi_exc_data_write_end(void);
+
+//uint8_t NU_spi_data_read(uint8_t reg);
+//uint8_t NU_spi_mem2x_read(void);
+uint8_t AT_spi_data_read(uint8_t reg);
+void AT_spi_data_write(uint8_t reg, uint8_t val);
+uint8_t AT_spi_mem2x_read(void);
+void AT_spi_mem_read(uint8_t *buf, uint16_t len);
+void AT_spi_mem_write(uint8_t *buf, uint16_t len);
 
 void cint_exint9_5_handler(void);
 

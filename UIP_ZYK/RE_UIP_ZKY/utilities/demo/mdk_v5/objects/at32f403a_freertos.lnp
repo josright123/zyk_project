@@ -1,4 +1,4 @@
---cpu=Cortex-M4.fp
+--cpu Cortex-M4.fp
 ".\objects\main.o"
 ".\objects\netconf.o"
 ".\objects\at32f435_437_clock.o"
@@ -60,14 +60,15 @@
 ".\objects\http-strings.o"
 ".\objects\dm_eth_status.o"
 ".\objects\dm_eth_main.o"
+".\objects\dm9051_u.o"
 ".\objects\dm9051_env.o"
-".\objects\dm9051_cstate.o"
-".\objects\dm9051_cspi.o"
 ".\objects\dm9051_cboard_data_import.o"
+".\objects\dm9051_cspi.o"
+".\objects\dm9051_cstate.o"
 ".\objects\_fs.o"
 ".\objects\fs_jjdynamic.o"
 ".\objects\dm9051.o"
 --library_type=microlib --strict --scatter ".\objects\at32f403a_freertos.sct"
---show_parent_lib --show_full_path --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--show_parent_lib --show_full_path --summary_stderr --info summarysizes --map --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
 --list ".\listings\at32f403a_freertos.map" -o .\objects\at32f403a_freertos.axf

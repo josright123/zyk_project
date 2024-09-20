@@ -35,6 +35,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "uip-conf.h"
+#include "uip.h"
 #include "dm9051_env.h"
 
 #include "cboard/dm9051_cboard_data_API.h"	//for void DM9051_Configuration(), dm_delay_ms() 

@@ -31,13 +31,6 @@
 
 #include "dm9051_cstate.h"
 
-#define DM9051_MRCMDX       (0x70)  //Read_Mem2X
-#define DM9051_MRCMD        (0x72)  //Read_Mem
-#define DM9051_MWCMD        (0x78)  //Write_Mem
-
-#define OPC_REG_W       		0x80  // Register Write
-#define OPC_REG_R       		0x00  // Register Read
-
 #if POLL_ON == POLL_ON_RXPADIFF //(DM_ETH_DEBUG_MODE || (POLL_ON == POLL_ON_RXPADIFF)) && 1
 uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e) {
 	return (rwpa_e >= rwpa_s) ? rwpa_e - rwpa_s : (rwpa_e + 0x4000 - 0xc00) - rwpa_s;
@@ -47,26 +40,12 @@ uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e) {
 #define dm9051if_cs_lo() spi_cs_lo()
 #define dm9051if_cs_hi() spi_cs_hi()
 
-//#define dm9051_spi_command_write(rd) spi_exc_data(rd)
-//#define dm9051_spi_dummy_read() spi_exc_data(0)
-#define	dm9051_spi_cmd_write(wb)		spi_exc_data_head(wb)
-
-#define dm9051_spi_data_read() 			spi_exc_data_read()
-#define	dm9051_spi_read_end()			spi_exc_data_read_end()
-
-#define	dm9051_spi_data_write(wb)		spi_exc_data_write(wb)
-#define	dm9051_spi_write_end()			spi_exc_data_write_end()
-
 #if 1
 uint8_t cspi_read_reg(uint8_t reg) //static (todo)
 {
 	uint8_t val;
 	dm9051if_cs_lo();
-//	dm9051_spi_command_write(reg | OPC_REG_R);
-//	val = dm9051_spi_dummy_read();
-	dm9051_spi_cmd_write(reg | OPC_REG_R);
-	val = dm9051_spi_data_read();
-	dm9051_spi_read_end();
+	val = AT_spi_data_read(reg);
 	dm9051if_cs_hi();
 	return val;
 }
@@ -74,11 +53,7 @@ uint8_t cspi_read_reg(uint8_t reg) //static (todo)
 void cspi_write_reg(uint8_t reg, uint8_t val)
 {
 	dm9051if_cs_lo();
-//	dm9051_spi_command_write(reg | OPC_REG_W);
-//	dm9051_spi_command_write(val);
-	dm9051_spi_cmd_write(reg | OPC_REG_W);
-	dm9051_spi_data_write(val);
-	dm9051_spi_write_end();
+	AT_spi_data_write(reg, val);
 	dm9051if_cs_hi();
 }
 
@@ -135,42 +110,26 @@ void cspi_write_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode)
 
 uint8_t cspi_read_mem2x(void)
 {
+	#if 1
 	uint8_t rxb;
-	#if 0
 	dm9051if_cs_lo();
-	dm9051_spi_command_write(DM9051_MRCMDX | OPC_REG_R);
-	rxb = dm9051_spi_dummy_read();
-	rxb = dm9051_spi_dummy_read();
+	rxb = AT_spi_mem2x_read();
 	dm9051if_cs_hi();
-	#endif
-	rxb = cspi_read_reg(DM9051_MRCMDX);
-	rxb = cspi_read_reg(DM9051_MRCMDX);
 	return rxb;
+	#else
+	return NU_spi_mem2x_read();
+	#endif
 }
 void cspi_read_mem(uint8_t *buf, uint16_t len)
 {
-	int i;
 	dm9051if_cs_lo();
-//	dm9051_spi_command_write(DM9051_MRCMD | OPC_REG_R);
-//	for(i=0; i<len; i++)
-//		buf[i] = dm9051_spi_dummy_read();
-	dm9051_spi_cmd_write(DM9051_MRCMD | OPC_REG_R);
-	for(i=0; i<len; i++)
-		buf[i] = dm9051_spi_data_read();
-	dm9051_spi_read_end();
+	AT_spi_mem_read(buf, len);
 	dm9051if_cs_hi();
 }
 void cspi_write_mem(uint8_t *buf, uint16_t len)
 {
-	int i;
 	dm9051if_cs_lo();
-//	dm9051_spi_command_write(DM9051_MWCMD | OPC_REG_W);
-//	for(i=0; i<len; i++)
-//		dm9051_spi_command_write(buf[i]);
-	dm9051_spi_cmd_write(DM9051_MWCMD | OPC_REG_W);
-	for(i=0; i<len; i++)
-		dm9051_spi_data_write(buf[i]);
-	dm9051_spi_write_end();
+	AT_spi_mem_write(buf, len);
 	dm9051if_cs_hi();
 }
 #endif

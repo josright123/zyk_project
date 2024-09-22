@@ -8,8 +8,6 @@
   **************************************************************************
   */
 //#include "stdio.h"
-//#include "dm9051opts.h"
-//#include "dm9051_lw.h"
 //#include "DM9051_M051.h"
 //#include "uip.h"
 #include "uip-conf.h"
@@ -21,43 +19,6 @@
 //#include "dm_eth/dm_eth.h"
 
 #include "cboard/dm9051_cboard_data_API.h"
-
-	//=[DM9051_Interript_Configuration]
-	void NU_DM9051_Interript_Configuration(void) {
-		identify_irq_stat(ISTAT_IRQ_CFG);
-		trace_irq_stat(ISTAT_IRQ_CFG);
-		identify_irq_stat(ISTAT_LOW_TRIGGER);
-		trace_irq_stat(ISTAT_LOW_TRIGGER);
-	
-		// add user's mcu irq configuration code here.
-	}
-	
-	void NU_intr_add(void) {
-#ifdef DM9051_DRIVER_INTERRUPT
-		NU_DM9051_Interript_Configuration();
-#endif
-	}
-
-void NU_cint_disable_mcu_irq(void)
-{
-#ifdef DM9051_DRIVER_INTERRUPT
-	deidentify_irq_stat(ISTAT_IRQ_ENAB);
-	
-	// add user's mcu irq enable control code here.
-
-#endif
-}
-
-void NU_cint_enable_mcu_irq(void)
-{
-#ifdef DM9051_DRIVER_INTERRUPT
-	identify_irq_stat(ISTAT_IRQ_ENAB);
-	trace_irq_stat(ISTAT_IRQ_ENAB);
-	
-	// add user's mcu irq enable control code here.
-
-#endif
-}
 
 // return : 0, no error
 //			1, last packet
@@ -126,15 +87,6 @@ void DM_ETH_InterruptHdlr(void)
 
 int32_t DM9051_init(void)
 {
-//	const uint8_t set_MACaddr[6] = {
-//		emacETHADDR0,
-//		emacETHADDR1,
-//		emacETHADDR2,
-//		emacETHADDR3,
-//		emacETHADDR4,
-//		emacETHADDR5
-//	};
-
     //DM9051_Configuration_NU();
 	dm9051_boards_initialize();
 	

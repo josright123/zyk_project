@@ -1,23 +1,20 @@
-//#include "lwip/sys.h"								//for lwip's sys_now()
+//#include "lwip/sys.h" //for lwip's sys_now()
 #include "dm9051_cboard_data_types.h"
 #include "dm9051_cstate.h"
 
 /* ------------------------------- NU configuration ----------------------------------------- */
+// --------------------- NU ----------------------------
 
-/*********************************************************************************************************//**
-  * @brief  Hardware related configuration.
-  * @retval None
-  ***********************************************************************************************************/
-void NU_spi_add(void);
-void NU_intr_add(void);
+void NU_DM9051_SPI_Configuration(void);
+void NU_DM9051_Interript_Configuration(void);
 
 void DM9051_Configuration_NU(void)
 {
-	NU_spi_add();
-	NU_intr_add();
+	NU_DM9051_SPI_Configuration();
+	NU_DM9051_Interript_Configuration();
 }
 
-void NU_spi_add(void)
+void NU_DM9051_SPI_Configuration(void)
 {
 #if 0
     /* Enable SPI1 peripheral clock */
@@ -40,9 +37,29 @@ void NU_spi_add(void)
 #endif
 }
 
+void NU_DM9051_Interript_Configuration(void) {
+#ifdef DM9051_DRIVER_INTERRUPT
+	identify_irq_stat(ISTAT_IRQ_CFG);
+	trace_irq_stat(ISTAT_IRQ_CFG);
+	identify_irq_stat(ISTAT_LOW_TRIGGER);
+	trace_irq_stat(ISTAT_LOW_TRIGGER);
+
+	// add user's mcu irq configuration code here.
+#endif
+}
+
+//void NU_spi_add(void){
+//	NU_DM9051_SPI_Configuration();
+//}
+//	
+//void NU_intr_add(void) {
+//	NU_DM9051_Interript_Configuration();
+//}
+
 //void NU_DM9051_Interript_Configuration(void) {}
 
 /* ------------------------------- AT configuration ----------------------------------------- */
+// --------------------- AT ----------------------------
 
 void dm9051_boards_initialize(void)
 {
@@ -103,7 +120,7 @@ void dm9051_boards_initialize(void)
 					GPIO_PINOUT(GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK, &mode_output), /* //(PA15) */ \
 					intrcfg, \
 				}
-	#ifdef DRV_INTR_MODE
+	#ifdef DM9051_DRIVER_INTERRUPT
 			devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", &devconf_at437_intr_c7), //Note: NULL got no interrupt, and could faii crash! Need debug.
 	#else
 			devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", NULL), //Note: NULL got no interrupt //DM9051A BENCH BOARD V1.0
@@ -123,7 +140,7 @@ void dm9051_boards_initialize(void)
 	#define pin_wire_mo()						FIELD_SPIDEV(wire_mo)
 	#define pin_cs()								FIELD_SPIDEV(wire_cs)
 
-	#ifdef DRV_INTR_MODE
+	#ifdef DM9051_DRIVER_INTERRUPT
 	//[cint]
 	#define intr_pointer()				devconf[0].intr_cfg	//FIELD_SPIDEV(intr_cfg)
 	#define intr_data_scfg()			&devconf[0].intr_cfg->extend1 //PTR_EXINTD(extend)
@@ -174,7 +191,7 @@ void dm9051_boards_initialize(void)
 
 	void intr_add(void)
 	{
-	#ifdef DRV_INTR_MODE
+	#ifdef DM9051_DRIVER_INTERRUPT
 	  exint_polarity_config_type pol = EXINT_TRIGGER_FALLING_EDGE;
 	  const struct modscfg_st *intr = intr_pointer();
 
@@ -182,13 +199,10 @@ void dm9051_boards_initialize(void)
 		intr_gpio_pin_config(intr_gpio_ptr(), GPIO_PULL_UP); //[ops] &intr->option1.pin
 		if (intr_data_scfg()) { //&devconf[0].intr_cfg->extend1
 
-			//identify_irq_stat(ISTAT_IRQ_CFG);
-			//if (identified_irq_stat() & ISTAT_IRQ_CFG) {
-			log_intr_qpio_pin_config();
-			//}
-
 			identify_irq_stat(ISTAT_IRQ_CFG);
 			trace_irq_stat(ISTAT_IRQ_CFG);
+
+			log_intr_qpio_pin_config();
 
 			intr_irqline_config(intr_data_scfg(), pol); //[ops]
 
@@ -202,7 +216,7 @@ void dm9051_boards_initialize(void)
 			//}
 		}
 	  } else {
-		printf("\r\n"); //printk("\r\n");
+		printf("\r\n");
 		printf("[polling]\r\n");
 	  }
 	#endif
@@ -344,55 +358,11 @@ void AT_spi_mem_write(uint8_t *buf, uint16_t len)
 }
 
 #if 1
-//#define	board_printf(format, args...)
-
-//static void dm_eth_delay_us( uint32_t nus ) {
-//}
-//static void dm_eth_delay_ms( uint32_t nms ) {
-//}
-
-/*#include "stm32f4xx.h"  // Adjust the header file according to your STM32 series
-
-volatile uint32_t msTicks = 0;  // Counter for milliseconds
-
-void SysTick_Handler(void) {
-    msTicks++;  // Increment the tick counter
-}
-
-void SysTick_Init(void) {
-    // Configure SysTick to interrupt every millisecond
-    SysTick_Config(SystemCoreClock / 1000);
-}
-
-void Delay(uint32_t ms) {
-    uint32_t startTick = msTicks;
-    while ((msTicks - startTick) < ms) {
-        // Wait until the specified delay has passed
-    }
-}
-
-int main(void) {
-    SysTick_Init();  // Initialize SysTick
-
-    while (1) {
-        // Your main code here
-        Delay(1000);  // Delay for 1000 milliseconds (1 second)
-    }
-}*/
-
 #include "clock.h"
 #define sys_now	clock_time //or xTaskGetTickCount()
 
 void dm_delay_us(uint32_t nus)
 {
-	/*void delay_us(uint32_t nus);
-	board_printf("test %d ,because rxb %02x (is %d times)\r\n", rstccc, rxbyteee, timesss);
-#if freeRTOS
-	vTaskDelay(pdMS_TO_TICKS((nus + 999)/ 1000));
-#else
-	delay_us(nus);
-#endif
-	*/
 	uint32_t startTick = sys_now();
   while ((sys_now() - startTick) < ((nus + 999)/ 1000)) {
     // Wait until the specified delay has passed
@@ -401,13 +371,6 @@ void dm_delay_us(uint32_t nus)
 
 void dm_delay_ms(uint16_t nms)
 {
-	/*void delay_ms(uint16_t nms);
-#if freeRTOS
-	vTaskDelay(nms);
-#else
-	delay_ms((uint16_t)nms);
-#endif
-	*/
 	uint32_t startTick = sys_now();
   while ((sys_now() - startTick) < nms) {
     // Wait until the specified delay has passed

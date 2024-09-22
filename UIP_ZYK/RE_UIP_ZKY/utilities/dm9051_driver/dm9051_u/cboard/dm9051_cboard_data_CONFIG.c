@@ -1,6 +1,8 @@
 #include "dm9051_cboard_data_types.h"
 #include "dm9051_cstate.h"
 
+// --------------------- AT ----------------------------
+
 void pin_gpio_config(const pin_t *pin, gpio_pull_type gppull) {
 	const gpio_t *gpio = &pin->gpio;
 	const gpio_mux_t *mux = pin->mux;
@@ -75,7 +77,7 @@ void spi_config(void)
 #endif
 }
 
-	#ifdef DRV_INTR_MODE
+	#ifdef DM9051_DRIVER_INTERRUPT
 	//[cint]
 	#define intr_pointer()				devconf[0].intr_cfg	//FIELD_SPIDEV(intr_cfg)
 	#define intr_data_scfg()			&devconf[0].intr_cfg->extend1 //PTR_EXINTD(extend)
@@ -94,7 +96,7 @@ void spi_config(void)
 	#endif
 	
 //[cint]
-#ifdef DRV_INTR_MODE
+#ifdef DM9051_DRIVER_INTERRUPT
 /* @brief  exint gpio
  */
 //static 
@@ -164,7 +166,7 @@ char *de_port_str(const pin_t *pin) {
 #endif
 
 void log_intr_qpio_pin_config(void) {
-#ifdef DRV_INTR_MODE
+#ifdef DM9051_DRIVER_INTERRUPT
 	printf("\r\n"); //printk("\r\n");
 	//printf("Intr pin_config: %s, GPIO_PINS_%d\r\n", de_port_str(intr_gpio_ptr()), de_pin(intr_gpio_ptr())); //" %d", de_pin(&intr_gpio_ptr())
 	//printf("scfg_config: %s\r\n", scfg_info());
@@ -173,11 +175,34 @@ void log_intr_qpio_pin_config(void) {
 #endif
 }
 
+// --------------------- NU ----------------------------
 
+void NU_cint_disable_mcu_irq(void)
+{
+#ifdef DM9051_DRIVER_INTERRUPT
+	deidentify_irq_stat(ISTAT_IRQ_ENAB);
+	
+	// add user's mcu irq enable control code here.
+
+#endif
+}
+
+void NU_cint_enable_mcu_irq(void)
+{
+#ifdef DM9051_DRIVER_INTERRUPT
+	identify_irq_stat(ISTAT_IRQ_ENAB);
+	trace_irq_stat(ISTAT_IRQ_ENAB);
+	
+	// add user's mcu irq enable control code here.
+
+#endif
+}
+
+// --------------------- AT ----------------------------
 
 void cint_disable_mcu_irq(void)
 {
-#ifdef DRV_INTR_MODE
+#ifdef DM9051_DRIVER_INTERRUPT
   if (intr_pointer()) {
     const struct extscfg_st *pexint_set = (const struct extscfg_st *)intr_data_scfg(); //exint_scfg_ptr();
     if (pexint_set) {
@@ -190,7 +215,7 @@ void cint_disable_mcu_irq(void)
 
 void cint_enable_mcu_irq(void)
 {
-#ifdef DRV_INTR_MODE
+#ifdef DM9051_DRIVER_INTERRUPT
   if (intr_pointer()) {
     const struct extscfg_st *pexint_set = (const struct extscfg_st *)intr_data_scfg(); //exint_scfg_ptr();
     if (pexint_set) {

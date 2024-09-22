@@ -7,8 +7,8 @@
 #define DM_ETH_DEBUG_MODE										0
 #define qprint															0 //1 // on/off
 
-#include "../dm9051_lw_usr_default.h"
-#include "../dm9051_lw_driver_define.h"
+#include "dm9051_lw_usr_default.h"
+#include "dm9051_lw_driver_define.h"
 
 typedef enum {
   DM_FALSE = 0,

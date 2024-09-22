@@ -8,8 +8,8 @@
 
 //[0]
 #ifdef DRV_INTR_MODE
-#define INTERRUPT_HANDLER_ON										1 //0, 1 when 'DRV_INTR_MODE', accept INT active (default active low) trigger.
-#define INTERRUPT_HANDLER_SUPPLIMENT						0 //0, 1 when 'DRV_INTR_MODE', poll suppliment.
+#define INTERRUPT_HANDLER_ON										1 //0, 1 when '_DRV_INTR_MODE', accept INT active (default active low) trigger.
+#define INTERRUPT_HANDLER_SUPPLIMENT						0 //0, 1 when '_DRV_INTR_MODE', poll suppliment.
 #define INTERRUPT_HANDLER_SUPPLIMENT_RECV				0 //0, 1 when fire_polling do receive.
 #else
 #define INTERRUPT_HANDLER_SUPPLIMENT_RECV				1 //application fixed to 1.

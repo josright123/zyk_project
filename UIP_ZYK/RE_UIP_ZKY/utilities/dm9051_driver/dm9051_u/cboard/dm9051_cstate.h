@@ -22,5 +22,8 @@ void inc_task_tryint(void);
 unsigned long get_task_tryint(void);
 unsigned long get_task_tryint_saved(void);
 void do_task_tryint_saved(void);
+	
+void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
+			size_t tlen, int rowsize, const void *buf, int seg_start, size_t len, /*int useflg*/ int cast_lf);
 
 #endif //__DM9051_CSTATE_H

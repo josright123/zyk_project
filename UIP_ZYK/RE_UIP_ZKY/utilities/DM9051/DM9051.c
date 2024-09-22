@@ -2,8 +2,6 @@
 /* File: DM9051_spi_fun.c                           */
 /* Author: DAVICOM                                 */
 /***************************************************/
-//#include "dm9051opts.h"
-//#include "dm9051_lw.h"
 
 #define uIP_NOOS             /* uIP driver, if not for LwIP driver */ //jerry add
 //#include "DM9051.h"
@@ -64,7 +62,7 @@ int DM9051_INT_FLAG;
 //    return 0;
 //}
 
-#ifdef DM9051_INT
+//#ifdef DM9051_INT
 //void DM9051_IRQHandler(void)
 //{
 //	//    if (GPIO_GET_INT_FLAG(PD, BIT2)){
@@ -72,7 +70,7 @@ int DM9051_INT_FLAG;
 //	//        DM9051_INT_FLAG = 1;
 //	//    }
 //}
-#endif
+//#endif
 
 //static void _DM9051_Delay(uint32_t uDelay)
 //{

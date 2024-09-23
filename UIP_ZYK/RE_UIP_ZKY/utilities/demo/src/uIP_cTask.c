@@ -155,7 +155,7 @@ static uint16_t DM_ETH_Diff_rx_pointers(int stamp, uint16_t *rwpa_wtp, uint16_t 
 
 void diff_rx_pointers_s(uint16_t *pMdra_rds) {
 #if DM_ETH_DEBUG_MODE
-	uint16_t rwpa_wts, /*mdra_rds*/;
+	uint16_t rwpa_wts /*mdra_rds*/;
 	DM_ETH_Diff_rx_pointers(0, &rwpa_wts, pMdra_rds);
 #endif
 }
@@ -163,16 +163,14 @@ void diff_rx_pointers_s(uint16_t *pMdra_rds) {
 void diff_rx_pointers_e(uint16_t *pMdra_rds, int n) {
 #if DM_ETH_DEBUG_MODE
 	uint16_t rwpa_wt, mdra_rd, diff;
-	if (n >= 3) {
-		diff = DM_ETH_Diff_rx_pointers(1, &rwpa_wt, &mdra_rd);
-		diff = wrpadiff(*pMdra_rds, mdra_rd);
-		printf("INTR.mdra.s %02x%02x mdra.e %02x%02x diff %02x%02x (%d packets)\r\n",
-			*pMdra_rds >> 8, *pMdra_rds & 0xff,
-			mdra_rd >> 8, mdra_rd & 0xff,
-			diff >> 8, diff & 0xff,
-			n);
-		debug_packets(n);
-	}
+
+	diff = DM_ETH_Diff_rx_pointers(1, &rwpa_wt, &mdra_rd); //......................
+	diff = wrpadiff(*pMdra_rds, mdra_rd);
+	printf("INTR.mdra.s %02x%02x mdra.e %02x%02x diff %02x%02x (%d packets)\r\n",
+		*pMdra_rds >> 8, *pMdra_rds & 0xff,
+		mdra_rd >> 8, mdra_rd & 0xff,
+		diff >> 8, diff & 0xff,
+		n);
 #endif
 }
 
@@ -273,10 +271,18 @@ void vuIP_Task(void *pvParameters)
 			isrSemaphore_src = 0x5555 >> 8;
 			do { //[isrSemaphore_n = net_pkts_handle_intr(tcpip_stack_netif());]
 				uint16_t mdra_rds;
+				
+				printf("diff_rx_pointers_s()\r\n");
 				diff_rx_pointers_s(&mdra_rds);
 
 				isrSemaphore_n = 0;
 				while (input_intr()) {
+				
+					dm_eth_input_hexdump(uip_buf, uip_len);
+					#if 1
+					diff_rx_pointers_e(&mdra_rds, 1);
+					#endif
+					
 					//= [original uip_processing code]
 					if (BUF->type == htons(UIP_ETHTYPE_IP))
 					{
@@ -306,7 +312,14 @@ void vuIP_Task(void *pvParameters)
 					isrSemaphore_n++;
 				}
 
-				diff_rx_pointers_e(&mdra_rds, isrSemaphore_n);
+				if (isrSemaphore_n >= 3) {
+					diff_rx_pointers_e(&mdra_rds, isrSemaphore_n);
+					debug_packets(isrSemaphore_n);
+				}
+				
+					#if 1
+					diff_rx_pointers_e(&mdra_rds, 0);
+					#endif
 			} while(0);
 			
 			//DM9051_MUTEX_OPS((freeRTOS), sys_mutex_lock_start(&lock_dm9051_core));

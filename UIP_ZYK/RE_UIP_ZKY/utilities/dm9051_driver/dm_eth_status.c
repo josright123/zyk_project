@@ -11,6 +11,8 @@
 #include "dm_eth/dm_eth.h"
 #include "dm9051_debug.h" //for - xSemaphoreHandle mutex_print;
 
+#include "cboard/dm9051_cstate.h"
+
 #define	limit_len(n, nTP)	((n <= nTP) ? n : nTP)
 
 #if DM_ETH_DEBUG_MODE

@@ -202,6 +202,18 @@ typedef enum {
   CS_LONG,
 } csmode_t;
 
+#if 1
+int link_flag(void);
+void impl_dm9051_set_recv(void);
+//void lwip_set_mac_address_IN_DRV(const uint8_t* macadd);
+uint16_t env_evaluate_rxb(uint8_t rxb);
+uint16_t env_err_rsthdlr(char *err_explain_str, uint32_t valuecode);
+uint16_t evaluate_link(void);
+void spi_add(void);
+void intr_add(void);
+unsigned long get_fire_polling(void);
+#endif
+
 uint16_t cspi_phy_read(uint16_t uReg);
 void cspi_phy_write(uint16_t reg, uint16_t value); //[function "phy_write" was available but could never referenced.]
 //uint16_t eeprom_read(uint16_t uWord);
@@ -256,14 +268,6 @@ void cspi_tx_write(uint8_t *buf, uint16_t len);
 void cspi_tx_req(void);
 uint16_t cspi_isr_enab(void);
 // [__DM9051_CSPI_H].e
-
-//.
-
-//[API]
-uint16_t dm9051_read_chip_id(void);
-void dm9051_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd);
-uint16_t dm9051_read_bmsr(void);
-uint16_t dm9051_read_control_status(void);
 
 #ifdef __cplusplus
 }

@@ -30,7 +30,7 @@
 #include "task.h"
 #include "lwip/opt.h"
 
-#include "../freertos_tasks_debug.h"
+#include "uip_d/freertos_tasks_debug.h"
 //.#include "dm9051opts.h"
 //#include "dm9051_lw.h"
 //const uint8_t *test_init(void);
@@ -86,6 +86,9 @@ int main(void)
   system_clock_config();
   uart_print_init(115200);
   
+ #if 0
+  xxx = 
+ #endif
   tasks_dm9051_debug_init();
   
 #if 0 //[TEST]

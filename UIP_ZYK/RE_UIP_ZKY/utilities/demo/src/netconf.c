@@ -31,7 +31,7 @@
 //#include "dm9051_cboard.h"
 //#include "dm9051_lw_cint.h"
 //#include "dm_eth.h"
-#include "../freertos_tasks_debug.h"
+#include "uip_d/freertos_tasks_debug.h"
 #define printf(fmt, ...) TASK_DM9051_DEBUGF(TASK_SEMAPHORE_NETCONF_ON, /*SEMA_OFF*/ SEMA_ON, "[N]", (fmt, ##__VA_ARGS__))
 
 #if 0

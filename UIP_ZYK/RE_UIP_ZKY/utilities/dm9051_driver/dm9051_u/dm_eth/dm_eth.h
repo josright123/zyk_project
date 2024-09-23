@@ -32,12 +32,13 @@ uint32_t DM9051_tx(void);
 
 	void DM_Eth_LwipInitialize(void);
 	void DM_Eth_CreateRecvTask(void); //dm_eth_b.h
+#endif
+
 	//[dm_eth_status.c]
 	#if DM_ETH_DEBUG_MODE
 	void dm_eth_input_hexdump_reset(void);
 	void dm_eth_input_hexdump(const void *buf, size_t len);
 	#endif
-#endif
 
 #if 0
 void net_inp_interrupt(void);

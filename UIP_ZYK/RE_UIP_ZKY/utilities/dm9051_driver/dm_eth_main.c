@@ -35,7 +35,7 @@
 //		isrSemaphore_n = net_pkts_handle_intr();
 //}
 //void DM_ETHER_Receive_Task(void* param) {
-//	if (flgSemaphore_r == 1) {
+//	if (_flgSemaphore_r == 1) {
 //		net_inp_interrupt(); //ethernetif_inp_interrupt0();
 //	}
 //}

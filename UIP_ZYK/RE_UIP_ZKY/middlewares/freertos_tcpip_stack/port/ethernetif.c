@@ -69,7 +69,7 @@
 
 #include <string.h>
 
-#include "../freertos_tasks_debug.h"
+#include "uip_d/freertos_tasks_debug.h"
 #define printf(fmt, ...) TASK_DM9051_DEBUGF(TASK_SEMAPHORE_ETHERNETIF_ON, SEMA_OFF, "[E]", (fmt, ##__VA_ARGS__))
 
 //extern struct netif netif;

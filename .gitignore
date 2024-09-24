@@ -45,6 +45,14 @@
 # Kernel Module Compile Results
 *.mod*
 *.cmd
+*.lnk
+*.uvprojx
+*.uvoptx
+*.map
+*.crf
+*.lst
+*.htm
+*.axf
 .tmp_versions/
 modules.order
 Module.symvers

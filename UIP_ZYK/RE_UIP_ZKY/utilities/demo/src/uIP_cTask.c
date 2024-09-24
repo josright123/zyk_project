@@ -272,7 +272,7 @@ void vuIP_Task(void *pvParameters)
 			do { //[isrSemaphore_n = net_pkts_handle_intr(tcpip_stack_netif());]
 				uint16_t mdra_rds;
 				
-				printf("diff_rx_pointers_s()\r\n");
+				//printf("diff_rx_pointers_s()\r\n");
 				diff_rx_pointers_s(&mdra_rds);
 
 				isrSemaphore_n = 0;
@@ -280,7 +280,7 @@ void vuIP_Task(void *pvParameters)
 				
 					dm_eth_input_hexdump(uip_buf, uip_len);
 					#if 1
-					diff_rx_pointers_e(&mdra_rds, 1);
+					//diff_rx_pointers_e(&mdra_rds, 1);
 					#endif
 					
 					//= [original uip_processing code]
@@ -318,7 +318,7 @@ void vuIP_Task(void *pvParameters)
 				}
 				
 					#if 1
-					diff_rx_pointers_e(&mdra_rds, 0);
+					//diff_rx_pointers_e(&mdra_rds, 0);
 					#endif
 			} while(0);
 			

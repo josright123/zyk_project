@@ -74,11 +74,14 @@ void DM_ETH_InterruptHdlr(void)
 		trace_irq_stat(ISTAT_IRQ_NOW);
 	
 //		if(exint_flag_get(exint_line) != RESET) {
-		
-			identify_irq_stat(ISTAT_IRQ_NOW2);
-			trace_irq_stat(ISTAT_IRQ_NOW2);
-			DM_ETH_InterruptHdlr();
+			if(exint_flag_get(EXINT_LINE_7) != RESET) {
 			
+				identify_irq_stat(ISTAT_IRQ_NOW2);
+				trace_irq_stat(ISTAT_IRQ_NOW2);
+				DM_ETH_InterruptHdlr();
+		
+				exint_flag_clear(EXINT_LINE_7);
+			}
 //			exint_flag_clear(exint_line);
 //		}
 		

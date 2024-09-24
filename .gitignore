@@ -1,11 +1,31 @@
 # Prerequisites
 *.d
+*.bak
+*.TMP
 
 # Object files
+#Objects/
+objects
 *.o
 *.ko
 *.obj
 *.elf
+*.crf
+*.lnk
+*.uvprojx
+*.uvoptx
+*.map
+*.crf
+*.lst
+*.htm
+*.axf
+*.dep
+
+# Linker output
+listings
+*.lst
+*.map
+*.exp
 
 # Linker output
 *.ilk
@@ -45,14 +65,6 @@
 # Kernel Module Compile Results
 *.mod*
 *.cmd
-*.lnk
-*.uvprojx
-*.uvoptx
-*.map
-*.crf
-*.lst
-*.htm
-*.axf
 .tmp_versions/
 modules.order
 Module.symvers

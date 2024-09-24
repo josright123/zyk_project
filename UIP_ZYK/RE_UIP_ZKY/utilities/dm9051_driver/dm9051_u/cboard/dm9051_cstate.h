@@ -11,6 +11,9 @@
 
 #define ISTAT_IRQ_NOW2		(1 << 6)
 #define ISTAT_IRQ_NOW		(1 << 7)
+
+#define	ISTAT_DM_RX_READ	(1 << 8)
+
 void deidentify_irq_stat(uint16_t bitflg);
 
 void identify_irq_stat(uint16_t bitflg);

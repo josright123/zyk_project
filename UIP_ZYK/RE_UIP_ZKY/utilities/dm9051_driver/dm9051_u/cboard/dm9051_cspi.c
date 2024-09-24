@@ -278,7 +278,9 @@ void cspi_rx_mode(void)
 
 const uint8_t *cspi_dm_start1(const uint8_t *adr)
 {
+#if 1
 	cint_enable_mcu_irq(); //impl_enable_mcu_irq();
+#endif
 	cspi_set_par(adr);
 	cspi_rx_mode();
 	return adr;

@@ -79,6 +79,9 @@ void trace_irq_stat(uint16_t bitflg) {
 		case ISTAT_IRQ_NOW2:
 			sprintf(istat_term, "(INT %lu)", get_task_tryint());
 			break;
+		case ISTAT_DM_RX_READ:
+			sprintf(istat_term, "(MRCMDX.read)");
+			break;
 		case ISTAT_IRQ_NOW:
 		default:
 			istat_term[0] = 0;
@@ -95,17 +98,6 @@ uint16_t identified_irq_stat(void) {
 	//return irqst;
 	return GET_CSTATE(irqst);
 }
-//uint16_t DM_GET_FIELD_irqst(void) {
-//	return irqst;
-//}
-
-//void trace_dm9051_set_recv(void); //trace
-//void trace_dm9051_set_recv(void) {
-//#ifdef DM9051_DRIVER_INTERRUPT
-//	trace_irq_stat(ISTAT_DM_IMR);
-//	trace_irq_stat(ISTAT_DM_RCR);
-//#endif
-//}
 
 unsigned long dispc_int_active = 0, dispc_int_active_saved = 0;
 

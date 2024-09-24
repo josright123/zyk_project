@@ -72,6 +72,8 @@
 #include "dhcpc.h"
 #include "dm_eth/dm_eth.h" //#include "dm_eth.h"
 //#include "_dm_eth.h"
+#include "cboard/dm9051_cboard_data_API.h"
+#include "cboard/dm9051_cstate.h"
 
 //[version_0.ok]
 //#define tapdev_send()		DM_ETH_Output((uint8_t *)uip_buf, uip_len) //dm9051_tx((uint8_t *)uip_buf, uip_len)
@@ -198,6 +200,7 @@ uint16_t DM_ETH_RXHandler_Poll(void)
 #if 1 //0 [!!TEST]
 void vuIP_Task(void *pvParameters)
 {
+	int j = 6;
 	int i; //n = 0;
     const TickType_t xFrequency = 10;
     TickType_t xLastWakeTime = xTaskGetTickCount();
@@ -218,6 +221,10 @@ void vuIP_Task(void *pvParameters)
     uip_arp_init(); // Clear arp table.
 
 #ifdef __DHCPC_H__ //if use fixed ip, #ifdef modify #ifndef
+    printf("\n---------------------------------------------\r\n");
+    printf("Network chip: DAVICOM DM9051 \r\n");
+    printf("DHCPC: Init \r\n");
+    printf("---------------------------------------------\r\n");
     // setup the dhcp renew timer the make the first request
     timer_set(&dhcp_timer, CLOCK_SECOND * 600);
     dhcpc_init(&uip_ethaddr, 6);
@@ -265,14 +272,27 @@ void vuIP_Task(void *pvParameters)
 /* Interrupt */
 		//if (DM_ETH_RXHandler())
 		//	continue;
-		if (flgSemaphore_r == 1) {
+		
+		if (j > 3) {
+			printf("diff_rx_pointers_s. in(%d).\r\n", --j);
+		}
+			
+		if (flgSemaphore_r == 1) { //.....................
 			flgSemaphore_r = 0; //for next to direct no-limited change-in
 
 			isrSemaphore_src = 0x5555 >> 8;
+		
+		if (j) {
+			printf("diff_rx_pointers_s. in(%d).\r\n", --j);
+		}
+		
 			do { //[isrSemaphore_n = net_pkts_handle_intr(tcpip_stack_netif());]
 				uint16_t mdra_rds;
 				
-				printf("diff_rx_pointers_s()\r\n");
+	  identify_irq_stat(ISTAT_DM_RX_READ);
+	  //trace_irq_stat(ISTAT_DM_RX_READ);
+				
+				//printf("diff_rx_pointers_s()\r\n");
 				diff_rx_pointers_s(&mdra_rds);
 
 				isrSemaphore_n = 0;
@@ -317,10 +337,18 @@ void vuIP_Task(void *pvParameters)
 					debug_packets(isrSemaphore_n);
 				}
 				
-					#if 1
-					diff_rx_pointers_e(&mdra_rds, 0);
-					#endif
+					//#if 1
+					//diff_rx_pointers_e(&mdra_rds, 0);
+					//#endif				
+						
+				deidentify_irq_stat(ISTAT_DM_RX_READ);
+				//trace_irq_stat(ISTAT_DM_RX_READ);
+				
 			} while(0);
+			
+			#if 1
+			cint_enable_mcu_irq();
+			#endif
 			
 			//DM9051_MUTEX_OPS((freeRTOS), sys_mutex_lock_start(&lock_dm9051_core));
 			cspi_isr_enab(); //DM_ETH_IRQEnable(); //dm9051_isr_enab();

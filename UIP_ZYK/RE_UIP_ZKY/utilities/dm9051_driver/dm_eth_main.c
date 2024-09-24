@@ -40,13 +40,13 @@
 //	}
 //}
 
-int flgSemaphore_r;
+int flgSemaphore_r = 0;
 
 void dm_eth_intr_event(void)
 {
 	#ifdef DM9051_DRIVER_INTERRUPT
 
-	flgSemaphore_r = 1;
+	flgSemaphore_r = 1; //......................
 //DM_ETHER_Receive_Task(NULL);
 
 	#endif
@@ -55,8 +55,11 @@ void dm_eth_intr_event(void)
 void DM_ETH_InterruptHdlr(void)
 {
 	dm_eth_intr_event();
+
+	//printf("DM_ETH_InterruptHdlr.s %d\r\n", flgSemaphore_r);
 	inc_task_tryint();
 //	freertos_task_clearpoll_event();
+	//printf("DM_ETH_InterruptHdlr.e %d\r\n", flgSemaphore_r);
 }
 
 	/* IRQ handler support */
@@ -69,6 +72,8 @@ void DM_ETH_InterruptHdlr(void)
 	
 		//[EXINT_LINE_5 ~ EXINT_LINE_9]
 //		uint32_t exint_line = EXINT_LINE_7;
+		
+		cint_disable_mcu_irq(); //more.
 		
 		identify_irq_stat(ISTAT_IRQ_NOW);
 		trace_irq_stat(ISTAT_IRQ_NOW);
@@ -87,9 +92,10 @@ void DM_ETH_InterruptHdlr(void)
 
 int32_t DM9051_init(void)
 {
-    //DM9051_Configuration_NU();
+//cint_disable_mcu_irq(); //more early
+	//DM9051_Configuration_NU();
 	dm9051_boards_initialize();
-	
+cint_disable_mcu_irq(); //more.
 	dm9051_init(&uip_ethaddr.addr[0]);
 	return 0;
 }

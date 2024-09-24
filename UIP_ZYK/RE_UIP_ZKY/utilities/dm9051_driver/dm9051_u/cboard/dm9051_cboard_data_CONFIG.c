@@ -220,7 +220,7 @@ void cint_enable_mcu_irq(void)
     const struct extscfg_st *pexint_set = (const struct extscfg_st *)intr_data_scfg(); //exint_scfg_ptr();
     if (pexint_set) {
 	  identify_irq_stat(ISTAT_IRQ_ENAB);
-	  trace_irq_stat(ISTAT_IRQ_ENAB);
+//	  trace_irq_stat(ISTAT_IRQ_ENAB);
 
 	  nvic_priority_group_config(pexint_set->extline.priority); //NVIC_PRIORITY_GROUP_0/NVIC_PRIORITY_GROUP_4 // or "NVIC_PRIORITY_GROUP_0"
 	  nvic_irq_enable(pexint_set->extline.irqn, 1, 0); //nvic_irq_enable(EXINT9_5_IRQn, 1, 0); //i.e.

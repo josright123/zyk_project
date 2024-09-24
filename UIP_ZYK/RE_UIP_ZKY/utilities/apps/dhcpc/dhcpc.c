@@ -185,7 +185,7 @@ static void send_discover(int n)
     u8_t *end;
     struct dhcp_msg *m = (struct dhcp_msg *)uip_appdata;
 
-    printf("send_discover [%d]...\n", n);
+    printf("send_discover [%d]...\r\n", n);
 
     create_msg(m);
 

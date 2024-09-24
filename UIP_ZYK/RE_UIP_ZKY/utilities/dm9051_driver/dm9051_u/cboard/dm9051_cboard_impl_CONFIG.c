@@ -196,28 +196,28 @@ void dm9051_boards_initialize(void)
 	  const struct modscfg_st *intr = intr_pointer();
 
 	  if (intr) {
-		intr_gpio_pin_config(intr_gpio_ptr(), GPIO_PULL_UP); //[ops] &intr->option1.pin
-		if (intr_data_scfg()) { //&devconf[0].intr_cfg->extend1
+			intr_gpio_pin_config(intr_gpio_ptr(), GPIO_PULL_UP); //[ops] &intr->option1.pin
+			if (intr_data_scfg()) { //&devconf[0].intr_cfg->extend1
 
-			identify_irq_stat(ISTAT_IRQ_CFG);
-			trace_irq_stat(ISTAT_IRQ_CFG);
+				identify_irq_stat(ISTAT_IRQ_CFG);
+				trace_irq_stat(ISTAT_IRQ_CFG);
 
-			log_intr_qpio_pin_config();
+				intr_irqline_config(intr_data_scfg(), pol); //[ops]
 
-			intr_irqline_config(intr_data_scfg(), pol); //[ops]
+				log_intr_qpio_pin_config();
 
-			if (pol == EXINT_TRIGGER_FALLING_EDGE) {
-			  identify_irq_stat(ISTAT_LOW_TRIGGER);
-			  trace_irq_stat(ISTAT_LOW_TRIGGER);
+				if (pol == EXINT_TRIGGER_FALLING_EDGE) {
+					identify_irq_stat(ISTAT_LOW_TRIGGER);
+					trace_irq_stat(ISTAT_LOW_TRIGGER);
+				}
+				//else if (pol == EXINT_TRIGGER_RISING_EDGE) {
+				// identify_irq_stat(ISTAT_HIGH_TRIGGER);
+				// trace_irq_stat(ISTAT_HIGH_TRIGGER);
+				//}
 			}
-			//else if (pol == EXINT_TRIGGER_RISING_EDGE) {
-			// identify_irq_stat(ISTAT_HIGH_TRIGGER);
-			// trace_irq_stat(ISTAT_HIGH_TRIGGER);
-			//}
-		}
 	  } else {
-		printf("\r\n");
-		printf("[polling]\r\n");
+			printf("\r\n");
+			printf("[polling]\r\n");
 	  }
 	#endif
 	}

@@ -1,6 +1,16 @@
 //#include "lwip/sys.h" //for lwip's sys_now()
 #include "dm9051_cboard_data_types.h"
+#include "dm9051_cboard_data_API.h"	//for cint_disable_mcu_irq()
 #include "dm9051_cstate.h"
+
+#include "dm_eth/dm_eth.h"
+
+void log_enable_mcu_irq(void) {
+#ifdef DM9051_DRIVER_INTERRUPT
+	identify_irq_stat(ISTAT_IRQ_ENAB);
+	trace_irq_stat(ISTAT_IRQ_ENAB);
+#endif
+}
 
 /* ------------------------------- NU configuration ----------------------------------------- */
 // --------------------- NU ----------------------------
@@ -356,6 +366,37 @@ void AT_spi_mem_write(uint8_t *buf, uint16_t len)
 //		dm9051_spi_data_write(buf[i]);
 //	dm9051_spi_write_end();
 }
+
+	/* IRQ handler support */
+	void cint_exint9_5_handler(void)
+	{
+		// add user's mcu irq handler such as EINT0_IRQHandler/EINT1_IRQHandler, and
+		//	Let it call this "cint_exint9_5_handler()" subroutine,
+		//	Put some control code here to maintain the mcu's INTERRUPT for
+		//	allow further cycllic interrupt-in.
+	
+		//[EXINT_LINE_5 ~ EXINT_LINE_9]
+//		uint32_t exint_line = EXINT_LINE_7;
+
+		cint_disable_mcu_irq(); //more.
+		
+		//identify_irq_stat(ISTAT_IRQ_NOW);
+		//trace_irq_stat(ISTAT_IRQ_NOW);
+	
+//		if(exint_flag_get(exint_line) != RESET) {
+			if(exint_flag_get(EXINT_LINE_7) != RESET) {
+			
+				identify_irq_stat(ISTAT_IRQ_NOW2);
+				trace_irq_stat(ISTAT_IRQ_NOW2);
+				DM_ETH_InterruptHdlr();
+				
+				exint_flag_clear(EXINT_LINE_7);
+			}
+//			exint_flag_clear(exint_line);
+//		}
+		
+		//deidentify_irq_stat(ISTAT_IRQ_NOW2);
+	}
 
 #if 1
 #include "clock.h"

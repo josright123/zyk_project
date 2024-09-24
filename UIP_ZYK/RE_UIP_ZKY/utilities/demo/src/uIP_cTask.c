@@ -73,6 +73,9 @@
 #include "dm_eth/dm_eth.h" //#include "dm_eth.h"
 //#include "_dm_eth.h"
 
+#include "cboard/dm9051_cboard_data_API.h"
+#include "cboard/dm9051_cstate.h"
+
 //[version_0.ok]
 //#define tapdev_send()		DM_ETH_Output((uint8_t *)uip_buf, uip_len) //dm9051_tx((uint8_t *)uip_buf, uip_len)
 //#define tapdev_read()		DM_ETH_Input((uint8_t *)uip_buf) //_DM_ETH_RXHandler((uint8_t *)uip_buf) //dm9051_rx((uint8_t *)uip_buf)
@@ -160,17 +163,20 @@ void diff_rx_pointers_s(uint16_t *pMdra_rds) {
 #endif
 }
 
-void diff_rx_pointers_e(uint16_t *pMdra_rds, int n) {
+uint16_t diff_rx_pointers_e(uint16_t *pMdra_rds, int n) {
 #if DM_ETH_DEBUG_MODE
 	uint16_t rwpa_wt, mdra_rd, diff;
 
 	diff = DM_ETH_Diff_rx_pointers(1, &rwpa_wt, &mdra_rd); //......................
 	diff = wrpadiff(*pMdra_rds, mdra_rd);
+	
 	printf("INTR.mdra.s %02x%02x mdra.e %02x%02x diff %02x%02x (%d packets)\r\n",
 		*pMdra_rds >> 8, *pMdra_rds & 0xff,
 		mdra_rd >> 8, mdra_rd & 0xff,
 		diff >> 8, diff & 0xff,
 		n);
+						
+	return diff;
 #endif
 }
 
@@ -272,16 +278,13 @@ void vuIP_Task(void *pvParameters)
 			do { //[isrSemaphore_n = net_pkts_handle_intr(tcpip_stack_netif());]
 				uint16_t mdra_rds;
 				
-				printf("diff_rx_pointers_s()\r\n");
+				//printf("diff_rx_pointers_s()\r\n");
 				diff_rx_pointers_s(&mdra_rds);
 
 				isrSemaphore_n = 0;
 				while (input_intr()) {
 				
-					dm_eth_input_hexdump(uip_buf, uip_len);
-					#if 1
-					diff_rx_pointers_e(&mdra_rds, 1);
-					#endif
+//					dm_eth_input_hexdump(uip_buf, uip_len);
 					
 					//= [original uip_processing code]
 					if (BUF->type == htons(UIP_ETHTYPE_IP))
@@ -313,19 +316,34 @@ void vuIP_Task(void *pvParameters)
 				}
 
 				if (isrSemaphore_n >= 3) {
+					//uint16_t diff = 
 					diff_rx_pointers_e(&mdra_rds, isrSemaphore_n);
+					//printf("INTR.mdra.s %02x%02x mdra.e %02x%02x diff %02x%02x (%d packets)\r\n",
+						//*pMdra_rds >> 8, *pMdra_rds & 0xff,
+						//mdra_rd >> 8, mdra_rd & 0xff,
+						//diff >> 8, diff & 0xff,
+						//n);
 					debug_packets(isrSemaphore_n);
 				}
-				
-					#if 1
-					diff_rx_pointers_e(&mdra_rds, 0);
-					#endif
 			} while(0);
 			
-			//DM9051_MUTEX_OPS((freeRTOS), sys_mutex_lock_start(&lock_dm9051_core));
-			cspi_isr_enab(); //DM_ETH_IRQEnable(); //dm9051_isr_enab();
-			//DM9051_MUTEX_OPS((freeRTOS), sys_mutex_unlock_end(&lock_dm9051_core));
-			//nExpireCount = 0; //= dm_eth_semaphore_renew();
+			if (identified_irq_stat() & ISTAT_IRQ_NOW2) {
+				//DM9051_MUTEX_OPS((freeRTOS), sys_mutex_lock_start(&lock_dm9051_core));
+				identify_irq_stat(ISTAT_DM_ISR_CLR);
+				//trace_irq_stat(ISTAT_DM_ISR_CLR);
+				
+			#if 1
+				cspi_isr_enab(); //DM_ETH_IRQEnable(); //dm9051_isr_enab();
+				//printf("[irq_stat]:                   ------------> irqst= %02x .(ISR.pr, clr, INT-pin Hi)\r\n", identified_irq_stat());
+				trace_irq_stat(ISTAT_DM_ISR_CLR);
+			#endif
+				deidentify_irq_stat(ISTAT_IRQ_NOW2 | ISTAT_DM_ISR_CLR);
+				//printf("[irq_stat]:                   ------------> irqst= %02x .deidentify.chk\r\n", identified_irq_stat());
+				
+				cint_enable_mcu_irq();
+				//DM9051_MUTEX_OPS((freeRTOS), sys_mutex_unlock_end(&lock_dm9051_core));
+				//nExpireCount = 0; //= dm_eth_semaphore_renew();
+			}
 		}
 #else
 //[version_1, to be continued.]

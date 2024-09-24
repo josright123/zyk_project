@@ -28,6 +28,7 @@
 #include "dm9051_lw.h"
 
 #include "dm9051_cboard_data_API.h"	//for cint_enable_mcu_irq()
+#include "dm9051_cboard_data_types.h"
 
 #include "dm9051_cstate.h"
 
@@ -278,7 +279,9 @@ void cspi_rx_mode(void)
 
 const uint8_t *cspi_dm_start1(const uint8_t *adr)
 {
-	cint_enable_mcu_irq(); //impl_enable_mcu_irq();
+	if (cint_enable_mcu_irq()) //impl_enable_mcu_irq();
+		log_enable_mcu_irq();
+	
 	cspi_set_par(adr);
 	cspi_rx_mode();
 	return adr;

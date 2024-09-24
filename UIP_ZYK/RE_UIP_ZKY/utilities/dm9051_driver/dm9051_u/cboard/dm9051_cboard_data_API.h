@@ -67,8 +67,8 @@ void dm9051_boards_initialize(void); //AT
 
 //void NU_cint_disable_mcu_irq(void);
 //void NU_cint_enable_mcu_irq(void);
-void cint_disable_mcu_irq(void);
-void cint_enable_mcu_irq(void);
+int cint_disable_mcu_irq(void);
+int cint_enable_mcu_irq(void);
 
 void dm_delay_us(uint32_t nus);
 void dm_delay_ms(uint16_t nms);

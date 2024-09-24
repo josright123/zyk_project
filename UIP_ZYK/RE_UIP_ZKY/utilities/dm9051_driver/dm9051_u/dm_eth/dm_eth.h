@@ -23,7 +23,6 @@ uint32_t DM9051_tx(void);
 	void DM_Eth_ReadRegsInfo(uint8_t *stat);
 	void DM_Eth_Input_HexDumpReset(uint8_t *stat);
 	#if ETHERNET_INTERRUPT_MODE
-	extern void DM_ETH_InterruptHdlr(void);
 	int DM_ETH_InterruptHdlr_Supplement(void);
 	#endif
 	void DM_ETH_SHOW_CONSECUTIVE_Packets(void);
@@ -33,6 +32,11 @@ uint32_t DM9051_tx(void);
 	void DM_Eth_LwipInitialize(void);
 	void DM_Eth_CreateRecvTask(void); //dm_eth_b.h
 #endif
+
+	//[dm_eth_main.c]
+	#if ETHERNET_INTERRUPT_MODE
+	extern void DM_ETH_InterruptHdlr(void);
+	#endif
 
 	//[dm_eth_status.c]
 	#if DM_ETH_DEBUG_MODE

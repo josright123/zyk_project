@@ -10,7 +10,10 @@
 #define ISTAT_LOW_ACTIVE	(1 << 5)
 
 #define ISTAT_IRQ_NOW2		(1 << 6)
-#define ISTAT_IRQ_NOW		(1 << 7)
+#define ISTAT_IRQ_NOW		(1 << 7) //not used.
+
+#define	ISTAT_DM_ISR_CLR	(1 << 8)
+
 void deidentify_irq_stat(uint16_t bitflg);
 
 void identify_irq_stat(uint16_t bitflg);

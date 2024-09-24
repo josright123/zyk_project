@@ -97,4 +97,6 @@ void spi_config(void);
 
 void intr_gpio_pin_config(const pin_t *pin, gpio_pull_type pull);
 void intr_irqline_config(const struct extscfg_st *pexint_set, exint_polarity_config_type polarity);
+
 void log_intr_qpio_pin_config(void);
+void log_enable_mcu_irq(void);

@@ -190,8 +190,7 @@ void NU_cint_disable_mcu_irq(void)
 void NU_cint_enable_mcu_irq(void)
 {
 #ifdef DM9051_DRIVER_INTERRUPT
-	identify_irq_stat(ISTAT_IRQ_ENAB);
-	trace_irq_stat(ISTAT_IRQ_ENAB);
+	log_enable_mcu_irq();
 	
 	// add user's mcu irq enable control code here.
 
@@ -200,7 +199,7 @@ void NU_cint_enable_mcu_irq(void)
 
 // --------------------- AT ----------------------------
 
-void cint_disable_mcu_irq(void)
+int cint_disable_mcu_irq(void)
 {
 #ifdef DM9051_DRIVER_INTERRUPT
   if (intr_pointer()) {
@@ -208,23 +207,24 @@ void cint_disable_mcu_irq(void)
     if (pexint_set) {
 		deidentify_irq_stat(ISTAT_IRQ_ENAB);
 		nvic_irq_disable(pexint_set->extline.irqn);
+		return 1;
 	}
   }
 #endif
+  return 0;
 }
 
-void cint_enable_mcu_irq(void)
+int cint_enable_mcu_irq(void)
 {
 #ifdef DM9051_DRIVER_INTERRUPT
   if (intr_pointer()) {
     const struct extscfg_st *pexint_set = (const struct extscfg_st *)intr_data_scfg(); //exint_scfg_ptr();
     if (pexint_set) {
-	  identify_irq_stat(ISTAT_IRQ_ENAB);
-	  trace_irq_stat(ISTAT_IRQ_ENAB);
-
 	  nvic_priority_group_config(pexint_set->extline.priority); //NVIC_PRIORITY_GROUP_0/NVIC_PRIORITY_GROUP_4 // or "NVIC_PRIORITY_GROUP_0"
 	  nvic_irq_enable(pexint_set->extline.irqn, 1, 0); //nvic_irq_enable(EXINT9_5_IRQn, 1, 0); //i.e.
+	  return 1;
     }
   }
 #endif
+  return 0;
 }

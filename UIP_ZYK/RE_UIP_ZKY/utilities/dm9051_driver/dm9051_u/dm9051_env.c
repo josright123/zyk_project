@@ -24,10 +24,6 @@
   **************************************************************************
   */
 #include "stdio.h"
-//#include "dm9051opts.h"
-//#include "dm9051_lw.h"
-//#include "cboard/dm9051_lw_mcu_default_IN.h"
-//#include "cboard/dm9051_cstate.h"
 #include "dm9051_env.h"
 
 #include "dm_eth/dm_eth.h"
@@ -42,45 +38,98 @@ typedef uint8_t ip_t[ADDR_LENGTH];
 #include "dm_types2.h"
 
 #define DM_TYPE		2
-#include "dm_types2.h"
+#include "dm_types2.h"/*
+ * candidate
+ */
+typedef struct eth_node_st {
+  uint8_t mac_addresse[MAC_ADDR_LENGTH];
+  uint8_t local_ipaddr[ADDR_LENGTH];
+  uint8_t local_gwaddr[ADDR_LENGTH];
+  uint8_t local_maskaddr[ADDR_LENGTH];
+} eth_node_t;
 
-const uint8_t *identify_eth_mac(const uint8_t *macadr, int showflg) {
-	const uint8_t *mac;
-	SET_FIELD(final_mac, macadr); //DM_SET_FIELDmac(macadr);
+//(define is as rather than '_ETHERNET_COUNT', refer to as '_BOARD_SPI_COUNT' counter) define BOARD_SPI_COUNT 'N'
+const eth_node_t node_candidate[1] = { \
+	{ \
+		{0, 0x60, 0x6e, 0x00, 0x00, 0x17,}, \
+		{192, 168, 6,  17}, \
+		{192, 168, 6,   1}, \
+		{255, 255, 255, 0}, \
+	}, \
+	/*
+	{ \
+		{0, 0x60, 0x6e, 0x00, 0x01, 0x26,}, \
+		{192, 168, 6,  26}, \
+		{192, 168, 6,   1}, \
+		{255, 255, 255, 0}, \
+	}, \
+	{ \
+		{0, 0x60, 0x6e, 0x00, 0x01, 0x25,}, \
+		{192, 168, 6,  25}, \
+		{192, 168, 6,   1}, \
+		{255, 255, 255, 0}, \
+	}, \
+	{ \
+		{0, 0x60, 0x6e, 0x00, 0x01, 0xfe,}, \
+		{192, 168, 6,  66}, \
+		{192, 168, 6,   1}, \
+		{255, 255, 255, 0}, \
+	}, \
+	{ \
+		{0, 0x60, 0x6e, 0x00, 0x01, 0xff,}, \
+		{192, 168, 6,  67}, \
+		{192, 168, 6,   1}, \
+		{255, 255, 255, 0}, \
+	}, \
+	*/
+};
 
-	mac = identified_eth_mac();
-	if (showflg)
-		printf("mac address %02x%02x%02x%02x%02x%02x\r\n",
-				mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-	return mac;
-}
+/*
+ * HCC: Hard Core Candidate (hcc)
+ */
+#define candidate_eth_mac()			&node_candidate[0].mac_addresse[0] //[pin_code]
+#define candidate_eth_ip()			&node_candidate[0].local_ipaddr[0] //[pin_code]
+#define candidate_eth_gw()			&node_candidate[0].local_gwaddr[0] //[pin_code]
+#define candidate_eth_mask()		&node_candidate[0].local_maskaddr[0] //[pin_code]
 
-uint8_t *identified_eth_mac(void) {
-	return GET_FIELD(final_mac); //DM_GET_FIELDmac(); //DM_GET_FIELD(mac_t, final_mac);
+const uint8_t *identify_eth_mac(const uint8_t *macadr) {
+	SET_FIELD(final_mac, macadr ? macadr : candidate_eth_mac()); //DM_SET_FIELDmac(macadr);
+	return GET_FIELD(final_mac);
 }
 
 uint8_t *identify_tcpip_ip(uint8_t *ip4adr) {
-	SET_FIELD(final_ip, ip4adr); //DM_SET_FIELD_ips(dm.final_ip, ip4adr); //DM_SET_FIELD(ip_t ,ip, ip4adr ? ip4adr : candidate_eth_ip());
+	SET_FIELD(final_ip, ip4adr ? ip4adr : candidate_eth_ip()); //DM_SET_FIELD_ips(dm.final_ip, ip4adr); //DM_SET_FIELD(ip_t ,ip, ip4adr ? ip4adr : candidate_eth_ip());
 	return GET_FIELD(final_ip); //DM_GET_FIELD_ips(dm.final_ip); //return DM_GET_FIELD(ip_t, ip);
 }
 uint8_t *identify_tcpip_gw(uint8_t *ip4adr) {
-	SET_FIELD(final_gw, ip4adr); //DM_SET_FIELD_ips(dm.final_gw, ip4adr); //DM_SET_FIELD(ip_t ,gw, ip4adr ? ip4adr : candidate_eth_gw());
+	SET_FIELD(final_gw, ip4adr ? ip4adr : candidate_eth_gw()); //DM_SET_FIELD_ips(dm.final_gw, ip4adr); //DM_SET_FIELD(ip_t ,gw, ip4adr ? ip4adr : candidate_eth_gw());
 	return GET_FIELD(final_gw); //DM_GET_FIELD_ips(dm.final_gw); //return DM_GET_FIELD(ip_t, gw);
 }
 uint8_t *identify_tcpip_mask(uint8_t *ip4adr) {
-	SET_FIELD(final_mask, ip4adr); //DM_SET_FIELD_ips(dm.final_mask, ip4adr); //DM_SET_FIELD(ip_t ,mask, ip4adr ? ip4adr : candidate_eth_mask());
+	SET_FIELD(final_mask, ip4adr ? ip4adr : candidate_eth_mask()); //DM_SET_FIELD_ips(dm.final_mask, ip4adr); //DM_SET_FIELD(ip_t ,mask, ip4adr ? ip4adr : candidate_eth_mask());
 	return GET_FIELD(final_mask); //DM_GET_FIELD_ips(dm.final_mask); //return DM_GET_FIELD(ip_t, mask);
 }
 
-uint8_t *identified_tcpip_ip(void) {
-	return GET_FIELD(final_ip); //DM_GET_FIELD_ips(dm.final_ip); //return DM_GET_FIELD(ip_t, ip);
+void trace_identified_eth_mac(int showf) {
+	if (showf) {
+		const uint8_t *mac = GET_FIELD(final_mac);
+		printf("mac address %02x%02x%02x%02x%02x%02x\r\n",
+				mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+	}
 }
-uint8_t *identified_tcpip_gw(void) {
-	return GET_FIELD(final_gw); //DM_GET_FIELD_ips(dm.final_gw); //return DM_GET_FIELD(ip_t, gw);
-}
-uint8_t *identified_tcpip_mask(void) {
-	return GET_FIELD(final_mask); //DM_GET_FIELD_ips(dm.final_mask); //return DM_GET_FIELD(ip_t, mask);
-}
+
+//const uint8_t *identified_eth_mac(void) {
+//	return GET_FIELD(final_mac); //DM_GET_FIELDmac(); //DM_GET_FIELD(mac_t, final_mac);
+//}
+//uint8_t *identified_tcpip_ip(void) {
+//	return GET_FIELD(final_ip); //DM_GET_FIELD_ips(dm.final_ip); //return DM_GET_FIELD(ip_t, ip);
+//}
+//uint8_t *identified_tcpip_gw(void) {
+//	return GET_FIELD(final_gw); //DM_GET_FIELD_ips(dm.final_gw); //return DM_GET_FIELD(ip_t, gw);
+//}
+//uint8_t *identified_tcpip_mask(void) {
+//	return GET_FIELD(final_mask); //DM_GET_FIELD_ips(dm.final_mask); //return DM_GET_FIELD(ip_t, mask);
+//}
 
 int env_init_setup(uint16_t *id)
 {

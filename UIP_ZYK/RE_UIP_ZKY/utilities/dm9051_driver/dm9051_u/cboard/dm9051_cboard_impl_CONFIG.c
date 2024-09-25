@@ -2,6 +2,8 @@
 #include "dm9051_cboard_data_types.h"
 #include "dm9051_cstate.h"
 
+#include "dm_eth/dm_eth.h"
+
 /* ------------------------------- NU configuration ----------------------------------------- */
 // --------------------- NU ----------------------------
 

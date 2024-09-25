@@ -465,7 +465,7 @@ void    dhcpc_configured(const struct dhcpc_state *s)
     printf("Network Mask: %d.%d.%d.%d \n", uip_ipaddr1(ipaddr), uip_ipaddr2(ipaddr), uip_ipaddr3(ipaddr), uip_ipaddr4(ipaddr));
     uip_getdraddr(ipaddr);
     printf("Gateway IP Address: %d.%d.%d.%d \n", uip_ipaddr1(ipaddr), uip_ipaddr2(ipaddr), uip_ipaddr3(ipaddr), uip_ipaddr4(ipaddr));
-    printf("---------------------------------------------\n");
+    printf("---------------------------------------------\r\n");
 }
 #endif /* __DHCPC_H__ */
 

@@ -7,16 +7,12 @@
   * @brief    as eth.c
   **************************************************************************
   */
-//#include "stdio.h"
-//#include "DM9051_M051.h"
-//#include "uip.h"
 #include "uip-conf.h"
 #include "uip.h"
 
 #include "dm9051opts.h"
 #include "cboard/dm9051_lw_mcu_default_IN.h"
 #include "cboard/dm9051_cstate.h"
-//#include "dm_eth/dm_eth.h"
 
 #include "cboard/dm9051_cboard_data_API.h"
 

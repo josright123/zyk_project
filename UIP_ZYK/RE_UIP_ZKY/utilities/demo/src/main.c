@@ -112,7 +112,6 @@ int main(void)
   /* enter critical */
   taskENTER_CRITICAL(); 
 
-  printf("TESTING UIP ZKY.create_network_task() ...\r\n");
   create_network_task();
   
   /* exit critical */            
@@ -136,16 +135,16 @@ void network_task(void *pvParameters)
   (void) pvParameters;
   printf("\r\n");
   printf("\r\n");
-  printf("network_task.s\r\n");
-  printf("network_task.e\r\n");
+  printf("\r\n");
+  printf("TESTING UIP_ZKY create network_task() ...\r\n");
+  printf("network_task().s\r\n");
+  printf("vuIP_Task().s\r\n");
   printf("\r\n");
 
 //if (_intr_gpio_mptr()) {
 //  DM_Eth_Initialize();
 //}
-
-  vuIP_Task(NULL);
-//  task_periodic_polling();
+  vuIP_Task(NULL); //task_periodic_polling();
 }
 
 void create_network_task(void)

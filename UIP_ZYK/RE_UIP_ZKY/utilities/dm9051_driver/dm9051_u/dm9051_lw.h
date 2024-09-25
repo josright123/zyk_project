@@ -5,8 +5,6 @@
 #ifdef __cplusplus
  extern "C" {
 #endif
-
-//#include "at32f415.h" //#include "at32f415.h" //"at32f403a_407.h"
 	 
 /* Private constants ---------------------------------------------------------------------------------------*/
 #define DM9051_PHY          (0x40)    		/* PHY address 0x01 */
@@ -203,15 +201,15 @@ typedef enum {
 } csmode_t;
 
 #if 1
+
 int link_flag(void);
 void impl_dm9051_set_recv(void);
 //void lwip_set_mac_address_IN_DRV(const uint8_t* macadd);
-uint16_t env_evaluate_rxb(uint8_t rxb);
-uint16_t env_err_rsthdlr(char *err_explain_str, uint32_t valuecode);
 uint16_t evaluate_link(void);
 void spi_add(void);
 void intr_add(void);
 unsigned long get_fire_polling(void);
+
 #endif
 
 uint16_t cspi_phy_read(uint16_t uReg);
@@ -224,18 +222,6 @@ void cspi_vid_pid_revisions(uint8_t *ids, uint8_t *rev_ad);
 //uint16_t impl_phy_read(uint16_t uReg); //#define	impl_phy_read		phy_read
 void read_chip_revision(uint8_t *ids, uint8_t *rev_ad);
 void impl_read_par(uint8_t *buff);
-
-//#define SPI_DM9051_CS_LOW()        GPIOB->clr = GPIO_PINS_12 // reset pb.12  //GPIO_ResetBits(GPIOB, GPIO_PINS_12)
-//#define SPI_DM9051_CS_HIGH()       GPIOB->scr = GPIO_PINS_12 // set pb.12  //GPIO_SetBits(GPIOB, GPIO_PINS_12)
-
-/* cspi */
-// [__DM9051_CSPI_H].s
-//#define DM9051_Read_Reg			cspi_read_reg
-//#define DM9051_Write_Reg		cspi_write_reg
-
-//#define DM9051_Read_Mem2X		cspi_read_mem2x
-//#define DM9051_Read_Mem			cspi_read_mem
-//#define DM9051_Write_Mem		cspi_write_mem
 
 uint8_t cspi_read_reg(uint8_t reg);
 void cspi_write_reg(uint8_t reg, uint8_t val);
@@ -267,7 +253,6 @@ void cspi_rx_read(uint8_t *buff, uint16_t rx_len);
 void cspi_tx_write(uint8_t *buf, uint16_t len);
 void cspi_tx_req(void);
 uint16_t cspi_isr_enab(void);
-// [__DM9051_CSPI_H].e
 
 #ifdef __cplusplus
 }

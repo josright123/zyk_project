@@ -185,7 +185,7 @@ static void send_discover(int n)
     u8_t *end;
     struct dhcp_msg *m = (struct dhcp_msg *)uip_appdata;
 
-    printf("send_discover [%d]...\n", n);
+    printf("send_discover [%d]...\r\n", n);
 
     create_msg(m);
 
@@ -201,7 +201,7 @@ static void send_request(int n)
     u8_t *end;
     struct dhcp_msg *m = (struct dhcp_msg *)uip_appdata;
 
-    printf("send_request [%d]...\n", n);
+    printf("send_request [%d]...\r\n", n);
 
     create_msg(m);
 
@@ -287,14 +287,16 @@ static PT_THREAD(handle_dhcp(void))
     dhcpc_running = 1;
 #endif
 
+#if 0
 	printf("sys %s mode\r\n",
 		#ifdef DM9051_DRIVER_INTERRUPT
 		"interrupt"
 		#else
 		"polling" .................nmbnmbnmb..........
 		#endif
-		//intr_gpio_mptr() ? "interrupt" : "polling"
 		);
+#endif
+
     printf("handle_dhcp...\n");
 
     if (s.state == STATE_RENEW)

@@ -101,7 +101,8 @@ const uint8_t *impl_dm9051_init(const uint8_t *adr)
 	const uint8_t *mac = NULL;
 	if (env_init_setup(&id)) {
 //	display_identity("SPI", 0, NULL, 0, id, "(DM9051 init)");
-		mac = identify_eth_mac(adr, /*show 0*/ 1);
+		mac = identify_eth_mac(adr);
+		trace_identified_eth_mac(/*show 0*/ 1);
 		mac = env_reset_process(mac, DM_TRUE);
 		//_dm9051_probe_link(10);
 	}
@@ -111,6 +112,7 @@ const uint8_t *impl_dm9051_init(const uint8_t *adr)
 	#else
 	printf("[polling]\r\n");
 	#endif
+	printf("\r\n");
 	return mac;
 }
 

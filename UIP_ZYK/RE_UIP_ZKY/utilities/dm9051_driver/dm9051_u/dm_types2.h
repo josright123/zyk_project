@@ -3,7 +3,10 @@
 
 //[dm9051_data.c]
 #if DM_TYPE == 0
-
+	//#when.s DM_TYPE == 0
+	#define GET_FIELD(field)			dm_mget_##field()
+	#define SET_FIELD(field, val)		dm_mset_##field(val)
+	//#when.e DM_TYPE == 0
 #endif
 
 #if DM_TYPE == 1
@@ -24,11 +27,6 @@
 	} dm;
 
 #elif DM_TYPE == 2
-
-	//#when.s DM_TYPE == 0
-	#define GET_FIELD(field)			dm_mget_##field()
-	#define SET_FIELD(field, val)		dm_mset_##field(val)
-	//#when.e DM_TYPE == 0
 
 	#undef DM_RMACRO
 	#define DM_RMACRO(rtype, mtype, field, adr_len)  \

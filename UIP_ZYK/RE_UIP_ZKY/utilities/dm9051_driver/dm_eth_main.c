@@ -36,10 +36,22 @@
 //	}
 //}
 
+#if defined(DM9051_DRIVER_INTERRUPT)
 int flgSemaphore_r;
+#endif
 
-void dm_eth_intr_event(void)
+int dm_eth_get_intr_event(int r) {
+	//if (r)
+	flgSemaphore_r = 0;
+	return r;
+}
+
+int DM_ETH_InterruptEvent(void)
 {
+	return dm_eth_get_intr_event(flgSemaphore_r);
+}
+
+void dm_eth_set_intr_event(void) {
 	#ifdef DM9051_DRIVER_INTERRUPT
 
 	flgSemaphore_r = 1;
@@ -50,12 +62,12 @@ void dm_eth_intr_event(void)
 
 void DM_ETH_InterruptHdlr(void)
 {
-	dm_eth_intr_event();
+	dm_eth_set_intr_event();
 	inc_task_tryint();
 //	freertos_task_clearpoll_event();
 }
 
-int32_t DM9051_init(void)
+int32_t DM_ETH_Init(void) //DM9051_init(void)
 {
     //DM9051_Configuration_NU();
 	dm9051_boards_initialize();
@@ -64,12 +76,12 @@ int32_t DM9051_init(void)
 	return 0;
 }
 
-uint16_t DM9051_rx(void)
+uint16_t DM_ETH_Input(void) //DM9051_rx(void)
 {
 	return dm9051_rx(uip_buf);
 }
 
-uint32_t DM9051_tx(void)
+uint32_t DM_ETH_Output(void) //DM9051_tx(void)
 {
 	dm9051_tx(uip_buf, uip_len);
 	return 0;

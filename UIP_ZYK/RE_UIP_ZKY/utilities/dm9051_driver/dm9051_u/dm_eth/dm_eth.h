@@ -6,12 +6,13 @@
 #include "dm_eth_user_default.h"
 #include "dm_eth_driver_define.h"
 
-#if defined(DM9051_DRIVER_INTERRUPT)
-extern int flgSemaphore_r;
-#endif
+//#if defined(DM9051_DRIVER_INTERRUPT)
+//extern int flgSemaphore_r;
+//#endif
 
 #if ETHERNET_INTERRUPT_MODE
-extern void DM_ETH_InterruptHdlr(void);
+int DM_ETH_InterruptEvent(void);
+void DM_ETH_InterruptHdlr(void);
 #endif
 
 //[dm_eth_status.c]
@@ -20,14 +21,25 @@ void dm_eth_input_hexdump_reset(void);
 void dm_eth_input_hexdump(const void *buf, size_t len);
 #endif
 
-int32_t DM9051_init(void);
-uint16_t DM9051_rx(void);
-uint32_t DM9051_tx(void);
+//int32_t DM9051_init(void);
+//uint16_t DM9051_rx(void);
+//uint32_t DM9051_tx(void);
+//[uip]
+int32_t DM_ETH_Init(void);
+uint16_t DM_ETH_Input(void);
+uint32_t DM_ETH_Output(void);
+
+//[version_1]
+#define	DM9051_init			DM_ETH_Init
+#define	DM9051_tx				DM_ETH_Output
+#define	DM9051_rx				DM_ETH_Input
 
 #if 0
+	//[Lwip]
 	void DM_ETH_Init(struct netif *netif, const uint8_t *adr);
 	struct pbuf *DM_ETH_Input(void);
 	err_t DM_ETH_Output(struct netif *netif, struct pbuf *p);
+	
 	int DM_Eth_LinkBitStatus(uint8_t *stat);
 	void DM_Eth_ReadRegsInfo(uint8_t *stat);
 	void DM_Eth_Input_HexDumpReset(uint8_t *stat);

@@ -730,11 +730,12 @@ ARM Macro Assembler    Page 12
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp --apcs=int
 erwork --depend=.\objects\startup_at32f435_437.d -o.\objects\startup_at32f435_4
-37.o -I.\RTE\_at_start_f437 -IC:\Keil_v5\ARM\PACK\ArteryTek\AT32F435_437_DFP\2.
-1.4\Device\Include -IC:\Keil_v5\ARM\CMSIS\Include --predefine="__MICROLIB SETA 
-1" --predefine="__UVISION_VERSION SETA 524" --predefine="AT32F437ZMT7 SETA 1" -
--list=.\listings\startup_at32f435_437.lst ..\..\..\libraries\cmsis\cm4\device_s
-upport\startup\mdk\startup_at32f435_437.s
+37.o -IE:\git\ZYK_project\zyk\UIP_ZYK\RE_UIP_ZKY\utilities\demo\mdk_v5\RTE -IC:
+\Keil_v5\ARM\PACK\ArteryTek\AT32F435_437_DFP\2.1.5\Device\Include -IC:\Keil_v5\
+ARM\CMSIS\Include --predefine="__MICROLIB SETA 1" --predefine="__UVISION_VERSIO
+N SETA 515" --predefine="AT32F437ZMT7 SETA 1" --list=.\listings\startup_at32f43
+5_437.lst ..\..\..\libraries\cmsis\cm4\device_support\startup\mdk\startup_at32f
+435_437.s
 
 
 

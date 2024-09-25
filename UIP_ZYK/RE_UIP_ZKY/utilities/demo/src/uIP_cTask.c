@@ -77,6 +77,7 @@
 //#define tapdev_send()		DM_ETH_Output((uint8_t *)uip_buf, uip_len) //dm9051_tx((uint8_t *)uip_buf, uip_len)
 //#define tapdev_read()		DM_ETH_Input((uint8_t *)uip_buf) //_DM_ETH_RXHandler((uint8_t *)uip_buf) //dm9051_rx((uint8_t *)uip_buf)
 //[version_1]
+#define tapdev_init()		DM9051_init()
 #define tapdev_send()		DM9051_tx()
 #define tapdev_read()		DM9051_rx()
 //#define	input_intr()	DM9051_rx()
@@ -212,7 +213,7 @@ void vuIP_Task(void *pvParameters)
     timer_set(&periodic_timer, CLOCK_SECOND / 2); 		//500ms
     timer_set(&arp_timer, CLOCK_SECOND * 10);         // 10sec
 	
-	DM9051_init(); //DM_ETH_Init(&uip_ethaddr.addr[0]); //DM_Eth_Open();
+	tapdev_init(); //DM_ETH_Init(&uip_ethaddr.addr[0]); //DM_Eth_Open();
 	
     uip_init();
     uip_arp_init(); // Clear arp table.
@@ -265,8 +266,11 @@ void vuIP_Task(void *pvParameters)
 /* Interrupt */
 		//if (DM_ETH_RXHandler())
 		//	continue;
-		if (flgSemaphore_r == 1) {
-			flgSemaphore_r = 0; //for next to direct no-limited change-in
+			
+		//if (flgSemaphore_r == 1)
+			//flgSemaphore_r = 0; //for next to direct no-limited change-in
+		
+		if (DM_ETH_InterruptEvent()) {
 
 			isrSemaphore_src = 0x5555 >> 8;
 			do { //[isrSemaphore_n = net_pkts_handle_intr(tcpip_stack_netif());]

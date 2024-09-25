@@ -28,9 +28,13 @@
 #include "stdio.h"
 #include "FreeRTOS.h"
 #include "task.h"
-#include "lwip/opt.h"
 
-#include "uip_d/freertos_tasks_debug.h"
+#define NET_TASK_PRIO           		2 //FOR 'net_task'
+
+//#include "lwip/opt.h"
+
+//#include "uip_d/freertos_tasks_debug.h"
+
 //.#include "dm9051opts.h"
 //#include "dm9051_lw.h"
 //const uint8_t *test_init(void);
@@ -89,7 +93,7 @@ int main(void)
  #if 0
   xxx = 
  #endif
-  tasks_dm9051_debug_init();
+  //tasks_dm9051_debug_init();
   
 #if 0 //[TEST]
 //  vuIP_Task(NULL);

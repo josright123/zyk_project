@@ -1,12 +1,15 @@
 //
 // freertos_tasks_debug.c
 //
+#include "stdio.h"
+#include <string.h>
 //#include "dm9051opts.h"
 
 #define freeRTOS_CONF	1 //...
 #include "FreeRTOS.h" //#include "task.h"
 
-#include "freertos_tasks_debug.h"
+#include "semphr.h" //.....
+//#include "freertos_tasks_debug.h"
 
 #define LIST_BASE_COUNT	30000
 
@@ -15,13 +18,14 @@
 unsigned long dispc = 0;
 
 int freertos_task_tryDisplay(int tryDisp2, int tryDisp3) {
-		dispc++;
 		
-		if (!(dispc % LIST_BASE_COUNT)) {
+		if (dispc % LIST_BASE_COUNT) {
 			int m, cc, mc = 0;
 			char pcWriteBuffer[160]; //[86];
 			char pcCalcBuffer[30]; //[260];
 			char *p, *q, c;
+			
+			dispc++;
 			
 			if (!(dispc % LIST_BASE_COUNT)) {
 				printf("\r\n");
@@ -46,17 +50,17 @@ int freertos_task_tryDisplay(int tryDisp2, int tryDisp3) {
 			}
 			return 1;
 		}
-	return 0;
+		return 0;
 }
 
 void freertos_task_trylist(void) {
-	int get_tcpip_thread_state(void);
-	void set_tcpip_thread_state(int state);
+	//int get_tcpip_thread_state(void);
+	//void set_tcpip_thread_state(int state);
 
-	if (get_tcpip_thread_state() == 6) {
-		if (freertos_task_tryDisplay(7, 7))
-			set_tcpip_thread_state(8); //tcpip_thread_init = 8;
-	}
+	//if (get_tcpip_thread_state() == 6) {
+		/*if (*/ freertos_task_tryDisplay(7, 7); /*)*/
+			//set_tcpip_thread_state(8); //tcpip_thread_init = 8;
+	//}
 }
 
 //typedef struct spnt_st {

@@ -70,7 +70,7 @@
 #endif
 
 #include "dhcpc.h"
-#include "dm_eth/dm_eth.h" //#include "dm_eth.h"
+#include "../dm_eth.h" //#include "dm_eth.h"
 //#include "_dm_eth.h"
 
 //[version_0.ok]
@@ -128,45 +128,25 @@ int isrSemaphore_n = 0;
 
 #if DM_ETH_DEBUG_MODE
 //static
-extern uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e);
+//extern uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e);
 
 static void debug_packets(int n) {
 //	printf("(%d packets)\r\n", n);
-}
-
-static uint16_t DM_ETH_Diff_rx_pointers(int stamp, uint16_t *rwpa_wtp, uint16_t *mdra_rdp)
-{
-	static uint16_t /*rwpa_wts,*/ mdra_rds;
-
-	//DM9051_MUTEX_OPS((freeRTOS), sys_mutex_lock_start(&lock_dm9051_core));
-	dm9051_read_rx_pointers(rwpa_wtp, mdra_rdp);
-	//DM9051_MUTEX_OPS((freeRTOS), sys_mutex_unlock_end(&lock_dm9051_core));
-
-	if (stamp == 0) {
-		//rwpa_wts = *rwpa_wtp;
-		mdra_rds = *mdra_rdp;
-		return 0;
-	}
-
-	//diffs = _wrpadiff(rwpa_wts, *rwpa_wtp);
-	//diffs = _wrpadiff(mdra_rds, *mdra_rdp);
-	return wrpadiff(mdra_rds, *mdra_rdp);
 }
 #endif
 
 void diff_rx_pointers_s(uint16_t *pMdra_rds) {
 #if DM_ETH_DEBUG_MODE
-	uint16_t rwpa_wts /*mdra_rds*/;
-	DM_ETH_Diff_rx_pointers(0, &rwpa_wts, pMdra_rds);
+	uint16_t dummy_rds= 0xc00 /*mdra_rds*/;
+	DM_ETH_ToCalc_rx_pointers(0, &dummy_rds, pMdra_rds);
 #endif
 }
 
-void diff_rx_pointers_e(uint16_t *pMdra_rds, int n) {
+void diff_rx_pointers_e(int n, uint16_t *pMdra_rds) {
 #if DM_ETH_DEBUG_MODE
-	uint16_t rwpa_wt, mdra_rd, diff;
+	uint16_t mdra_rd, diff;
 
-	diff = DM_ETH_Diff_rx_pointers(1, &rwpa_wt, &mdra_rd); //......................
-	diff = wrpadiff(*pMdra_rds, mdra_rd);
+	diff = DM_ETH_ToCalc_rx_pointers(1, pMdra_rds, &mdra_rd); //......................
 	printf("INTR.mdra.s %02x%02x mdra.e %02x%02x diff %02x%02x (%d packets)\r\n",
 		*pMdra_rds >> 8, *pMdra_rds & 0xff,
 		mdra_rd >> 8, mdra_rd & 0xff,
@@ -270,7 +250,7 @@ void vuIP_Task(void *pvParameters)
 		//if (flgSemaphore_r == 1)
 			//flgSemaphore_r = 0; //for next to direct no-limited change-in
 		
-		if (DM_ETH_InterruptEvent()) {
+		if (DM_ETH_ToGet_InterruptEvent()) {
 
 			isrSemaphore_src = 0x5555 >> 8;
 			do { //[isrSemaphore_n = net_pkts_handle_intr(tcpip_stack_netif());]
@@ -317,7 +297,7 @@ void vuIP_Task(void *pvParameters)
 				}
 
 				if (isrSemaphore_n >= 3) {
-					diff_rx_pointers_e(&mdra_rds, isrSemaphore_n);
+					diff_rx_pointers_e(isrSemaphore_n, &mdra_rds);
 					debug_packets(isrSemaphore_n);
 				}
 				

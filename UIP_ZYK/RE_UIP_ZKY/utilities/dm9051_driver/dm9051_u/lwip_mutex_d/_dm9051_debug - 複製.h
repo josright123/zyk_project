@@ -9,7 +9,7 @@
 //#include "lwip/netif.h"
 #include "dm9051opts.h"
 //#include "dm_eth.h"
-#include "dm_eth/dm_eth_debug.h"
+#include "dm_eth/dm_eth_freertos_mutex_function.h"
 
 //[Re-directed:]
 #define TASK_DM9051_DRIVER_DIAG(x)	do {printf x;} while(0) //(this is also in "lwip/arch.h")

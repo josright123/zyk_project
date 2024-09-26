@@ -1,16 +1,54 @@
-//
-// freertos_tasks_debug.c
-//
-#include "stdio.h"
-#include <string.h>
-//#include "dm9051opts.h"
+/**
+  **************************************************************************
+  * @file     dm_eth_pad.c
+  * @version  v1.0.0
+  * @date     2024-09-25
+  * @brief    as particular range control relate to dm_eth.c
+  **************************************************************************
+  */
+#include "dm9051_env.h"
+#include "cboard/dm9051_cstate.h"
 
-#define freeRTOS_CONF	1 //...
+#include "dm_eth/dm_eth.h"
+
+#if freeRTOS
 #include "FreeRTOS.h" //#include "task.h"
+#endif
 
-#include "semphr.h" //.....
-//#include "freertos_tasks_debug.h"
+/* print log
+ */
 
+#if DM_ETH_DEBUG_MODE
+//void dm_eth_input_hexdump_reset(void) {
+//	link_log_reset_allow_num = 0;
+//}
+
+int link_log_reset_allow_num = 0;
+const int rx_modle_log_reset_allow_num = 3;
+#define	limit_len(n, nTP)	((n <= nTP) ? n : nTP)
+
+void dm_eth_input_hexdump(const void *buf, size_t len) {
+	#if 1
+	//int get_tcpip_thread_state(void);
+	//void set_tcpip_thread_state(int state); //.temp //extern int tcpip_thread_init;
+	#endif
+	int titledn = 0;
+	DM_UNUSED_ARG(buf);
+	DM_UNUSED_ARG(len);
+	
+	if (link_log_reset_allow_num < rx_modle_log_reset_allow_num) {
+			link_log_reset_allow_num++;
+			//if (link_log_reset_allow_num == rx_modle_log_reset_allow_num && get_tcpip_thread_state() == 1) {
+				//set_tcpip_thread_state(6);
+			//}
+			sprint_hex_dump0(2, titledn, "dm9 head   <<rx", len, 32, buf, 0, limit_len(len, 66), DM_TRUE);
+	}
+}
+#endif
+
+/* freertos info/of uip_d
+ */
+#if freeRTOS
 #define LIST_BASE_COUNT	30000
 
 #define LIST_MULT_COUNT	(LIST_BASE_COUNT *3)
@@ -62,19 +100,4 @@ void freertos_task_trylist(void) {
 			//set_tcpip_thread_state(8); //tcpip_thread_init = 8;
 	//}
 }
-
-//typedef struct spnt_st {
-//	int n;
-//	char pntbff[80];
-//} spnt_t;
-
-//extern int pntdatc;
-//extern spnt_t pntdat[3];
-
-//  #if 1
-//  bannerline_log();
-//  bannerline_log();
-//  for (i = 0; i < pntdatc; i++) {
-//	printf("[%d] %s", pntdat[i].n, pntdat[i].pntbff);
-//  }
-//  #endif
+#endif

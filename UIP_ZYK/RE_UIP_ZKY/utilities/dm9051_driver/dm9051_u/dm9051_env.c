@@ -27,8 +27,9 @@
 #include "dm9051_env.h"
 
 #include "dm_eth/dm_eth.h"
-#include "dm9051_debug.h"
-#define	printk(fmt, ...) TASK_DM9051_DEBUGK(SEMA_ON, (fmt, ##__VA_ARGS__))
+
+//#include "dm9051_debug.h"
+//#define	printk(fmt, ...) TASK_DM9051_DEBUGK(SEMA_ON, (fmt, ##__VA_ARGS__))
 
 /* Only used, in [ env.c ] */
 typedef uint8_t mac_t[MAC_ADDR_LENGTH];

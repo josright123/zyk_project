@@ -67,11 +67,6 @@ int dm_eth_get_intr_event(int r) {
 	return r;
 }
 
-int DM_ETH_ToGet_InterruptEvent(void)
-{
-	return dm_eth_get_intr_event(flgSemaphore_r);
-}
-
 void dm_eth_set_intr_event(void) {
 	#ifdef DM9051_DRIVER_INTERRUPT
 
@@ -81,11 +76,26 @@ void dm_eth_set_intr_event(void) {
 	#endif
 }
 
-void DM_ETH_InterruptHdlr(void)
+int DM_ETH_ToGet_InterruptEvent(void)
+{
+	return dm_eth_get_intr_event(flgSemaphore_r);
+}
+
+void DM_ETH_ToSet_InterruptEvent(void)
 {
 	dm_eth_set_intr_event();
 	inc_task_tryint();
 //	freertos_task_clearpoll_event();
+}
+
+void DM_ETH_InterruptHdlr(void)
+{
+	cint_exint9_5_handler();
+}
+
+void DM_ETH_ToRst_ISR(void)
+{
+	dm9051_write_rst_isr();
 }
 
 int32_t DM_ETH_Init(void) //DM9051_init(void)

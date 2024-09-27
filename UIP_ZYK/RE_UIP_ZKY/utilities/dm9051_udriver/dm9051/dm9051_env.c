@@ -25,6 +25,7 @@
   */
 #include "stdio.h"
 #include "dm9051_env.h"
+#include "dm9051_env_identify.h"
 
 #include "../dm_eth.h"
 
@@ -36,10 +37,12 @@ typedef uint8_t mac_t[MAC_ADDR_LENGTH];
 typedef uint8_t ip_t[ADDR_LENGTH];
 
 #define DM_TYPE		1
-#include "dm_types2.h"
+#include "dm_identify_types.h"
 
 #define DM_TYPE		2
-#include "dm_types2.h"/*
+#include "dm_identify_types.h"
+
+/*
  * candidate
  */
 typedef struct eth_node_st {

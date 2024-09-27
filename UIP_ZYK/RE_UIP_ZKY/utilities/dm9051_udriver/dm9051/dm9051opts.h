@@ -34,5 +34,6 @@ void dm9051_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd);
 uint16_t dm9051_read_bmsr(void);
 uint16_t dm9051_read_control_status(void);
 void dm9051_probe_link(int nsr_poll);
+void dm9051_write_rst_isr(void);
 
 #endif //__DM9051_OPTS_H

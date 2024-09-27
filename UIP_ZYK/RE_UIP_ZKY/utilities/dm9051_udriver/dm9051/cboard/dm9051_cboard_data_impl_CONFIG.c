@@ -2,8 +2,11 @@
 #include "dm9051_cboard_data_types.h"
 #include "dm9051_cstate.h"
 
+#include "dm9051_cboard_data_API.h"
+
 #include "../dm_eth.h"
 
+#if defined (_DLW_M051xx)
 /* ------------------------------- NU configuration ----------------------------------------- */
 // --------------------- NU ----------------------------
 
@@ -49,17 +52,9 @@ void NU_DM9051_Interript_Configuration(void) {
 	// add user's mcu irq configuration code here.
 #endif
 }
+#endif
 
-//void NU_spi_add(void){
-//	NU_DM9051_SPI_Configuration();
-//}
-//	
-//void NU_intr_add(void) {
-//	NU_DM9051_Interript_Configuration();
-//}
-
-//void NU_DM9051_Interript_Configuration(void) {}
-
+#if defined (_DLW_AT32F437xx)
 /* ------------------------------- AT configuration ----------------------------------------- */
 // --------------------- AT ----------------------------
 
@@ -134,29 +129,10 @@ void dm9051_boards_initialize(void)
 	#if defined(_DLW_AT32F415xx) || defined(_DLW_AT32F413xx)
 	#endif
 	};
-
-	#define FIELD_SPIDEV(field)			devconf[0].field
-	#define spi_number()						FIELD_SPIDEV(spidef.spi_num)
-	#define pin_wire_sck()					FIELD_SPIDEV(wire_sck)
-	#define pin_wire_mi()						FIELD_SPIDEV(wire_mi)
-	#define pin_wire_mo()						FIELD_SPIDEV(wire_mo)
-	#define pin_cs()								FIELD_SPIDEV(wire_cs)
-
-	#ifdef DM9051_DRIVER_INTERRUPT
-	//[cint]
-	#define intr_pointer()				devconf[0].intr_cfg	//FIELD_SPIDEV(intr_cfg)
-	#define intr_data_scfg()			&devconf[0].intr_cfg->extend1 //PTR_EXINTD(extend)
-
-	#define PTR_EXINTD(nextfield)		devconf[0].intr_cfg->nextfield
-	#define intr_gpio_ptr()				((const pin_t *)(&PTR_EXINTD(option1.pin)))
-//	#define scfg_info()					devconf[0].intr_cfg->scfg_inf
-
-//	#define scfg_crm()					PTR_EXINTD(scfg_init.scfg_clk)
-//	#define scfg_port()					PTR_EXINTD(scfg_init.scfg_port_src)
-//	#define scfg_pin()					PTR_EXINTD(scfg_init.scfg_pin_src)
-
-//	#define exint_crm()					PTR_EXINTD(extend1.extline.intr_crm_clk)
-	#endif
+	
+	#define pin_wire_sck()				FIELD_SPIDEV(wire_sck)
+	#define pin_wire_mi()				FIELD_SPIDEV(wire_mi)
+	#define pin_wire_mo()				FIELD_SPIDEV(wire_mo)
 
 	void spi_add(void) //=== pins_config(); //total_eth_count++;
 	{
@@ -194,35 +170,39 @@ void dm9051_boards_initialize(void)
 	void intr_add(void)
 	{
 	#ifdef DM9051_DRIVER_INTERRUPT
-	  exint_polarity_config_type pol = EXINT_TRIGGER_FALLING_EDGE;
-	  const struct modscfg_st *intr = intr_pointer();
 
-	  if (intr) {
+	  //const struct modscfg_st *intr = intr_pointer();
+	  //if (intr) {
 		intr_gpio_pin_config(intr_gpio_ptr(), GPIO_PULL_UP); //[ops] &intr->option1.pin
-		if (intr_data_scfg()) { //&devconf[0].intr_cfg->extend1
+		//if (intr_data_scfg()) { //&devconf[0].intr_cfg->extend1
+		do {
+			const struct extscfg_st *pexint_set = intr_data_scfg();
+			exint_polarity_config_type pol = EXINT_TRIGGER_FALLING_EDGE;
 
 			identify_irq_stat(ISTAT_IRQ_CFG);
 			trace_irq_stat(ISTAT_IRQ_CFG);
 
 			log_intr_qpio_pin_config();
 
-			intr_irqline_config(intr_data_scfg(), pol); //[ops]
+			intr_irqline_config(pexint_set, pol); //[ops]
 
 			if (pol == EXINT_TRIGGER_FALLING_EDGE) {
 			  identify_irq_stat(ISTAT_LOW_TRIGGER);
 			  trace_irq_stat(ISTAT_LOW_TRIGGER);
 			}
+		} while(0);
 			//else if (pol == EXINT_TRIGGER_RISING_EDGE) {
 			// identify_irq_stat(ISTAT_HIGH_TRIGGER);
 			// trace_irq_stat(ISTAT_HIGH_TRIGGER);
 			//}
-		}
-	  } else {
-		printf("\r\n");
-		printf("[polling]\r\n");
-	  }
+		//}
+	  //} else {
+		//printf("\r\n");
+		//printf("[polling]\r\n");
+	  //}
 	#endif
 	}
+#endif
 
 #define DM9051_MRCMDX       (0x70)  //Read_Mem2X
 #define DM9051_MRCMD        (0x72)  //Read_Mem
@@ -231,81 +211,61 @@ void dm9051_boards_initialize(void)
 #define OPC_REG_W       		0x80  // Register Write
 #define OPC_REG_R       		0x00  // Register Read
 
-//[NU cspi]
-//#define	dm9051_spi_cmd_write(wb)		NU_spi_exc_data_head(wb)
+#if defined (_DLW_M051xx)
+//[NU cspi_io]
+#define	dm9051_spi_cmd_write(wb)		NU_spi_exc_data_head(wb)
+#define dm9051_spi_data_read() 			NU_spi_exc_data_read()
+#define	dm9051_spi_read_end()			NU_spi_exc_data_read_end()
+#define	dm9051_spi_data_write(wb)		NU_spi_exc_data_write(wb)
+#define	dm9051_spi_write_end()			NU_spi_exc_data_write_end()
 
-//#define dm9051_spi_data_read() 			NU_spi_exc_data_read()
-//#define	dm9051_spi_read_end()			NU_spi_exc_data_read_end()
+uint8_t NU_spi_data_read(uint8_t reg)
+{
+	uint8_t val;
+	dm9051_spi_cmd_write(reg | OPC_REG_R);
+	val = dm9051_spi_data_read();
+	dm9051_spi_read_end();
+	return val;
+}
+void NU_spi_data_write(uint8_t reg, uint8_t val)
+{
+	dm9051_spi_cmd_write(reg | OPC_REG_W);
+	dm9051_spi_data_write(val);
+	dm9051_spi_write_end();
+}
 
-//#define	dm9051_spi_data_write(wb)		NU_spi_exc_data_write(wb)
-//#define	dm9051_spi_write_end()			NU_spi_exc_data_write_end()
+uint8_t NU_spi_mem2x_read(void)
+{
+	uint8_t rxb;
+	rxb = cspi_read_reg(DM9051_MRCMDX);
+	rxb = cspi_read_reg(DM9051_MRCMDX);
+	return rxb;
+}
 
-//void NU_spi_cs_lo(void) {
-//	SPI_SET_SS_LOW(SPI1);
-//}
-//void NU_spi_exc_data_head(uint8_t byte) { 
-//    SPI_WRITE_TX0(SPI1, (uint32_t)byte);
-//    while (SPI_IS_BUSY(SPI1));
-//    SPI_READ_RX0(SPI1);
-//}
-//uint8_t NU_spi_exc_data_read(void) { 
-//	SPI_WRITE_TX0(SPI1, 0x0);           //Dummy for read register value.
-//	while (SPI_GET_RX_FIFO_EMPTY_FLAG(SPI1));
-//	return (SPI_READ_RX0(SPI1) & 0xFF);
-//}
-//void NU_spi_exc_data_read_end(void) { 
-//    while (SPI_IS_BUSY(SPI1));
-//    //Clear SPI TX FIFO
-//    SPI_ClearTxFIFO(SPI1);
-//}
+void NU_spi_mem_read(uint8_t *buf, uint16_t len)
+{
+	int i;
+	dm9051_spi_cmd_write(DM9051_MRCMD | OPC_REG_R);
+	for(i=0; i<len; i++)
+		buf[i] = dm9051_spi_data_read();
+	dm9051_spi_read_end();
+}
 
-//void NU_spi_exc_data_write(uint8_t byte) { 
-//	while (SPI_GET_TX_FIFO_FULL_FLAG(SPI1));
-//	SPI_WRITE_TX0(SPI1, (uint32_t)byte);
-//}
-//void NU_spi_exc_data_write_end(void) { 
-//    while (SPI_IS_BUSY(SPI1));
-//    //Clear SPI RX FIFO
-//    SPI_ClearRxFIFO(SPI1);
-//}
+void NU_spi_mem_write(uint8_t *buf, uint16_t len)
+{
+	int i;
+	dm9051_spi_cmd_write(DM9051_MWCMD | OPC_REG_W);
+	for(i=0; i<len; i++)
+		dm9051_spi_data_write(buf[i]);
+	dm9051_spi_write_end();
+}
+#endif
 
-//[AT cspi]
+#if defined (_DLW_AT32F437xx)
+//[AT cspi_io]
 #define dm9051_spi_command_write(rd) spi_exc_data(rd)
 #define dm9051_spi_dummy_read() spi_exc_data(0)
 
-void spi_cs_lo(void) {
-	gpio_bits_reset(pin_cs().gpio.gpport, pin_cs().gpio.pin); //cs.gpport->clr = cs.pin;
-	//SPI_SET_SS_LOW(SPI1);
-}
-
-void spi_cs_hi(void) {
-	gpio_bits_set(pin_cs().gpio.gpport, pin_cs().gpio.pin); //cs.gpport->scr = cs.pin;
-	//SPI_SET_SS_HIGH(SPI1);
-}
-
-uint8_t spi_exc_data(uint8_t byte) {
-  while(spi_i2s_flag_get(spi_number(), SPI_I2S_TDBE_FLAG) == RESET);	//while(spi_i2s_flag_get(SPI2, SPI_I2S_TDBE_FLAG) == RESET);
-  spi_i2s_data_transmit(spi_number(), byte);							//spi_i2s_data_transmit(SPI2, byte); //spi2 tx
-  while(spi_i2s_flag_get(spi_number(), SPI_I2S_RDBF_FLAG) == RESET);	//while(spi_i2s_flag_get(SPI2, SPI_I2S_RDBF_FLAG) == RESET);
-  return (uint8_t) spi_i2s_data_receive(spi_number());				//return (uint8_t) spi_i2s_data_receive(SPI2); //spi2 rx (rx_pad)
-}
-
-//[NU cspi_io]
-//uint8_t NU_spi_data_read(uint8_t reg);
-//	uint8_t val;
-//	dm9051_spi_cmd_write(reg | OPC_REG_R);
-//	val = dm9051_spi_data_read();
-//	dm9051_spi_read_end();
-//	return val;
-//uint8_t NU_spi_mem2x_read(void)
-//{
-//	uint8_t rxb;
-//	rxb = cspi_read_reg(DM9051_MRCMDX);
-//	rxb = cspi_read_reg(DM9051_MRCMDX);
-//	return rxb;
-//}
-
-//[AT cspi_io]
 uint8_t AT_spi_data_read(uint8_t reg)
 {
 	uint8_t val;
@@ -357,54 +317,5 @@ void AT_spi_mem_write(uint8_t *buf, uint16_t len)
 //	for(i=0; i<len; i++)
 //		dm9051_spi_data_write(buf[i]);
 //	dm9051_spi_write_end();
-}
-
-	/* IRQ handler support */
-	void cint_exint9_5_handler(void)
-	{
-		// add user's mcu irq handler such as EINT0_IRQHandler/EINT1_IRQHandler, and
-		//	Let it call this "cint_exint9_5_handler()" subroutine,
-		//	Put some control code here to maintain the mcu's INTERRUPT for
-		//	allow further cycllic interrupt-in.
-	
-		//[EXINT_LINE_5 ~ EXINT_LINE_9]
-//		uint32_t exint_line = EXINT_LINE_7;
-		
-		identify_irq_stat(ISTAT_IRQ_NOW);
-		trace_irq_stat(ISTAT_IRQ_NOW);
-	
-//		if(exint_flag_get(exint_line) != RESET) {
-			if(exint_flag_get(EXINT_LINE_7) != RESET) {
-			
-				identify_irq_stat(ISTAT_IRQ_NOW2);
-				trace_irq_stat(ISTAT_IRQ_NOW2);
-				DM_ETH_InterruptHdlr();
-		
-				exint_flag_clear(EXINT_LINE_7);
-			}
-//			exint_flag_clear(exint_line);
-//		}
-		
-		deidentify_irq_stat(ISTAT_IRQ_NOW | ISTAT_IRQ_NOW2);
-	}
-
-#if 1
-#include "clock.h"
-#define sys_now	clock_time //or xTaskGetTickCount()
-
-void dm_delay_us(uint32_t nus)
-{
-	uint32_t startTick = sys_now();
-  while ((sys_now() - startTick) < ((nus + 999)/ 1000)) {
-    // Wait until the specified delay has passed
-  }
-}
-
-void dm_delay_ms(uint16_t nms)
-{
-	uint32_t startTick = sys_now();
-  while ((sys_now() - startTick) < nms) {
-    // Wait until the specified delay has passed
-  }
 }
 #endif

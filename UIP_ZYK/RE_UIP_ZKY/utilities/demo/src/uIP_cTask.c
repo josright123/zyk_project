@@ -58,6 +58,7 @@
 //#include "dm9051_lw.h"
 //#include "cboard/dm9051_lw_mcu_default_IN.h"
 #include "dm9051_env.h"
+#include "dm9051_env_identify.h"
 
 //#include "dm9051_cboard.h"
 //#include "../dm9051_lw_mcu_default.h"
@@ -307,7 +308,7 @@ void vuIP_Task(void *pvParameters)
 			} while(0);
 			
 			//DM9051_MUTEX_OPS((freeRTOS), sys_mutex_lock_start(&lock_dm9051_core));
-			cspi_isr_enab(); //DM_ETH_IRQEnable(); //dm9051_isr_enab();
+			DM_ETH_ToRst_ISR(); //cspi_isr_enab(); //DM_ETH_IRQEnable(); //dm9051_isr_enab();
 			//DM9051_MUTEX_OPS((freeRTOS), sys_mutex_unlock_end(&lock_dm9051_core));
 			//nExpireCount = 0; //= dm_eth_semaphore_renew();
 		}

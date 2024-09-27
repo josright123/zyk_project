@@ -1,4 +1,5 @@
 #include "stdio.h"
+#include "dm9051opts.h"
 #include "cboard/dm9051_lw_mcu_default_IN.h"
 #include "dm9051_cstate.h"
 
@@ -269,3 +270,34 @@ void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 //#undef printf
 //#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 }
+
+/* print log
+ */
+
+#if DM_ETH_DEBUG_MODE
+//void dm_eth_input_hexdump_reset(void) {
+//	link_log_reset_allow_num = 0;
+//}
+
+int link_log_reset_allow_num = 0;
+const int rx_modle_log_reset_allow_num = 3;
+#define	limit_len(n, nTP)	((n <= nTP) ? n : nTP)
+
+void dm_eth_input_hexdump(const void *buf, size_t len) {
+	#if 1
+	//int get_tcpip_thread_state(void);
+	//void set_tcpip_thread_state(int state); //.temp //extern int tcpip_thread_init;
+	#endif
+	int titledn = 0;
+	DM_UNUSED_ARG(buf);
+	DM_UNUSED_ARG(len);
+	
+	if (link_log_reset_allow_num < rx_modle_log_reset_allow_num) {
+			link_log_reset_allow_num++;
+			//if (link_log_reset_allow_num == rx_modle_log_reset_allow_num && get_tcpip_thread_state() == 1) {
+				//set_tcpip_thread_state(6);
+			//}
+			sprint_hex_dump0(2, titledn, "dm9 head   <<rx", len, 32, buf, 0, limit_len(len, 66), DM_TRUE);
+	}
+}
+#endif

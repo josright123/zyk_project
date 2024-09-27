@@ -25,11 +25,15 @@
   */
 #ifndef __DM9051_CBOARD_H
 #define __DM9051_CBOARD_H
-#include "dm9051_lw_mcu_default_IN.h"
 
 #ifdef __cplusplus
  extern "C" {
 #endif
+
+//#include "dm9051opts.h"
+//#include "cboard/dm9051_lw_mcu_default_IN.h"
+//#include "dm9051_lw.h"
+#include "dm9051_lw_mcu_default_IN.h"
 
 /** @addtogroup dm9051_cboard
   * @{
@@ -50,48 +54,46 @@ void cint_disable_mcu_irq(void);
 void cint_enable_mcu_irq(void);
 void spi_cs_lo(void);
 void spi_cs_hi(void);
-uint8_t spi_exc_data(uint8_t byte);
 #endif
 
-//.uint8_t spi_exc_data(uint8_t byte);
-//.vs
-//.void NU_spi_exc_data_head(uint8_t byte);
-//.uint8_t NU_spi_exc_data_read(void);
-//.void NU_spi_exc_data_read_end(void);
-//.void NU_spi_exc_data_write(uint8_t byte);
-//.void NU_spi_exc_data_write_end(void);
+//struct spi_dev_t;
+//extern const struct spi_dev_t devconf[1];
+
+//uint8_t spi_exc_data(uint8_t byte);
+//	 
+//void NU_spi_exc_data_head(uint8_t byte);
+//uint8_t NU_spi_exc_data_read(void);
+//void NU_spi_exc_data_read_end(void);
+//void NU_spi_exc_data_write(uint8_t byte);
+//void NU_spi_exc_data_write_end(void);
 
 #if defined (_DLW_M051xx)
 //[impl]
-void DM9051_Configuration_NU(void); //NU
-uint8_t NU_spi_data_read(uint8_t reg);
-void NU_spi_data_write(uint8_t reg, uint8_t val);
-uint8_t NU_spi_mem2x_read(void);
-void NU_spi_mem_read(uint8_t *buf, uint16_t len);
-void NU_spi_mem_write(uint8_t *buf, uint16_t len);
 #define dm9051_boards_initialize()	DM9051_Configuration_NU()
 #define AT_spi_data_read(reg)		NU_spi_data_read(reg)
 #define AT_spi_data_write(reg,val)	NU_spi_data_write(reg,val)
 #define AT_spi_mem2x_read()			NU_spi_mem2x_read()
 #define AT_spi_mem_read(buf,len)	NU_spi_mem_read(buf,len)
 #define AT_spi_mem_write(buf,len)	NU_spi_mem_write(buf,len)
-
 //[hw]
-void NU_cint_exint9_5_handler(void);
-void NU_cint_disable_mcu_irq(void);
-void NU_cint_enable_mcu_irq(void);
-void NU_spi_cs_lo(void);
-void NU_spi_cs_hi(void);
-void NU_spi_exc_data_head(uint8_t byte);
-uint8_t NU_spi_exc_data_read(void);
-void NU_spi_exc_data_read_end(void);
-void NU_spi_exc_data_write(uint8_t byte);
-void NU_spi_exc_data_write_end(void);
 #define cint_exint9_5_handler()		NU_cint_exint9_5_handler()
 #define cint_disable_mcu_irq()		NU_cint_disable_mcu_irq()
 #define cint_enable_mcu_irq()		NU_cint_enable_mcu_irq()
 #define spi_cs_lo()					NU_spi_cs_lo()
 #define spi_cs_hi()					NU_spi_cs_hi()
+
+void DM9051_Configuration_NU(void); //NU
+uint8_t NU_spi_data_read(uint8_t reg);
+void NU_spi_data_write(uint8_t reg, uint8_t val);
+uint8_t NU_spi_mem2x_read(void);
+void NU_spi_mem_read(uint8_t *buf, uint16_t len);
+void NU_spi_mem_write(uint8_t *buf, uint16_t len);
+
+void NU_cint_exint9_5_handler(void);
+void NU_cint_disable_mcu_irq(void);
+void NU_cint_enable_mcu_irq(void);
+void NU_spi_cs_lo(void);
+void NU_spi_cs_hi(void);
 #endif
 
 void dm_delay_us(uint32_t nus);

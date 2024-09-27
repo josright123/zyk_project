@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "dm9051_env.h"
+#include "dm9051_env_identify.h"
 
 #include "cboard/dm9051_cboard_data_API.h"	//for void DM9051_Configuration(), dm_delay_ms() 
 //for cint_enable_mcu_irq()
@@ -168,6 +169,9 @@ void dm9051_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd) {
 //	DM9051_MUTEX_OPS((freeRTOS), sys_mutex_unlock_end(&lock_dm9051_core)); //ULOCK_TCPIP_COREx();
 //}
 
+void dm9051_write_rst_isr(void) {
+	cspi_isr_enab();
+}
 
 /**
   * @brief  updates the link states

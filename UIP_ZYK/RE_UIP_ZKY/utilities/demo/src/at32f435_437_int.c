@@ -34,7 +34,8 @@
 #include "dm9051_lw.h"
 //#include "dm9051_cboard.h"
 //#include "dm9051_lw_cint.h"
-#include "cboard/dm9051_cboard_data_API.h"
+//#include "cboard/dm9051_cboard_data_API.h"
+#include "../dm_eth.h"
 //#include "../freertos_tasks_debug.h"
 
 /** @addtogroup AT32F437_periph_examples
@@ -165,7 +166,7 @@ void DebugMon_Handler(void)
 //Put location: "dm9051_board_impl.c"
 //Put location: "dm9051_lw_cint.c"
 void EXINT9_5_IRQHandler(void) {
-	cint_exint9_5_handler();
+	DM_ETH_InterruptHdlr(); //cint_exint9_5_handler();
 }
 
 /**

@@ -1,6 +1,7 @@
 #ifndef __DM_ETH_H__
 #define __DM_ETH_H__
 
+#include "dm9051opts.h"
 //#include "lwip/netif.h"
 
 #include "dm_eth_user_default.h"
@@ -15,7 +16,9 @@ uint16_t DM_ETH_ToCalc_rx_pointers(int state, uint16_t *mdra_rd_org, uint16_t *m
 #endif
 #if ETHERNET_INTERRUPT_MODE
 int DM_ETH_ToGet_InterruptEvent(void);
+void DM_ETH_ToSet_InterruptEvent(void);
 void DM_ETH_InterruptHdlr(void);
+void DM_ETH_ToRst_ISR(void);
 #endif
 
 //[dm_eth_status.c]

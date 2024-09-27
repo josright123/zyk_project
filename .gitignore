@@ -5,7 +5,10 @@
 
 # Object files
 #Objects/
-objects
+UIP_ZYK/RE_UIP_ZKY/utilities/demo/mdk_v5/objects/
+#UIP_ZYK\RE_UIP_ZKY\utilities\demo\mdk_v5\objects\
+objects\
+#objects
 *.o
 *.ko
 *.obj
@@ -20,6 +23,9 @@ objects
 *.htm
 *.axf
 *.dep
+*.dep
+*.crf
+*.lst
 
 # Linker output
 listings

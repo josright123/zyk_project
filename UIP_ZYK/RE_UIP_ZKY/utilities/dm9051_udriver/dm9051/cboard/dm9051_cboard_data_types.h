@@ -3,8 +3,8 @@
 #include "dm9051opts.h"
 #include "cboard/dm9051_lw_mcu_default_IN.h"
 #include "dm9051_lw.h"
-//#include "dm9051_cboard.h"
 
+#if defined (_DLW_AT32F437xx)
 #if 1
 //[AT cspi]
 	#define  IO_MUX_NULL                    	((uint16_t)0x0000) /*!< subordinate  */
@@ -88,7 +88,6 @@
 	};
 	#endif
 #endif
-//#include "dm9051_cboard_data_IMPORT.c"
 
 extern const struct spi_dev_t devconf[1];
 
@@ -98,3 +97,17 @@ void spi_config(void);
 void intr_gpio_pin_config(const pin_t *pin, gpio_pull_type pull);
 void intr_irqline_config(const struct extscfg_st *pexint_set, exint_polarity_config_type polarity);
 void log_intr_qpio_pin_config(void);
+
+#define FIELD_SPIDEV(field)			devconf[0].field
+#define spi_number()				FIELD_SPIDEV(spidef.spi_num)
+#define pin_cs()					FIELD_SPIDEV(wire_cs)
+
+//#define intr_pointer()			devconf[0].intr_cfg	//FIELD_SPIDEV(intr_cfg)
+	
+#define PTR_EXINTD(nextfield)		devconf[0].intr_cfg->nextfield
+#define scfg_info()					devconf[0].intr_cfg->scfg_inf //PTR_EXINTD(scfg_inf)
+#define intr_data_scfg()			((const struct extscfg_st *)&devconf[0].intr_cfg->extend1)
+									//&PTR_EXINTD(extend1)
+#define intr_gpio_ptr()				((const pin_t *)&devconf[0].intr_cfg->option1.pin)
+									//((const pin_t *)(&PTR_EXINTD(option1.pin)))
+#endif

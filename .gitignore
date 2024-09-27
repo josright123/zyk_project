@@ -2,77 +2,30 @@
 *.d
 *.bak
 *.TMP
+desktop.ini
 
 # Object files
 #Objects/
-UIP_ZYK/RE_UIP_ZKY/utilities/demo/mdk_v5/objects/
-#UIP_ZYK\RE_UIP_ZKY\utilities\demo\mdk_v5\objects\
-objects\
-#objects
+objects
 *.o
 *.ko
 *.obj
-*.elf
 *.crf
-*.lnk
-*.uvprojx
-*.uvoptx
-*.map
-*.crf
-*.lst
+*.dep
+*.sct
+# Added-for
+*.__i
+*.hex
 *.htm
-*.axf
-*.dep
-*.dep
-*.crf
-*.lst
 
 # Linker output
 listings
 *.lst
 *.map
 *.exp
+*.slsproj
 
-# Linker output
-*.ilk
-*.map
-*.exp
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
-
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
-
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
+#mdk
+*.user1
+*.joseph
+*.uvoptx

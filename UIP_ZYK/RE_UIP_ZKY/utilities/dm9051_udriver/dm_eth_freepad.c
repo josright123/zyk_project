@@ -13,6 +13,31 @@
 #include <string.h>
 #include "dm_eth.h"
 
+//DM_Eth_GetStatus: cid/bmsr/ncr_nsr
+void DM_Eth_ReadRegsInfo(uint8_t *stat)
+{
+	uint16_t cs;
+	uint32_t pbm;
+
+#if 0 //to do
+	DM9051_MUTEX_OPS((freeRTOS), sys_mutex_lock_start(&lock_dm9051_core));
+#endif
+	pbm = dm9051_read_bmsr();
+	pbm |= dm9051_read_chip_id() << 16;
+	cs = dm9051_read_control_status();
+#if 0 //to do
+	DM9051_MUTEX_OPS((freeRTOS), sys_mutex_unlock_end(&lock_dm9051_core));
+#endif
+	
+	stat[0] = cs  & 0xff;
+	stat[1] = (cs >> 8) & 0xff;
+
+	stat[2] = (pbm >> 24) & 0xff;
+	stat[3] = (pbm >> 16) & 0xff;
+	stat[4] = (pbm >> 8) & 0xff;
+	stat[5] = (pbm) & 0xff;
+}
+
 #if freeRTOS
 #include "FreeRTOS.h" //#include "task.h"
 

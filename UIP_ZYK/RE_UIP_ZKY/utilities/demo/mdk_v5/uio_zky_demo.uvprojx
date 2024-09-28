@@ -732,14 +732,14 @@
               <FilePath>..\..\dm9051_udriver\dm9051\dm9051_u.c</FilePath>
             </File>
             <File>
-              <FileName>dm9051_config_Hw_AT32F437xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\dm9051_udriver\dm9051\cboard\dm9051_config_Hw_AT32F437xx.c</FilePath>
-            </File>
-            <File>
               <FileName>dm_eth_freepad.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\dm9051_udriver\dm_eth_freepad.c</FilePath>
+            </File>
+            <File>
+              <FileName>dm9051_Hw_AT32F437xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\dm9051_udriver\dm9051\cboard\dm9051_Hw_AT32F437xx.c</FilePath>
             </File>
           </Files>
         </Group>

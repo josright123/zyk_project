@@ -27,6 +27,8 @@
 #define __DM9051_CBOARD_H
 #include "dm9051_lw_mcu_default_IN.h"
 
+#include "dm9051_cboard_data_types.h"
+
 #ifdef __cplusplus
  extern "C" {
 #endif
@@ -37,12 +39,13 @@
 
 #if defined (_DLW_AT32F437xx)
 //[impl]
-void dm9051_boards_initialize(void); //AT
+void dm9051_boards_initialize_AT(void); //AT
 uint8_t AT_spi_data_read(uint8_t reg);
 void AT_spi_data_write(uint8_t reg, uint8_t val);
 uint8_t AT_spi_mem2x_read(void);
 void AT_spi_mem_read(uint8_t *buf, uint16_t len);
 void AT_spi_mem_write(uint8_t *buf, uint16_t len);
+#define dm9051_boards_initialize()	dm9051_boards_initialize_AT()
 #define spi_data_read(reg)					AT_spi_data_read(reg)
 #define spi_data_write(reg,val)			AT_spi_data_write(reg,val)
 #define spi_mem2x_read()						AT_spi_mem2x_read()
@@ -103,6 +106,16 @@ void NU_spi_exc_data_write_end(void);
 #define dm9051if_cs_lo() 					NU_spi_cs_lo()
 #define dm9051if_cs_hi() 					NU_spi_cs_hi()
 #endif
+
+uint8_t cspi_read_reg(uint8_t reg);
+void cspi_write_reg(uint8_t reg, uint8_t val);
+uint8_t cspi_read_mem2x(void);
+void cspi_read_mem(uint8_t *buf, uint16_t len);
+void cspi_write_mem(uint8_t *buf, uint16_t len);
+
+void cspi_read_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode);
+void cspi_write_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode);
+#define	cspi_read_rxb			cspi_read_mem2x
 
 void dm_delay_us(uint32_t nus);
 void dm_delay_ms(uint16_t nms);

@@ -195,11 +195,6 @@
 #define IMR_PAR             (1 << 7)
 #define IMR_PRM             (1 << 0)
 
-typedef enum {
-  CS_EACH = 0,
-  CS_LONG,
-} csmode_t;
-
 #if 1
 
 int link_flag(void);
@@ -222,17 +217,6 @@ void cspi_vid_pid_revisions(uint8_t *ids, uint8_t *rev_ad);
 //uint16_t impl_phy_read(uint16_t uReg); //#define	impl_phy_read		phy_read
 void read_chip_revision(uint8_t *ids, uint8_t *rev_ad);
 void impl_read_par(uint8_t *buff);
-
-uint8_t cspi_read_reg(uint8_t reg);
-void cspi_write_reg(uint8_t reg, uint8_t val);
-uint8_t cspi_read_mem2x(void);
-void cspi_read_mem(uint8_t *buf, uint16_t len);
-void cspi_write_mem(uint8_t *buf, uint16_t len);
-
-void cspi_read_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode);
-void cspi_write_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode);
-
-#define	cspi_read_rxb			cspi_read_mem2x
 
 void cspi_phycore_on(uint16_t nms);
 void cspi_ncr_reset(uint16_t nms);

@@ -13,6 +13,8 @@ objects
 *.crf
 *.dep
 *.sct
+*.dep
+*.htm
 
 # Linker output
 listings

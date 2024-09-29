@@ -105,7 +105,18 @@ void pin_config(const pin_t *pin, gpio_pull_type gppull)
 
 const struct spi_dev_t devconf[1] = {
 	#ifdef DM9051_DRIVER_INTERRUPT
-	devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", &devconf_at437_intr_c7), //Note: NULL got no interrupt, and could faii crash! Need debug.
+	//=devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", &devconf_at437_intr_c7), //Note: NULL got no interrupt, and could faii crash! Need debug.
+	{
+		"AT32F437",
+		SPI_PINSTD("SPI1", SPI1, CRM_SPI1_PERIPH_CLOCK, IO_MUX_NULL),
+		"sck/mi/mo/ pa5/pa6/pa7",
+		GPIO_PINMUX(GPIOA, GPIO_PINS_5, CRM_GPIOA_PERIPH_CLOCK, &src5_mux5), /* //SCK */
+		GPIO_PINMUX(GPIOA, GPIO_PINS_6, CRM_GPIOA_PERIPH_CLOCK, &src6_mux5),	/* //MISO */
+		GPIO_PINMUX(GPIOA, GPIO_PINS_7, CRM_GPIOA_PERIPH_CLOCK, &src7_mux5),	/* //MOSI */
+		"cs/ pa15",
+		GPIO_PINOUT(GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK, &mode_output), /* //(PA15) */
+		&devconf_at437_intr_c7,
+	},
 	#else
 	devconf_at437_spi1("AT32F437", "sck/mi/mo/ pa5/pa6/pa7", "cs/ pa15", NULL), //Note: NULL got no interrupt, and could faii crash! Need debug.
 	#endif

@@ -201,8 +201,6 @@ int link_flag(void);
 void impl_dm9051_set_recv(void);
 //void lwip_set_mac_address_IN_DRV(const uint8_t* macadd);
 uint16_t evaluate_link(void);
-void spi_add(void);
-void intr_add(void);
 unsigned long get_fire_polling(void);
 
 #endif

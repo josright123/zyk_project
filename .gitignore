@@ -13,19 +13,9 @@ objects
 *.crf
 *.dep
 *.sct
-# Added-for
-*.__i
-*.hex
-*.htm
 
 # Linker output
 listings
 *.lst
 *.map
 *.exp
-*.slsproj
-
-#mdk
-*.user1
-*.joseph
-*.uvoptx

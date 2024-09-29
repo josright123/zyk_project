@@ -93,6 +93,15 @@
 		CS_EACH = 0,
 		CS_LONG,
 	} csmode_t;
+	
+	void spi_add(void);
+	void intr_add(void);
+	
+	void pin_config(const pin_t *pin, gpio_pull_type gppull);
+	void spi_config(void);
+	void intr_gpio_pin_config(const pin_t *pin, gpio_pull_type pull);
+	void intr_irqline_config(const struct extscfg_st *pexint_set, exint_polarity_config_type polarity);
+	void log_intr_qpio_pin_config(void);
 #endif
 #endif
 #endif //__DM9051_CBOARD_DT_H__

@@ -6,6 +6,7 @@ desktop.ini
 
 # Object files
 #Objects/
+objects/
 objects
 *.o
 *.ko
@@ -13,11 +14,19 @@ objects
 *.crf
 *.dep
 *.sct
-*.dep
+# Added-for
+*.__i
+*.hex
 *.htm
 
 # Linker output
+listings/
 listings
 *.lst
 *.map
 *.exp
+
+#mdk
+*.user1
+*.joseph
+*.uvoptx

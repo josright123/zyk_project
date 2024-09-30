@@ -171,6 +171,42 @@ struct gp_set_st intr_wire[1] = {
 	},
 };
 
+//-
+
+	struct spi_set_t {
+		/* //SPI_CONG */
+	  //char *spi_name;
+	  spi_type *spi_num;        		//= SPIPORT;
+	  crm_periph_clock_type spi_crm_clk;	//= SPI_CRM_CLK;
+	  //uint16_t iomux;
+		
+		/* //SCK */
+		gpio_type *gpport;        		//= PORT;
+		uint16_t pin;           		//= PIN;
+		crm_periph_clock_type gp_crmclk;  //= CRM_CLK;
+		
+		gpio_mode_type gpio_mode;		//= type
+		gpio_pins_source_type pinsrc;
+		gpio_mux_sel_type muxsel;
+		
+		/* //MISO */
+		/* //MOSI */
+		/* //CS (e.g. PA15) */
+		
+	} spi_set = {
+		SPI1, CRM_SPI1_PERIPH_CLOCK,
+		
+		/* //SCK */
+		GPIOA, GPIO_PINS_5, CRM_GPIOA_PERIPH_CLOCK,
+		
+		GPIO_MODE_MUX, GPIO_PINS_SOURCE5, GPIO_MUX_5,
+		
+		/* //MISO */
+		/* //MOSI */
+		/* //CS (e.g. PA15) */
+		
+	};
+
 void spi_config(void)
 {
 //#define FIELD_SPIDEV(field)			devconf[0].field

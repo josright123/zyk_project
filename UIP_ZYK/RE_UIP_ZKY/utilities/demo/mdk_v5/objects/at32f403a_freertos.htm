@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\objects\at32f403a_freertos.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\objects\at32f403a_freertos.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050169: Last Updated: Sun Sep 29 16:56:37 2024
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050169: Last Updated: Sun Sep 29 22:49:20 2024
 <BR><P>
 <H3>Maximum Stack Usage =        392 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -666,7 +666,7 @@ Global Symbols
 
 <P><STRONG><a name="[1a9]"></a>__decompress1</STRONG> (Thumb, 86 bytes, Stack size unknown bytes, C:\Keil_v5\ARM\ARMCC\Bin\..\lib\armlib\mc_w.l(__dczerorl2.o)(.text), UNUSED)
 
-<P><STRONG><a name="[8a]"></a>AT_cint_enable_mcu_irq</STRONG> (Thumb, 42 bytes, Stack size 8 bytes, .\objects\dm9051_hw_at32f437xx.o(i.AT_cint_enable_mcu_irq))
+<P><STRONG><a name="[8a]"></a>AT_cint_enable_mcu_irq</STRONG> (Thumb, 40 bytes, Stack size 8 bytes, .\objects\dm9051_hw_at32f437xx.o(i.AT_cint_enable_mcu_irq))
 <BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = AT_cint_enable_mcu_irq &rArr; trace_irq_stat &rArr; __2sprintf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;nvic_priority_group_config
@@ -1705,7 +1705,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[13b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vuIP_Task
 </UL>
 
-<P><STRONG><a name="[f5]"></a>intr_add</STRONG> (Thumb, 56 bytes, Stack size 8 bytes, .\objects\dm9051_hw_at32f437xx.o(i.intr_add))
+<P><STRONG><a name="[f5]"></a>intr_add</STRONG> (Thumb, 46 bytes, Stack size 8 bytes, .\objects\dm9051_hw_at32f437xx.o(i.intr_add))
 <BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = intr_add &rArr; pin_config &rArr; pin_gpio_config &rArr; gpio_init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[132]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pin_config
@@ -2815,7 +2815,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;env_evaluate_rxb
 </UL>
 
-<P><STRONG><a name="[133]"></a>intr_irqline_config</STRONG> (Thumb, 80 bytes, Stack size 24 bytes, .\objects\dm9051_hw_at32f437xx.o(i.intr_irqline_config))
+<P><STRONG><a name="[133]"></a>intr_irqline_config</STRONG> (Thumb, 70 bytes, Stack size 24 bytes, .\objects\dm9051_hw_at32f437xx.o(i.intr_irqline_config))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = intr_irqline_config &rArr; crm_periph_clock_enable
 </UL>
 <BR>[Calls]<UL><LI><a href="#[134]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;crm_periph_clock_enable

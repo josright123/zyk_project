@@ -25,8 +25,6 @@
   */
 #ifndef __DM9051_CBOARD_H
 #define __DM9051_CBOARD_H
-#include "dm9051_lw_mcu_default_IN.h"
-
 #include "dm9051_cboard_data_types.h"
 
 #ifdef __cplusplus

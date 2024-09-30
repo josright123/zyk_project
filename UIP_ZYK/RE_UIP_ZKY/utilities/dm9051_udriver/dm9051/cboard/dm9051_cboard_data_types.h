@@ -6,6 +6,7 @@
 //#include "dm9051opts.h"
 //#include "cboard/dm9051_lw_mcu_default_IN.h"
 //#include "dm9051_lw.h"
+#include "dm9051_lw_mcu_default_IN.h"
 
 #if defined (_DLW_AT32F437xx)
 #if 1
@@ -105,7 +106,7 @@
 	void intr_add(void);
 	
 	void pin_config(const struct pin_t *pin, gpio_pull_type gppull);
-	void spi_config(void);
+	//void spi_config(void);
 	void intr_gpio_pin_config(const struct pin_t *pin, gpio_pull_type pull);
 	void intr_irqline_config(const struct extscfg_st *pexint_set, exint_polarity_config_type polarity);
 	void log_intr_qpio_pin_config(void);

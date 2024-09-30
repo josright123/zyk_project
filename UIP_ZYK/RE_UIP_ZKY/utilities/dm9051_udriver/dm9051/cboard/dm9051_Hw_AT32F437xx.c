@@ -1,4 +1,3 @@
-#include "cboard/dm9051_lw_mcu_default_IN.h" //#include "dm9051_env.h" of
 #include "dm9051_cboard_data_types.h"
 #include "dm9051_cstate.h"
 #include "../dm_eth.h"
@@ -81,29 +80,6 @@ void pin_config(const struct pin_t *pin, gpio_pull_type gppull)
 	pin_gpio_mux(pin);
 }
 
-//		#define SPI_PINSTD(spiname,spinum,crmclk,iom)				{spiname, spinum, crmclk, iom}
-//		#define GPIO_PINMUX(gpport,pin,crmclk, ptrmux)				{{gpport,pin,crmclk}, ptrmux}
-//		#define GPIO_PINOUT(gpport,pin,crmclk, ptrmux)				{{gpport,pin,crmclk}, ptrmux}
-//		#define devconf_at437_spi1(info, spi_setting_name, cs_setting_name, intrcfg) \
-//		{ \
-//			info, \
-//			SPI_PINSTD("SPI1", SPI1, CRM_SPI1_PERIPH_CLOCK, IO_MUX_NULL), \
-//			spi_setting_name, \
-//			GPIO_PINMUX(GPIOA, GPIO_PINS_5, CRM_GPIOA_PERIPH_CLOCK, &src5_mux5), /* //SCK */ \
-//			GPIO_PINMUX(GPIOA, GPIO_PINS_6, CRM_GPIOA_PERIPH_CLOCK, &src6_mux5),	/* //MISO */ \
-//			GPIO_PINMUX(GPIOA, GPIO_PINS_7, CRM_GPIOA_PERIPH_CLOCK, &src7_mux5),	/* //MOSI */ \
-//			cs_setting_name, \
-//			GPIO_PINOUT(GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK, &mode_output), /* //(PA15) */ \
-//			intrcfg, \
-//		}
-//		#define GPIO_PININ_INFO(inf,gpport,pin,crmclk, ptrmux)		{inf, {{gpport,pin,crmclk}, ptrmux}}
-//		#define INP_DATA()	\
-//			GPIO_MODE_INPUT,
-//		#define MUX_DATA(src,muxto)	\
-//			GPIO_MODE_MUX, src, muxto,
-//		#define OUTP_DATA()	\
-//			GPIO_MODE_OUTPUT,
-			
 		const gpio_mux_t src5_mux5 = { GPIO_MODE_MUX, GPIO_PINS_SOURCE5, GPIO_MUX_5};
 		const gpio_mux_t src6_mux5 = { GPIO_MODE_MUX, GPIO_PINS_SOURCE6, GPIO_MUX_5};
 		const gpio_mux_t src7_mux5 = { GPIO_MODE_MUX, GPIO_PINS_SOURCE7, GPIO_MUX_5};
@@ -127,21 +103,6 @@ const struct spi_dev_t devconf[1] = {
 //	#endif
 	},
 };
-				
-		const gpio_mux_t mode_input = { GPIO_MODE_INPUT,};
-
-const struct modscfg_st devconf_at437_intr_c7 = { //devconf_intr_c7,
-	"pc7",
-	{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},
-	"pc7",
-	{ /*(essential) &pe_c7*/
-		"extline pc7",
-		{ CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},
-		{ CRM_GPIOC_PERIPH_CLOCK, EXINT_LINE_7, EXINT9_5_IRQn, NVIC_PRIORITY_GROUP_0}, // correspond to and with PC7
-	},
-	"pc7",
-	{"gpio pc7", {{GPIOC, GPIO_PINS_7, CRM_GPIOC_PERIPH_CLOCK}, &mode_input}}, //GPIO_PININ_INFO(),
-};
 
 spihead_t spi_clock[1] = {
 	{"SPI1", SPI1, CRM_SPI1_PERIPH_CLOCK, IO_MUX_NULL}, //spi definition
@@ -154,24 +115,19 @@ struct pin_t wires[4] = {
 	{{GPIOA, GPIO_PINS_15, CRM_GPIOA_PERIPH_CLOCK}, &mode_output}, /* //(PA15) */
 };
 
-//struct extint_init_t intr_clock[1] = {
-//	{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},
-//};
-struct extscfg_st intr_source[1] = {
-	{ /*(essential) &pe_c7*/
-		"extline pc7",
-		{ CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},
-		{ CRM_GPIOC_PERIPH_CLOCK, EXINT_LINE_7, EXINT9_5_IRQn, NVIC_PRIORITY_GROUP_0}, // correspond to and with PC7
-	},
-};
-struct gp_set_st intr_wire[1] = {
-	{
-		"gpio pc7", 
-		{{GPIOC, GPIO_PINS_7, CRM_GPIOC_PERIPH_CLOCK}, &mode_input},
-	},
-};
-
 //-
+	struct spi_pin_t {
+		gpio_type *gpport;        		//= PORT;
+		uint16_t pin;           		//= PIN;
+		
+		gpio_pins_source_type pinsrc;
+		gpio_mux_sel_type muxsel;
+	};
+	struct spi_pin_set_t {
+		crm_periph_clock_type gp_crmclk;
+		gpio_mode_type gpio_mode;
+		struct spi_pin_t pin;
+	};
 
 	struct spi_set_t {
 		/* //SPI_CONG */
@@ -181,25 +137,31 @@ struct gp_set_st intr_wire[1] = {
 	  //uint16_t iomux;
 		
 		/* //SCK */
-		gpio_type *gpport;        		//= PORT;
-		uint16_t pin;           		//= PIN;
-		crm_periph_clock_type gp_crmclk;  //= CRM_CLK;
-		
-		gpio_mode_type gpio_mode;		//= type
-		gpio_pins_source_type pinsrc;
-		gpio_mux_sel_type muxsel;
-		
 		/* //MISO */
 		/* //MOSI */
 		/* //CS (e.g. PA15) */
+		
+//		gpio_type *gpport;        		//= PORT;
+//		uint16_t pin;           		//= PIN;
+//		crm_periph_clock_type gp_crmclk;  //= CRM_CLK;
+//		
+//		gpio_mode_type gpio_mode;		//= type
+//		gpio_pins_source_type pinsrc;
+//		gpio_mux_sel_type muxsel;
+		
+		struct spi_pin_set_t pin_sck;
+		struct spi_pin_set_t pin_miso;
+		struct spi_pin_set_t pin_mosi;
+		struct spi_pin_set_t pin_cs;
 		
 	} spi_set = {
 		SPI1, CRM_SPI1_PERIPH_CLOCK,
 		
 		/* //SCK */
-		GPIOA, GPIO_PINS_5, CRM_GPIOA_PERIPH_CLOCK,
-		
-		GPIO_MODE_MUX, GPIO_PINS_SOURCE5, GPIO_MUX_5,
+		{CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_MUX, { GPIOA, GPIO_PINS_5, GPIO_PINS_SOURCE5, GPIO_MUX_5, }, },
+		{CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_MUX, { GPIOA, GPIO_PINS_6, GPIO_PINS_SOURCE6, GPIO_MUX_5}, },
+		{CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_MUX, { GPIOA, GPIO_PINS_7, GPIO_PINS_SOURCE7, GPIO_MUX_5}, },
+		{CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_OUTPUT, { GPIOA, GPIO_PINS_15, }, },
 		
 		/* //MISO */
 		/* //MOSI */
@@ -207,14 +169,86 @@ struct gp_set_st intr_wire[1] = {
 		
 	};
 
-void spi_config(void)
+static void gpio_config(const struct pin_t *pin, gpio_pull_type gppull) {
+	const gpio_t *gpio = &pin->gpio;
+	const gpio_mux_t *mux = pin->mux;
+	
+  gpio_init_type gpio_init_struct;
+  //crm_periph_clock_enable(gpio->gp_crmclk, TRUE); /* enable the gpioa clock */
+
+  gpio_default_para_init(&gpio_init_struct);
+  gpio_init_struct.gpio_out_type  		= GPIO_OUTPUT_PUSH_PULL;
+  gpio_init_struct.gpio_drive_strength	= GPIO_DRIVE_STRENGTH_STRONGER;
+  gpio_init_struct.gpio_mode			= mux->gpio_mode; //gmode
+											//gpio->gpio_mode; //gpmode; //GPIO_MODE_INPUT;
+
+  gpio_init_struct.gpio_pull			= gppull; //exint_cfg.gpio_pull; //GPIO_PULL_DOWN; GPIO_PULL_UP; //GPIO_PULL_NONE;
+  gpio_init_struct.gpio_pins			= gpio->pin;
+  gpio_init(gpio->gpport, &gpio_init_struct);
+}
+
+static void gpio_mux(const struct pin_t *pin) {
+ #if defined(_DLW_AT32F437xx)
+	const gpio_t *gpio = &pin->gpio;
+	const gpio_mux_t *mux = pin->mux;
+	
+  if (mux->gpio_mode == GPIO_MODE_MUX)
+		gpio_pin_mux_config(gpio->gpport, mux->pinsrc, mux->muxsel);
+ #endif
+}
+
+static void pin_cfg(struct spi_pin_set_t *ps, gpio_pull_type gppull)
+{
+	crm_periph_clock_enable(ps->gp_crmclk, TRUE); /* enable the gpioa clock */
+	//pin_gpio_config(pin, gppull);
+	//pin_gpio_mux(pin);
+	
+	//..
+	//gpio_config
+	
+	if (ps->gpio_mode == GPIO_MODE_MUX)
+		; //gpio_mux
+}
+
+static void pins_cfg(struct spi_set_t *ss)
+{
+	//ss->pin_sck.gp_crmclk
+	//ss->pin_sck.gpio_mode
+	pin_cfg(&ss->pin_sck, GPIO_PULL_NONE);
+	//if (ss->pin_sck.gpio_mode == GPIO_MODE_MUX)
+		//;
+	
+	//ss->pin_miso.gp_crmclk
+	//ss->pin_miso.gpio_mode
+	pin_cfg(&ss->pin_miso, GPIO_PULL_NONE);
+	//if (ss->pin_sck.gpio_mode == GPIO_MODE_MUX)
+		//;
+	
+	//ss->pin_mosi.gp_crmclk
+	//ss->pin_mosi.gpio_mode
+	pin_cfg(&ss->pin_mosi, GPIO_PULL_NONE);
+	//if (ss->pin_sck.gpio_mode == GPIO_MODE_MUX)
+		//;
+	
+	//ss->pin_cs.gp_crmclk
+	//ss->pin_cs.gpio_mode
+	pin_cfg(&ss->pin_cs, GPIO_PULL_NONE);
+	//if (ss->pin_sck.gpio_mode == GPIO_MODE_MUX)
+		//;
+}
+
+static void spi_config(struct spi_set_t *ss)
 {
 //#define FIELD_SPIDEV(field)			devconf[0].field
 //#define spi_crm()					FIELD_SPIDEV(spidef.spi_crm_clk)
 
 #if 1
   spi_init_type spi_init_struct;
-  crm_periph_clock_enable(/*spi_crm()*/ devconf[0].spidef.spi_crm_clk, TRUE); //crm_spi_clk(_pinCode), CRM_SPI3_PERIPH_CLOCK/CRM_SPI2_PERIPH_CLOCK
+  crm_periph_clock_enable(
+		/*spi_crm()*/ //crm_spi_clk(_pinCode), CRM_SPI3_PERIPH_CLOCK/CRM_SPI2_PERIPH_CLOCK
+		//devconf[0].spidef.spi_crm_clk, 
+		ss->spi_crm_clk,
+		TRUE);
 
   spi_default_para_init(&spi_init_struct);
   spi_init_struct.transmission_mode = SPI_TRANSMIT_FULL_DUPLEX;
@@ -227,8 +261,16 @@ void spi_config(void)
   //spi_init_struct.clock_phase = SPI_CLOCK_PHASE_2EDGE;
   spi_init_struct.clock_phase = SPI_CLOCK_PHASE_1EDGE;
   spi_init_struct.cs_mode_selection = SPI_CS_SOFTWARE_MODE;
-  spi_init(/*spi_number()*/ devconf[0].spidef.spi_num, &spi_init_struct); //SPI2, _spi_num(_pinCode)
-  spi_enable(/*spi_number()*/ devconf[0].spidef.spi_num, TRUE); //SPI2, _spi_num(_pinCode)
+  spi_init(
+		/*spi_number()*/  //SPI2, _spi_num(_pinCode)
+		//devconf[0].spidef.spi_num,
+		ss->spi_num,
+		&spi_init_struct);
+  spi_enable(
+		/*spi_number()*/  //SPI2, _spi_num(_pinCode)
+		//devconf[0].spidef.spi_num,
+		ss->spi_num,
+		TRUE);
 #endif
 #if 0
   spi_init_type spi_init_struct;
@@ -251,6 +293,55 @@ void spi_config(void)
   spi_enable(SPI1, TRUE);
 #endif
 }
+
+//#define FIELD_SPIDEV(field)			devconf[0].field
+//#define spi_number()						FIELD_SPIDEV(spidef.spi_num)
+//#define pin_wire_sck()					FIELD_SPIDEV(wire_sck)
+//#define pin_wire_mi()						FIELD_SPIDEV(wire_mi)
+//#define pin_wire_mo()						FIELD_SPIDEV(wire_mo)
+//#define pin_cs()								FIELD_SPIDEV(wire_cs)
+
+void spi_add(void) {
+  //pin_config(/*&pin_wire_sck()*/ &devconf[0].wire_sck, GPIO_PULL_NONE); //,GPIO_MODE_MUX
+  //pin_config(/*&pin_wire_mi()*/ &devconf[0].wire_mi, GPIO_PULL_NONE); //,GPIO_MODE_MUX
+  //pin_config(/*&pin_wire_mo()*/ &devconf[0].wire_mo, GPIO_PULL_NONE); //,GPIO_MODE_MUX
+  spi_config(&spi_set); //(spi_port_ptr(_pinCode));
+
+  //pin_config(/*&pin_cs()*/ &devconf[0].wire_cs, GPIO_PULL_NONE);
+	pins_cfg(&spi_set);
+}
+				
+		const gpio_mux_t mode_input = { GPIO_MODE_INPUT,};
+
+const struct modscfg_st devconf_at437_intr_c7 = { //devconf_intr_c7,
+	"pc7",
+	{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},
+	"pc7",
+	{ /*(essential) &pe_c7*/
+		"extline pc7",
+		{ CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},
+		{ CRM_GPIOC_PERIPH_CLOCK, EXINT_LINE_7, EXINT9_5_IRQn, NVIC_PRIORITY_GROUP_0}, // correspond to and with PC7
+	},
+	"pc7",
+	{"gpio pc7", {{GPIOC, GPIO_PINS_7, CRM_GPIOC_PERIPH_CLOCK}, &mode_input}}, //GPIO_PININ_INFO(),
+};
+
+//struct extint_init_t intr_clock[1] = {
+//	{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},
+//};
+struct extscfg_st intr_source[1] = {
+	{ /*(essential) &pe_c7*/
+		"extline pc7",
+		{ CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},
+		{ CRM_GPIOC_PERIPH_CLOCK, EXINT_LINE_7, EXINT9_5_IRQn, NVIC_PRIORITY_GROUP_0}, // correspond to and with PC7
+	},
+};
+struct gp_set_st intr_wire[1] = {
+	{
+		"gpio pc7", 
+		{{GPIOC, GPIO_PINS_7, CRM_GPIOC_PERIPH_CLOCK}, &mode_input},
+	},
+};
 
 //#define scfg_crm()					PTR_EXINTD(scfg_init.scfg_clk)
 //#define exint_crm()					PTR_EXINTD(extend1.extline.intr_crm_clk)
@@ -286,22 +377,6 @@ static void intr_irqline_config(const struct extscfg_st *pexint_set, exint_polar
   exint_init_struct.line_select = pexint_set->extline.extline; // line_no;
   exint_init_struct.line_polarity = polarity;                  // EXINT_TRIGGER_RISING_EDGE/ EXINT_TRIGGER_FALLING_EDGE
   exint_init(&exint_init_struct);
-}
-
-//#define FIELD_SPIDEV(field)			devconf[0].field
-//#define spi_number()						FIELD_SPIDEV(spidef.spi_num)
-//#define pin_wire_sck()					FIELD_SPIDEV(wire_sck)
-//#define pin_wire_mi()						FIELD_SPIDEV(wire_mi)
-//#define pin_wire_mo()						FIELD_SPIDEV(wire_mo)
-//#define pin_cs()								FIELD_SPIDEV(wire_cs)
-
-void spi_add(void) {
-  pin_config(/*&pin_wire_sck()*/ &devconf[0].wire_sck, GPIO_PULL_NONE); //,GPIO_MODE_MUX
-  pin_config(/*&pin_wire_mi()*/ &devconf[0].wire_mi, GPIO_PULL_NONE); //,GPIO_MODE_MUX
-  pin_config(/*&pin_wire_mo()*/ &devconf[0].wire_mo, GPIO_PULL_NONE); //,GPIO_MODE_MUX
-
-  spi_config(); //(spi_port_ptr(_pinCode));
-  pin_config(/*&pin_cs()*/ &devconf[0].wire_cs, GPIO_PULL_NONE);
 }
 
 #ifdef DM9051_DRIVER_INTERRUPT

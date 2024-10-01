@@ -29,7 +29,6 @@ struct spi_pin_set_t
 
 struct spi_set_t
 {
-
 	// char *spi_desc;
 	spi_type *spi;				 //= SPIPORT;
 	crm_periph_clock_type clock; //= SPI_CRM_CLK;
@@ -39,13 +38,13 @@ struct spi_set_t
 	struct spi_pin_set_t pin_cs; /* //CS (e.g. PA15) */
 };
 
-static struct spi_set_t spi_set = {
-	SPI1,
+static struct spi_set_t spi_set[1] = {
+	{SPI1,
 	CRM_SPI1_PERIPH_CLOCK,
 	{CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_MUX, {GPIOA, GPIO_PINS_5, GPIO_PINS_SOURCE5, GPIO_MUX_5}},
 	{CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_MUX, {GPIOA, GPIO_PINS_6, GPIO_PINS_SOURCE6, GPIO_MUX_5}},
 	{CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_MUX, {GPIOA, GPIO_PINS_7, GPIO_PINS_SOURCE7, GPIO_MUX_5}},
-	{CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_OUTPUT, {GPIOA, GPIO_PINS_15}},
+	{CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_OUTPUT, {GPIOA, GPIO_PINS_15}}}
 };
 
 static void configure_gpio(struct spi_pin_set_t *ps, gpio_pull_type gppull)
@@ -102,67 +101,68 @@ static void configure_pin(struct spi_pin_set_t *ps, gpio_pull_type gppull)
 
 void spi_add(void)
 {
-	configure_spi(&spi_set);
-	configure_pin(&spi_set.pin_sck, GPIO_PULL_NONE);
-	configure_pin(&spi_set.pin_miso, GPIO_PULL_NONE);
-	configure_pin(&spi_set.pin_mosi, GPIO_PULL_NONE);
-	configure_pin(&spi_set.pin_cs, GPIO_PULL_NONE);
+	configure_spi(&spi_set[0]);
+	configure_pin(&spi_set[0].pin_sck, GPIO_PULL_NONE);
+	configure_pin(&spi_set[0].pin_miso, GPIO_PULL_NONE);
+	configure_pin(&spi_set[0].pin_mosi, GPIO_PULL_NONE);
+	configure_pin(&spi_set[0].pin_cs, GPIO_PULL_NONE);
 }
 
-struct irq_cfg_t
+struct irq_set_t
 {
 	crm_periph_clock_type clock; // CRM_SCFG_PERIPH_CLOCK,
 	scfg_port_source_type scfg_port_src; // SCFG_PORT_SOURCE_X
 	scfg_pins_source_type scfg_pin_src; // SCFG_PINS_SOURCEX
 };
 
-struct irq_line_t
+struct irqline_set_t
 {
 	crm_periph_clock_type clock; // CRM_GPIOC_PERIPH_CLOCK,
 	uint32_t extline; //= LINE
 };
 
-struct interrupt_config_t
+struct interrupt_mode_t
 {
-	struct irq_cfg_t irq;
-	struct irq_line_t irqline;
 	IRQn_Type irqn;					   //= EXINTn_m
 	nvic_priority_group_type priority; //_group;
 };
 
-struct spi_intr_t
+struct interrupt_set_t
 {
-	struct interrupt_config_t interrupt;
-	struct spi_pin_set_t pin_intr; /* //INTR (e.g. PC7) */
+	struct spi_pin_set_t gpio; /* //INTR (e.g. PC7) */
+	struct irq_set_t irq;
+	struct irqline_set_t irqline;
+	struct interrupt_mode_t interrupt;
 };
 
-struct spi_intr_t spi_intr[1] = {
-	{{{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},
-	{CRM_GPIOC_PERIPH_CLOCK, EXINT_LINE_7},
-	EXINT9_5_IRQn,
-	NVIC_PRIORITY_GROUP_0},
+struct interrupt_set_t spi_intr[1] = {
+	{
 	{CRM_GPIOC_PERIPH_CLOCK, GPIO_MODE_INPUT, {GPIOC, GPIO_PINS_7}},
+	{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},
+	{CRM_GPIOC_PERIPH_CLOCK, EXINT_LINE_7},
+	{EXINT9_5_IRQn, NVIC_PRIORITY_GROUP_0},
 	},
 };
 
-static void intr_irqline_config(exint_polarity_config_type polarity)
+static void configure_irq(struct interrupt_set_t *spiintr,
+						  exint_polarity_config_type polarity)
 { // const struct extscfg_st *pexint_set,
 	exint_init_type exint_init_struct;
 
-	crm_periph_clock_enable(spi_intr[0].interrupt.irq.clock, TRUE);
-	crm_periph_clock_enable(spi_intr[0].interrupt.irqline.clock, TRUE);
+	crm_periph_clock_enable(spiintr->irq.clock, TRUE);
+	crm_periph_clock_enable(spiintr->irqline.clock, TRUE);
 
 	// #ifndef AT32F437xx
 	//   gpio_exint_line_config(scfg_port(), scfg_pin()); // SCFG_PORT_SOURCE_GPIOA, SCFG_PINS_SOURCE0
 	// #else
 	// #endif
-	scfg_exint_line_config(spi_intr[0].interrupt.irq.scfg_port_src,
-						   spi_intr[0].interrupt.irq.scfg_pin_src);
+	scfg_exint_line_config(spiintr->irq.scfg_port_src,
+						   spiintr->irq.scfg_pin_src);
 
 	exint_default_para_init(&exint_init_struct);
 	exint_init_struct.line_enable = TRUE;
 	exint_init_struct.line_mode = EXINT_LINE_INTERRUPUT;
-	exint_init_struct.line_select = spi_intr[0].interrupt.irqline.extline;
+	exint_init_struct.line_select = spiintr->irqline.extline;
 	exint_init_struct.line_polarity = polarity; // EXINT_TRIGGER_RISING_EDGE/ EXINT_TRIGGER_FALLING_EDGE
 	exint_init(&exint_init_struct);
 }
@@ -172,9 +172,8 @@ static void intr_irqline_config(exint_polarity_config_type polarity)
 void intr_add(void)
 {
 	// log_intr_qpio_pin_config();
-	configure_pin(&spi_intr[0].pin_intr, GPIO_PULL_UP);
-
-	intr_irqline_config(EXINT_TRIGGER_FALLING_EDGE); //[ops] //&devconf_at437_intr_c7.extend1,
+	configure_pin(&spi_intr[0].gpio, GPIO_PULL_UP);
+	configure_irq(&spi_intr[0], EXINT_TRIGGER_FALLING_EDGE); //[ops] //&devconf_at437_intr_c7.extend1,
 
 	identify_irq_stat(ISTAT_IRQ_CFG);
 	trace_irq_stat(ISTAT_IRQ_CFG);
@@ -213,21 +212,22 @@ void AT_cint_exint9_5_handler(void)
 
 	// add user's mcu irq-handler source code here.
 
-	if (exint_flag_get(spi_intr[0].interrupt.irqline.extline) != RESET)
+	if (exint_flag_get(spi_intr[0].irqline.extline) != RESET)
 	{
 
 		identify_irq_stat(ISTAT_IRQ_NOW2);
 		trace_irq_stat(ISTAT_IRQ_NOW2);
 		DM_ETH_ToSet_InterruptEvent();
 
-		exint_flag_clear(spi_intr[0].interrupt.irqline.extline);
+		exint_flag_clear(spi_intr[0].irqline.extline);
 	}
 
 	deidentify_irq_stat(ISTAT_IRQ_NOW | ISTAT_IRQ_NOW2);
 }
 #endif
 
-#define pin_cs() spi_set.pin_cs.gpio_pin // devconf[0].wire_cs
+#define pin_cs() spi_set[0].pin_cs.gpio_pin // devconf[0].wire_cs
+#define spi_number() spi_set[0].spi // devconf[0].spidef.spi_num
 
 // --------------------- AT ----------------------------
 #if defined(_DLW_AT32F437xx)
@@ -240,16 +240,14 @@ void AT_spi_cs_hi(void)
 	gpio_bits_set(pin_cs().gpport, pin_cs().pin);
 }
 
-#define spi_number() spi_set.spi // devconf[0].spidef.spi_num
-
 uint8_t AT_spi_exc_data(uint8_t byte)
 {
 	while (spi_i2s_flag_get(spi_number(), SPI_I2S_TDBE_FLAG) == RESET)
-		;									   // while(spi_i2s_flag_get(SPI2, SPI_I2S_TDBE_FLAG) == RESET);
-	spi_i2s_data_transmit(spi_number(), byte); // spi_i2s_data_transmit(SPI2, byte); //spi2 tx
+		;
+	spi_i2s_data_transmit(spi_number(), byte);
 	while (spi_i2s_flag_get(spi_number(), SPI_I2S_RDBF_FLAG) == RESET)
-		;												// while(spi_i2s_flag_get(SPI2, SPI_I2S_RDBF_FLAG) == RESET);
-	return (uint8_t)spi_i2s_data_receive(spi_number()); // return (uint8_t) spi_i2s_data_receive(SPI2); //spi2 rx (rx_pad)
+		;
+	return (uint8_t)spi_i2s_data_receive(spi_number());
 }
 #endif
 

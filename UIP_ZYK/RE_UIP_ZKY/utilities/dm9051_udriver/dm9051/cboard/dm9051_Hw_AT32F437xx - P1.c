@@ -111,49 +111,59 @@ void spi_add(void)
 
 struct irq_cfg_t
 {
-	crm_periph_clock_type scfg_clk;		 // CRM_SCFG_PERIPH_CLOCK,
+	crm_periph_clock_type clock; // CRM_SCFG_PERIPH_CLOCK,
 	scfg_port_source_type scfg_port_src; // SCFG_PORT_SOURCE_X
-	scfg_pins_source_type scfg_pin_src;	 // SCFG_PINS_SOURCEX
+	scfg_pins_source_type scfg_pin_src; // SCFG_PINS_SOURCEX
 };
 
-struct spi_intr_t
+struct irq_line_t
 {
-	crm_periph_clock_type intr_crm_clk; // CRM_GPIOC_PERIPH_CLOCK,
-	uint32_t extline;					//= LINE
+	crm_periph_clock_type clock; // CRM_GPIOC_PERIPH_CLOCK,
+	uint32_t extline; //= LINE
+};
+
+struct interrupt_config_t
+{
 	struct irq_cfg_t irq;
-	struct spi_pin_set_t pin_intr;	   /* //INTR (e.g. PC7) */
+	struct irq_line_t irqline;
 	IRQn_Type irqn;					   //= EXINTn_m
 	nvic_priority_group_type priority; //_group;
 };
 
+struct spi_intr_t
+{
+	struct interrupt_config_t interrupt;
+	struct spi_pin_set_t pin_intr; /* //INTR (e.g. PC7) */
+};
+
 struct spi_intr_t spi_intr[1] = {
-	CRM_GPIOC_PERIPH_CLOCK,
-	EXINT_LINE_7,
-	{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},
-	{CRM_GPIOC_PERIPH_CLOCK, GPIO_MODE_INPUT, {GPIOC, GPIO_PINS_7}},
+	{{{CRM_SCFG_PERIPH_CLOCK, SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7},
+	{CRM_GPIOC_PERIPH_CLOCK, EXINT_LINE_7},
 	EXINT9_5_IRQn,
-	NVIC_PRIORITY_GROUP_0,
+	NVIC_PRIORITY_GROUP_0},
+	{CRM_GPIOC_PERIPH_CLOCK, GPIO_MODE_INPUT, {GPIOC, GPIO_PINS_7}},
+	},
 };
 
 static void intr_irqline_config(exint_polarity_config_type polarity)
 { // const struct extscfg_st *pexint_set,
 	exint_init_type exint_init_struct;
 
-	crm_periph_clock_enable(spi_intr[0].irq.scfg_clk, TRUE); // src_intr_c7[0].intr_ck.scfg_clk
-	crm_periph_clock_enable(spi_intr[0].intr_crm_clk, TRUE); // src_intr_c7[0].extline.intr_crm_clk,
+	crm_periph_clock_enable(spi_intr[0].interrupt.irq.clock, TRUE);
+	crm_periph_clock_enable(spi_intr[0].interrupt.irqline.clock, TRUE);
 
 	// #ifndef AT32F437xx
 	//   gpio_exint_line_config(scfg_port(), scfg_pin()); // SCFG_PORT_SOURCE_GPIOA, SCFG_PINS_SOURCE0
 	// #else
 	// #endif
-	scfg_exint_line_config(spi_intr[0].irq.scfg_port_src,
-						   spi_intr[0].irq.scfg_pin_src);
+	scfg_exint_line_config(spi_intr[0].interrupt.irq.scfg_port_src,
+						   spi_intr[0].interrupt.irq.scfg_pin_src);
 
 	exint_default_para_init(&exint_init_struct);
 	exint_init_struct.line_enable = TRUE;
 	exint_init_struct.line_mode = EXINT_LINE_INTERRUPUT;
-	exint_init_struct.line_select = spi_intr[0].extline; // src_intr_c7[0].extline.extline; //pexint_set->extline.extline; // line_no;
-	exint_init_struct.line_polarity = polarity;			 // EXINT_TRIGGER_RISING_EDGE/ EXINT_TRIGGER_FALLING_EDGE
+	exint_init_struct.line_select = spi_intr[0].interrupt.irqline.extline;
+	exint_init_struct.line_polarity = polarity; // EXINT_TRIGGER_RISING_EDGE/ EXINT_TRIGGER_FALLING_EDGE
 	exint_init(&exint_init_struct);
 }
 
@@ -180,7 +190,7 @@ void AT_cint_disable_mcu_irq(void)
 {
 #ifdef DM9051_DRIVER_INTERRUPT
 	deidentify_irq_stat(ISTAT_IRQ_ENAB);
-	nvic_irq_disable(spi_intr[0].irqn); //(devconf_at437_intr_c7.extend1.extline.irqn);
+	nvic_irq_disable(spi_intr[0].interrupt.irqn);
 #endif
 }
 
@@ -190,8 +200,8 @@ void AT_cint_enable_mcu_irq(void)
 	identify_irq_stat(ISTAT_IRQ_ENAB);
 	trace_irq_stat(ISTAT_IRQ_ENAB);
 
-	nvic_priority_group_config(spi_intr[0].priority); // devconf_at437_intr_c7.extend1.extline.priority //NVIC_PRIORITY_GROUP_0/NVIC_PRIORITY_GROUP_4 // or "NVIC_PRIORITY_GROUP_0"
-	nvic_irq_enable(spi_intr[0].irqn, 1, 0);		  // devconf_at437_intr_c7.extend1.extline.irqn
+	nvic_priority_group_config(spi_intr[0].interrupt.priority);
+	nvic_irq_enable(spi_intr[0].interrupt.irqn, 1, 0);
 #endif
 }
 
@@ -203,14 +213,14 @@ void AT_cint_exint9_5_handler(void)
 
 	// add user's mcu irq-handler source code here.
 
-	if (exint_flag_get(spi_intr[0].extline) != RESET)
+	if (exint_flag_get(spi_intr[0].interrupt.irqline.extline) != RESET)
 	{
 
 		identify_irq_stat(ISTAT_IRQ_NOW2);
 		trace_irq_stat(ISTAT_IRQ_NOW2);
 		DM_ETH_ToSet_InterruptEvent();
 
-		exint_flag_clear(spi_intr[0].extline);
+		exint_flag_clear(spi_intr[0].interrupt.irqline.extline);
 	}
 
 	deidentify_irq_stat(ISTAT_IRQ_NOW | ISTAT_IRQ_NOW2);

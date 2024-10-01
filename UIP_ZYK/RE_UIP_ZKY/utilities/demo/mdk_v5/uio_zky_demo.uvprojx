@@ -709,9 +709,9 @@
               <FilePath>..\..\dm9051_udriver\dm_eth_freepad.c</FilePath>
             </File>
             <File>
-              <FileName>dm9051_Hw_AT32F437xx.c</FileName>
+              <FileName>dm9051_Hw_AT32F437xx - P1.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\dm9051_udriver\dm9051\cboard\dm9051_Hw_AT32F437xx.c</FilePath>
+              <FilePath>..\..\dm9051_udriver\dm9051\cboard\dm9051_Hw_AT32F437xx - P1.c</FilePath>
             </File>
           </Files>
         </Group>

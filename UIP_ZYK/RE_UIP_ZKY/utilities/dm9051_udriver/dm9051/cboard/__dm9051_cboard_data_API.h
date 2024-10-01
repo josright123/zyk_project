@@ -47,6 +47,9 @@ void AT_spi_data_write(uint8_t reg, uint8_t val);
 uint8_t AT_spi_mem2x_read(void);
 void AT_spi_mem_read(uint8_t *buf, uint16_t len);
 void AT_spi_mem_write(uint8_t *buf, uint16_t len);
+	
+void spi_add(void);
+void intr_add(void);
 
 //[hw]
 void cint_exint9_5_handler(void);

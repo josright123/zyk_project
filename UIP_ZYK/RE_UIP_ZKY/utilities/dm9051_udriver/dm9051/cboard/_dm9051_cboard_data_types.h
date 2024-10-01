@@ -13,7 +13,7 @@
 #endif
 
 #if defined (_DLW_AT32F437xx)
-#if 1
+#if 0
 //[AT cspi]
 
 //	struct pin_t;
@@ -96,16 +96,11 @@
 //		struct pin_t wire_cs;
 //		//const struct modscfg_st *intr_cfg;
 //	};
-
-	typedef enum {
-		CS_EACH = 0,
-		CS_LONG,
-	} csmode_t;
 	
 	void spi_add(void);
 	void intr_add(void);
 	
-	void intr_irqline_config(exint_polarity_config_type polarity); //const struct extscfg_st *pexint_set, 
+	//void intr_irqline_config(exint_polarity_config_type polarity); //const struct extscfg_st *pexint_set, 
 	//void log_intr_qpio_pin_config(void);
 #endif //1
 #endif //_DLW_AT32F437xx

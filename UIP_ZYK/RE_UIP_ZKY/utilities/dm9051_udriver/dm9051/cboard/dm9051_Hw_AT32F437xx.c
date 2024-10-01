@@ -1,4 +1,4 @@
-#include "dm9051_cboard_data_types.h"
+#include "dm9051_cboard_data_API.h" //#include "dm9051_cboard_data_types.h"
 #include "dm9051_cstate.h"
 #include "../dm_eth.h"
 
@@ -390,7 +390,7 @@ void AT_spi_mem_write(uint8_t *buf, uint16_t len)
 /* dm9051_Hw_common implementation 
  * source code.
  */
-#include "dm9051_cboard_data_API.h"
+//#include "dm9051_cboard_data_API.h"
 
 uint8_t cspi_read_reg(uint8_t reg) //static (todo)
 {

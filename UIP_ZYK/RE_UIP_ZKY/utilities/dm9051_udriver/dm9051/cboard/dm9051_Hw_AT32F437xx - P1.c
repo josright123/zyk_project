@@ -171,8 +171,11 @@ static void configure_irq(struct interrupt_set_t *spiintr,
 
 void intr_add(void)
 {
+	#if 1
+	// [Not all devices essential]
 	// log_intr_qpio_pin_config();
 	configure_pin(&spi_intr[0].gpio, GPIO_PULL_UP);
+	#endif
 	configure_irq(&spi_intr[0], EXINT_TRIGGER_FALLING_EDGE); //[ops] //&devconf_at437_intr_c7.extend1,
 
 	identify_irq_stat(ISTAT_IRQ_CFG);

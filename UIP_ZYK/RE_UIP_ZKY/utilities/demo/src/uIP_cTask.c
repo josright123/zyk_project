@@ -54,11 +54,10 @@
 #include "queue.h"
 
 #if 1
-#include "../dm_eth_api.h"
-#include "dm9051_lw.h" //#include "dm9051_env.h"
+#include "../dm_eth_api.h" //#include "dm9051_lw.h" //#include "dm9051_env.h"
 
 //#include "dm_identify.h"
-#include "dm_identify_impl.h" //[h file implement]
+//#include "dm_identify_impl.h" //[h file implement]
 
 #else
 //#include "DM9051.h"
@@ -68,19 +67,20 @@
 //#include "dhcpc.h"
 
 //[version_1]
-#define	DM9051_init					DM_ETH_Init
-#define	DM9051_tx						DM_ETH_Output
-#define	DM9051_rx						DM_ETH_Input
+#define	DM9051_init									DM_ETH_Init
+#define	DM9051_tx										DM_ETH_Output
+#define	DM9051_rx										DM_ETH_Input
 //[version_0.ok]
-//#define tapdev_send()			DM_ETH_Output((uint8_t *)uip_buf, uip_len) //dm9051_tx((uint8_t *)uip_buf, uip_len)
-//#define tapdev_read()			DM_ETH_Input((uint8_t *)uip_buf) //_DM_ETH_RXHandler((uint8_t *)uip_buf) //dm9051_rx((uint8_t *)uip_buf)
+//#define tapdev_send()							DM_ETH_Output((uint8_t *)uip_buf, uip_len) //dm9051_tx((uint8_t *)uip_buf, uip_len)
+//#define tapdev_read()							DM_ETH_Input((uint8_t *)uip_buf) //_DM_ETH_RXHandler((uint8_t *)uip_buf) //dm9051_rx((uint8_t *)uip_buf)
 //[version_1]
-#define tapdev_init()				DM9051_init()
-#define tapdev_send()				DM9051_tx()
-#define tapdev_read()				DM9051_rx()
-//#define	input_intr()			DM9051_rx()
-#define tapdev_get_ievent()	DM_ETH_ToGet_InterruptEvent()
-#define tapdev_clr_ievent()	DM_ETH_ToRst_ISR()
+#define tapdev_init()								DM9051_init()
+#define tapdev_send()								DM9051_tx()
+#define tapdev_read()								DM9051_rx()
+//#define	input_intr()							DM9051_rx()
+#define tapdev_get_ievent()					DM_ETH_ToGet_InterruptEvent()
+#define tapdev_clr_ievent()					DM_ETH_ToRst_ISR()
+#define	tapdev_ip_configure(i,g,m)	DM_ETH_IpConfiguration(i,g,m)
 
 #define BUF ((struct uip_eth_hdr *)&uip_buf[0])
 
@@ -263,7 +263,7 @@ void vuIP_Task(void *pvParameters)
 				isrSemaphore_n = 0;
 				while (input_intr()) {
 				
-					dm_eth_input_hexdump(uip_buf, uip_len); //"dm_eth_status.c"
+//				dm_eth_input_hexdump(uip_buf, uip_len); //"dm_eth_status.c"
 					#if 1
 					//diff_rx_pointers_e(&mdra_rds, 1);
 					#endif
@@ -416,26 +416,33 @@ void    dhcpc_configured(const struct dhcpc_state *s)
 
     if (s->state == STATE_FAIL)
     {
-		uint8_t *p;
-		p = identify_tcpip_ip(NULL); //candidate_eth_ip();
-        uip_ipaddr(ipaddr, p[0], p[1], p[2], p[3]);    //Host IP address
-        uip_sethostaddr(ipaddr);
-		p = identify_tcpip_gw(NULL); //candidate_eth_gw();
-        uip_ipaddr(ipaddr, p[0], p[1], p[2], p[3]);     //Default Gateway
-        uip_setdraddr(ipaddr);
-		p = identify_tcpip_mask(NULL); //candidate_eth_mask();
-        uip_ipaddr(ipaddr, p[0], p[1], p[2], p[3]); //Network Mask
-        uip_setnetmask(ipaddr);
+//		uint8_t *p;
+//		p = identify_tcpip_ip(NULL); //candidate_eth_ip();
+//        uip_ipaddr(ipaddr, p[0], p[1], p[2], p[3]);    //Host IP address
+//        uip_sethostaddr(ipaddr);
+//		p = identify_tcpip_gw(NULL); //candidate_eth_gw();
+//        uip_ipaddr(ipaddr, p[0], p[1], p[2], p[3]);     //Default Gateway
+//        uip_setdraddr(ipaddr);
+//		p = identify_tcpip_mask(NULL); //candidate_eth_mask();
+//        uip_ipaddr(ipaddr, p[0], p[1], p[2], p[3]); //Network Mask
+//        uip_setnetmask(ipaddr);
+				
+				DM_ETH_IpConfiguration(NULL, NULL, NULL);
         printf("\n--Fixed IP address ---------------------\r\n");
     }
     else
     {
         LED_flag = 0;
 
-        uip_sethostaddr(s->ipaddr);
-        uip_setnetmask(s->netmask);
-        uip_setdraddr(s->default_router);
-        //  resolv_conf(s->dnsaddr);            // Now don't need DNS
+//        uip_sethostaddr(s->ipaddr);
+//        uip_setnetmask(s->netmask);
+//        uip_setdraddr(s->default_router);
+//        //  resolv_conf(s->dnsaddr);            // Now don't need DNS
+				
+				DM_ETH_IpConfiguration(
+					(uint8_t *)s->ipaddr,
+					(uint8_t *)s->default_router,
+					(uint8_t *)s->netmask);
         printf("\n--IP address setting from DHCP-----------\r\n");
     }
 

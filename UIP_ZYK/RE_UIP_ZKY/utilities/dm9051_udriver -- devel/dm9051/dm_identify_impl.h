@@ -12,7 +12,7 @@
 /* APIs
  */
 #define DM_TYPE 0
-#include "dm_identify_types_define.h"
+#include "dm_identify_types.h"
 
 /* APIs.identify
  */

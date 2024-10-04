@@ -40,7 +40,7 @@
 #include "pt.h"
 #include "dhcpc.h"
 
-#include "dm9051opts.h"
+//#include "dm9051opts.h"
 //#include "dm9051_lw_cint.h"
 
 #if defined PORT_APP_MAPPER

@@ -18,7 +18,6 @@ uint16_t DM_ETH_ToCalc_rx_pointers(int state, uint16_t *mdra_rd_org, uint16_t *m
 int32_t DM_ETH_Init(void);
 uint16_t DM_ETH_Input(void);
 uint32_t DM_ETH_Output(void);
-void DM_ETH_IpConfiguration(uint8_t *ip, uint8_t *gw, uint8_t *mask);
 
 #if 0
 //#if 0

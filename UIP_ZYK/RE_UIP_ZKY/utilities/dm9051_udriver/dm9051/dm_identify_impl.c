@@ -6,7 +6,7 @@
 //typedef uint8_t ip_t[ADDR_LENGTH];
 
 #define DM_TYPE 1
-#include "dm_identify_types.h"
+#include "dm_identify_types_define.h"
 
 #define DM_TYPE 2
-#include "dm_identify_types.h"
+#include "dm_identify_types_define.h"

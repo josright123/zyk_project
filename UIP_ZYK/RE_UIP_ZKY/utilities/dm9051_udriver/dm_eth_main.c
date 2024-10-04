@@ -12,7 +12,8 @@
 
 //#include "dm9051_env.h"
 #include "dm9051_lw.h"
-#include "cboard/dm9051_Hw_api.h"
+#include "cboard/dm9051_Hw_api.h" //[dm9051_boards_initialize()/cint_exint9_5_handler()]
+#include "dm_identify_impl.h" //[h file implement]
 
 //#if defined(DM9051_DRIVER_INTERRUPT)
 int flgSemaphore_r;
@@ -59,7 +60,9 @@ int32_t DM_ETH_Init(void) // DM9051_init(void)
 
 uint16_t DM_ETH_Input(void) // DM9051_rx(void)
 {
-	return dm9051_rx(uip_buf);
+	uip_len = dm9051_rx(uip_buf);
+	dm_eth_input_hexdump(uip_buf, uip_len); //"dm_eth_status.c"
+	return uip_len;
 }
 
 uint32_t DM_ETH_Output(void) // DM9051_tx(void)
@@ -71,6 +74,49 @@ uint32_t DM_ETH_Output(void) // DM9051_tx(void)
 void DM_ETH_ToRst_ISR(void)
 {
 	dm9051_write_rst_isr();
+}
+
+void DM_ETH_IpConfiguration(uint8_t *ip, uint8_t *gw, uint8_t *mask)
+{
+	uint8_t *p;
+	uip_ipaddr_t ipaddr={0,0};
+	
+	p = identify_tcpip_ip(ip ? ip : NULL);
+	uip_ipaddr(ipaddr, p[0], p[1], p[2], p[3]);    //Host IP address
+	uip_sethostaddr(ipaddr);
+	
+	p = identify_tcpip_gw(gw ? gw : NULL);
+	uip_ipaddr(ipaddr, p[0], p[1], p[2], p[3]);     //Default Gateway
+	uip_setdraddr(ipaddr);
+	
+	p = identify_tcpip_mask(mask ? mask : NULL);
+	uip_ipaddr(ipaddr, p[0], p[1], p[2], p[3]); //Network Mask
+	uip_setnetmask(ipaddr);
+}
+
+// DM_Eth_GetStatus: cid/bmsr/ncr_nsr
+void DM_Eth_ReadRegsInfo(uint8_t *stat)
+{
+	uint16_t cs;
+	uint32_t pbm;
+
+#if 0 // to do
+	DM9051_MUTEX_OPS((freeRTOS), sys_mutex_lock_start(&lock_dm9051_core));
+#endif
+	pbm = dm9051_read_bmsr();
+	pbm |= dm9051_read_chip_id() << 16;
+	cs = dm9051_read_control_status();
+#if 0 // to do
+	DM9051_MUTEX_OPS((freeRTOS), sys_mutex_unlock_end(&lock_dm9051_core));
+#endif
+
+	stat[0] = cs & 0xff;
+	stat[1] = (cs >> 8) & 0xff;
+
+	stat[2] = (pbm >> 24) & 0xff;
+	stat[3] = (pbm >> 16) & 0xff;
+	stat[4] = (pbm >> 8) & 0xff;
+	stat[5] = (pbm) & 0xff;
 }
 
 #if DM_ETH_DEBUG_MODE

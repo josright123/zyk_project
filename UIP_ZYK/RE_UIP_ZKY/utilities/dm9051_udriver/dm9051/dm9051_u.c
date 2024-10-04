@@ -755,6 +755,12 @@ void identify_irq_stat(uint16_t bitflg)
 	SET_CSTATE(irqst, GET_CSTATE(irqst) | bitflg); // DM_SET_FIELDirqst(DM_GET_FIELDirqst() | bitflg);
 }
 
+//uint16_t identified_irq_stat(void)
+//{
+	// return irqst;
+//	return GET_CSTATE(irqst);
+//}
+
 void trace_irq_stat(uint16_t bitflg)
 {
 	char istat_term[22];
@@ -791,12 +797,6 @@ void trace_irq_stat(uint16_t bitflg)
 		return;
 
 	printf("[irq_stat]:                   ------------> irqst= %02x on add %02x %s\r\n", identified_irq_stat(), bitflg, istat_term);
-}
-
-uint16_t identified_irq_stat(void)
-{
-	// return irqst;
-	return GET_CSTATE(irqst);
 }
 
 //---------------------------------------

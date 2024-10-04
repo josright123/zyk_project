@@ -12,7 +12,7 @@
 /* APIs
  */
 #define DM_TYPE 0
-#include "dm_identify_types.h"
+#include "dm_identify_types_define.h"
 
 /* APIs.identify
  */
@@ -51,6 +51,7 @@ void trace_irq_stat(uint16_t bitflg);
 
 /* irqstate.identified
  */
-uint16_t identified_irq_stat(void);
+//uint16_t identified_irq_stat(void);
+#define	identified_irq_stat()	GET_CSTATE(irqst)
 
 #endif //__DM9051_ENVIDN_IMPL_H

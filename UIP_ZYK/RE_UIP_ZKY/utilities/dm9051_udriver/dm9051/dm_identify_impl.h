@@ -22,6 +22,17 @@ uint8_t *identify_tcpip_gw(uint8_t *ip4adr);
 uint8_t *identify_tcpip_mask(uint8_t *ip4adr);
 void trace_identified_eth_mac(int showf);
 
+/* APIs.identified
+ */
+// const uint8_t *identified_eth_mac(void);
+// uint8_t *identified_tcpip_ip(void);
+// uint8_t *identified_tcpip_gw(void);
+// uint8_t *identified_tcpip_mask(void);
+#define identified_eth_mac() GET_FIELD(final_mac)
+#define identified_eth_ip() GET_FIELD(final_ip)
+#define identified_eth_gw() GET_FIELD(final_gw)
+#define identified_eth_mask() GET_FIELD(final_mask)
+
 /* irqstate.identify
  */
 #define ISTAT_IRQ_CFG (1 << 0)
@@ -37,17 +48,6 @@ void trace_identified_eth_mac(int showf);
 void identify_irq_stat(uint16_t bitflg);
 void deidentify_irq_stat(uint16_t bitflg);
 void trace_irq_stat(uint16_t bitflg);
-
-/* APIs.identified
- */
-// const uint8_t *identified_eth_mac(void);
-// uint8_t *identified_tcpip_ip(void);
-// uint8_t *identified_tcpip_gw(void);
-// uint8_t *identified_tcpip_mask(void);
-#define identified_eth_mac() GET_FIELD(final_mac)
-#define identified_eth_ip() GET_FIELD(final_ip)
-#define identified_eth_gw() GET_FIELD(final_gw)
-#define identified_eth_mask() GET_FIELD(final_mask)
 
 /* irqstate.identified
  */

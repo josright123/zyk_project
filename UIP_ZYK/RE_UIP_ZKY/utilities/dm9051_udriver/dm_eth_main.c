@@ -78,20 +78,23 @@ void DM_ETH_ToRst_ISR(void)
 
 void DM_ETH_IpConfiguration(uint8_t *ip, uint8_t *gw, uint8_t *mask)
 {
-	uint8_t *p;
-	uip_ipaddr_t ipaddr={0,0};
-	
-	p = identify_tcpip_ip(ip ? ip : NULL);
-	uip_ipaddr(ipaddr, p[0], p[1], p[2], p[3]);    //Host IP address
-	uip_sethostaddr(ipaddr);
-	
-	p = identify_tcpip_gw(gw ? gw : NULL);
-	uip_ipaddr(ipaddr, p[0], p[1], p[2], p[3]);     //Default Gateway
-	uip_setdraddr(ipaddr);
-	
-	p = identify_tcpip_mask(mask ? mask : NULL);
-	uip_ipaddr(ipaddr, p[0], p[1], p[2], p[3]); //Network Mask
-	uip_setnetmask(ipaddr);
+    uip_ipaddr_t ipaddr;
+    uint8_t *host_ip, *gateway, *netmask;
+
+    // Set Host IP address
+    host_ip = identify_tcpip_ip(ip);
+    uip_ipaddr(&ipaddr, host_ip[0], host_ip[1], host_ip[2], host_ip[3]);
+    uip_sethostaddr(ipaddr);
+
+    // Set Default Gateway
+    gateway = identify_tcpip_gw(gw);
+    uip_ipaddr(&ipaddr, gateway[0], gateway[1], gateway[2], gateway[3]);
+    uip_setdraddr(ipaddr);
+
+    // Set Network Mask
+    netmask = identify_tcpip_mask(mask);
+    uip_ipaddr(&ipaddr, netmask[0], netmask[1], netmask[2], netmask[3]);
+    uip_setnetmask(ipaddr);
 }
 
 // DM_Eth_GetStatus: cid/bmsr/ncr_nsr

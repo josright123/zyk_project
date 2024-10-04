@@ -14,7 +14,7 @@ typedef uint8_t ip_t[ADDR_LENGTH];
 #undef DM_AMACRO
 #define DM_AMACRO(rtype, mtype, field) \
 		rtype dm_mget_##field(void); \
-		void dm_mset_##field(const mtype adr);
+		rtype dm_mset_##field(const mtype adr);
 
 		DM_AMACRO(uint8_t *, mac_t, final_mac);
 		DM_AMACRO(uint8_t *, ip_t, final_ip);
@@ -30,7 +30,7 @@ typedef uint8_t ip_t[ADDR_LENGTH];
 #undef CB_MACRO
 #define CB_MACRO(mtype, field)              \
 		mtype CB_TYPES_GET_CSTATE_FX(field);							\
-		void CB_TYPES_SET_CSTATE_FX(mtype, field, v);
+		mtype CB_TYPES_SET_CSTATE_FX(mtype, field, v);
 
 	CB_MACRO(uint16_t, irqst);
 
@@ -75,9 +75,10 @@ static struct cbtype_data
 	/*void DM_TYPES_SET_FUNC(mtype, field, setval) {*/                        \
 	/*	memcpy(dm9051optsex[mstep_get_net_index()].field, setval, adr_len); */ \
 	/*}*/                                                                     \
-	/*static*/ void dm_mset_##field(const mtype adr)                              \
+	/*static*/ rtype dm_mset_##field(const mtype adr)                              \
 	{ /*DM_SET_FIELDmac(const mtype adr)*/                                    \
 		memcpy(dm.field, adr, adr_len);                                       \
+		return dm.field;																											\
 	}
 
 // static void DM_SET_FIELDmac(const uint8_t *macadr){
@@ -108,9 +109,10 @@ DM_RMACRO(uint8_t *, ip_t, final_mask, ADDR_LENGTH)
 	{                                       \
 		return cb.field;                    \
 	}                                       \
-	void CB_TYPES_SET_CSTATE_FUNC(mtype, field, v) \
+	mtype CB_TYPES_SET_CSTATE_FUNC(mtype, field, v) \
 	{                                       \
 		cb.field = v;                       \
+		return v;                    \
 	}
 	
 CB_MACRO(uint16_t, irqst);

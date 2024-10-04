@@ -1,6 +1,7 @@
 #ifndef __DM9051_OPTS_H
 #define __DM9051_OPTS_H
 #include "stdint.h"
+#include "stdio.h"
 #include <string.h>
 
 /* __USR_H

@@ -32,11 +32,8 @@
 #define NET_TASK_PRIO           		2 //FOR 'net_task'
 
 //#include "lwip/opt.h"
-
 //#include "uip_d/freertos_tasks_debug.h"
 
-//.#include "dm9051opts.h"
-//#include "dm9051_lw.h"
 //const uint8_t *test_init(void);
 //const uint8_t *test_init(const uint8_t *adr);
 
@@ -44,7 +41,7 @@
 //const uint8_t *dm9051_init1(const uint8_t *adr);
 //const uint8_t *test_init1(const uint8_t *adr);
 
-#include "../dm_eth.h" //#include "dm_eth.h"
+#include "../dm_eth_api.h" //#include "dm_eth.h"
 
 #if 0
   #include "../freertos_tasks_debug.h"

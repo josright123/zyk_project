@@ -727,14 +727,19 @@
               <FilePath>..\..\dm9051_udriver\dm_eth_main.c</FilePath>
             </File>
             <File>
+              <FileName>dm_eth_mutex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\dm9051_udriver\dm_eth_mutex.c</FilePath>
+            </File>
+            <File>
+              <FileName>dm_identify_impl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\dm9051_udriver\dm9051\dm_identify_impl.c</FilePath>
+            </File>
+            <File>
               <FileName>dm9051_u.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\dm9051_udriver\dm9051\dm9051_u.c</FilePath>
-            </File>
-            <File>
-              <FileName>dm_eth_freepad.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\dm9051_udriver\dm_eth_freepad.c</FilePath>
             </File>
             <File>
               <FileName>dm9051_Hw_AT32F437xx - P1.c</FileName>

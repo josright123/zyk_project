@@ -4,7 +4,15 @@
 #ifndef __DM9051_LW_DRIVER_DEF_H
 #define __DM9051_LW_DRIVER_DEF_H
 
-#include "dm9051opts.h" //for keil-c editor to recognize designed macro define!
+#include "dm9051opts.h"
+//#include "dm9051_lw_usr_default.h" //for intelligent editor to recognize designed macro define!
+
+//[1]
+#ifdef DRV_INTR_MODE
+#define	DM9051_DRIVER_INTERRUPT
+#else
+#define	DM9051_DRIVER_POLL
+#endif
 
 //[0]
 #ifdef DRV_INTR_MODE
@@ -15,12 +23,28 @@
 #define INTERRUPT_HANDLER_SUPPLIMENT_RECV				1 //application fixed to 1.
 #endif
 
-//[1]
-#ifdef DRV_INTR_MODE
-#define	DM9051_DRIVER_INTERRUPT
-#else
-#define	DM9051_DRIVER_POLL
-#endif
+//[1.1]
+typedef enum
+{
+  DM_FALSE = 0,
+  DM_TRUE = !DM_FALSE,
+} enable_t;
+
+#define DM_UNUSED_ARG(x) (void)x
+
+//#define DM9051_HEXDUMP_RESET(expression, handler) do { if ((expression)) { \
+//	(handler);}} while(0)
+
+#define DM9051_RX_BREAK(expression, handler) \
+  do                                         \
+  {                                          \
+    if ((expression))                        \
+    {                                        \
+      handler;                               \
+    }                                        \
+  } while (0)
+
+//[2.0]
 
 #define POLL_ON_FORCE			(1 << 0)
 #define POLL_ON_LINK			(1 << 1)  //WILL BE LATE, OR NOT EMPTYING RXFIFO

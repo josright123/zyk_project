@@ -54,34 +54,34 @@
 #include "queue.h"
 
 #if 1
-//#include "dm9051opts.h"
-//#include "dm9051_lw.h"
-//#include "cboard/dm9051_lw_mcu_default_IN.h"
-#include "dm9051_env.h"
-#include "dm9051_env_identify.h"
+#include "../dm_eth_api.h"
+#include "dm9051_lw.h" //#include "dm9051_env.h"
 
-//#include "dm9051_cboard.h"
-//#include "../dm9051_lw_mcu_default.h"
-//#include "dm9051_lw_conf_types.h"
-//#include "dm9051_lw_cint.h"
+//#include "dm_identify.h"
+#include "dm_identify_impl.h" //[h file implement]
 
 #else
 //#include "DM9051.h"
 //#include "RttPrintf.h"
 #endif
 
-#include "dhcpc.h"
-#include "../dm_eth.h" //#include "dm_eth.h"
-//#include "_dm_eth.h"
+//#include "dhcpc.h"
 
-//[version_0.ok]
-//#define tapdev_send()		DM_ETH_Output((uint8_t *)uip_buf, uip_len) //dm9051_tx((uint8_t *)uip_buf, uip_len)
-//#define tapdev_read()		DM_ETH_Input((uint8_t *)uip_buf) //_DM_ETH_RXHandler((uint8_t *)uip_buf) //dm9051_rx((uint8_t *)uip_buf)
 //[version_1]
-#define tapdev_init()		DM9051_init()
-#define tapdev_send()		DM9051_tx()
-#define tapdev_read()		DM9051_rx()
-//#define	input_intr()	DM9051_rx()
+#define	DM9051_init					DM_ETH_Init
+#define	DM9051_tx						DM_ETH_Output
+#define	DM9051_rx						DM_ETH_Input
+//[version_0.ok]
+//#define tapdev_send()			DM_ETH_Output((uint8_t *)uip_buf, uip_len) //dm9051_tx((uint8_t *)uip_buf, uip_len)
+//#define tapdev_read()			DM_ETH_Input((uint8_t *)uip_buf) //_DM_ETH_RXHandler((uint8_t *)uip_buf) //dm9051_rx((uint8_t *)uip_buf)
+//[version_1]
+#define tapdev_init()				DM9051_init()
+#define tapdev_send()				DM9051_tx()
+#define tapdev_read()				DM9051_rx()
+//#define	input_intr()			DM9051_rx()
+#define tapdev_get_ievent()	DM_ETH_ToGet_InterruptEvent()
+#define tapdev_clr_ievent()	DM_ETH_ToRst_ISR()
+
 #define BUF ((struct uip_eth_hdr *)&uip_buf[0])
 
 #ifndef NULL
@@ -251,7 +251,7 @@ void vuIP_Task(void *pvParameters)
 		//if (flgSemaphore_r == 1)
 			//flgSemaphore_r = 0; //for next to direct no-limited change-in
 		
-		if (DM_ETH_ToGet_InterruptEvent()) {
+		if (tapdev_get_ievent()) {
 
 			isrSemaphore_src = 0x5555 >> 8;
 			do { //[isrSemaphore_n = net_pkts_handle_intr(tcpip_stack_netif());]
@@ -308,7 +308,7 @@ void vuIP_Task(void *pvParameters)
 			} while(0);
 			
 			//DM9051_MUTEX_OPS((freeRTOS), sys_mutex_lock_start(&lock_dm9051_core));
-			DM_ETH_ToRst_ISR(); //cspi_isr_enab(); //DM_ETH_IRQEnable(); //dm9051_isr_enab();
+			tapdev_clr_ievent(); //DM_ETH_ToRst_ISR(); //cspi_isr_enab(); //DM_ETH_IRQEnable(); //dm9051_isr_enab();
 			//DM9051_MUTEX_OPS((freeRTOS), sys_mutex_unlock_end(&lock_dm9051_core));
 			//nExpireCount = 0; //= dm_eth_semaphore_renew();
 		}

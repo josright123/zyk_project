@@ -35,11 +35,13 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "dm9051_env.h"
-#include "dm9051_env_identify.h"
 
-#include "cboard/dm9051_cboard_data_API.h" //for void DM9051_Configuration(), dm_delay_ms()
-// for cint_enable_mcu_irq()
+#include "dm9051_lw.h" //#include "_dm9051_env.h"
+#include "cboard/dm9051_Hw_api.h"
+
+//#include "dm_identify.h"
+//#include "dm_identified.h"
+#include "dm_identify_impl.h" //[h file implement]
 
 #define PBUF_POOL_BUFSIZE (1514 + 4) //.2000	//.2000(tested) //dm,jj=1514
 
@@ -247,7 +249,7 @@ void dm9051_probe_link(int nsr_poll)
 }
 
 // ---------------------- cspi -------------------------------------------------------------
-#include "cboard/dm9051_cstate.h"
+//#include "cboard/dm9051_cstate.h"
 
 void cspi_phycore_on(uint16_t nms)
 {
@@ -457,16 +459,6 @@ uint16_t cspi_isr_enab(void)
 }
 
 // ---------------------- env -------------------------------------------------------------
-
-/* Only used, in [ env.c ] */
-typedef uint8_t mac_t[MAC_ADDR_LENGTH];
-typedef uint8_t ip_t[ADDR_LENGTH];
-
-#define DM_TYPE 1
-#include "dm_identify_types.h"
-
-#define DM_TYPE 2
-#include "dm_identify_types.h"
 
 /*
  * candidate
@@ -737,14 +729,14 @@ uint16_t env_err_rsthdlr(char *err_explain_str, uint32_t valuecode) //,int ret_c
 // #endif
 
 // ---------------------- cstate -------------------------------------------------------------
-#define CB_TYPE 0
-#include "cboard/cb_types2.h"
+//#define CB_TYPE 0
+//#include "cb_types2.h"
 
-#define CB_TYPE 1
-#include "cboard/cb_types2.h"
+//#define CB_TYPE 1
+//#include "cb_types2.h"
 
-#define CB_TYPE 2
-#include "cboard/cb_types2.h"
+//#define CB_TYPE 2
+//#include "cb_types2.h"
 
 /*
  * cboard_trace_irq_flow

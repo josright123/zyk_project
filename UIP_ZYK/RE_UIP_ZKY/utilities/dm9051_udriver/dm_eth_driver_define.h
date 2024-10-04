@@ -20,12 +20,9 @@
 	} \
   }} while(0)
 #warning "freeRTOS is defined"
+	
 #else
 #define DM9051_MUTEX_CFG(expression, msg, sem, handler)
 #warning "freeRTOS is NOT defined"
+	
 #endif
-
-//#if freeRTOS
-//#else
-//#endif
-

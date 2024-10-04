@@ -1,6 +1,10 @@
-#include "dm9051_cboard_data_API.h"
-#include "dm9051_cstate.h"
-#include "../dm_eth.h"
+#include "dm9051opts.h" //#include "dm9051_env.h"
+
+//#include "dm_identify.h"
+#include "dm_identify_impl.h" //[h file implement]
+
+#include "../dm_eth_api.h"
+#include "dm9051_Hw_api.h"
 
 #if defined(_DLW_AT32F437xx)
 /* ------------------------------- AT configuration ----------------------------------------- */
@@ -303,7 +307,7 @@ void AT_spi_mem_write(uint8_t *buf, uint16_t len)
 /* dm9051_Hw_common implementation
  * source code.
  */
-// #include "dm9051_cboard_data_API.h"
+// #include "_dm9051_Hw_api.h"
 
 uint8_t cspi_read_reg(uint8_t reg) // static (todo)
 {

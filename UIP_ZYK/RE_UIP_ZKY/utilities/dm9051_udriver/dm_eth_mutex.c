@@ -6,12 +6,12 @@
  * @brief    as particular range control relate to dm_eth.c
  **************************************************************************
  */
-// #include "dm9051_env.h"
-// #include "cboard/dm9051_cstate.h"
-
 #include "stdio.h"
 #include <string.h>
-#include "dm_eth.h"
+
+#include "dm_eth_opts.h"
+#include "dm_eth_api.h"
+#include "dm9051_lw.h" //#include "_dm9051_env.h"
 
 // DM_Eth_GetStatus: cid/bmsr/ncr_nsr
 void DM_Eth_ReadRegsInfo(uint8_t *stat)

@@ -78,7 +78,7 @@
 #define tapdev_send()								DM9051_tx()
 #define tapdev_read()								DM9051_rx()
 //#define	input_intr()							DM9051_rx()
-#define tapdev_get_ievent()					DM_ETH_ToGet_InterruptEvent()
+#define tapdev_get_ievent()					DM_ETH_GetInterruptEvent()
 #define tapdev_clr_ievent()					DM_ETH_ToRst_ISR()
 #define	tapdev_ip_configure(i,g,m)	DM_ETH_IpConfiguration(i,g,m)
 

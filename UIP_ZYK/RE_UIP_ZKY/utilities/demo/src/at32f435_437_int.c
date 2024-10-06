@@ -163,7 +163,7 @@ void DebugMon_Handler(void)
 //Put location: "dm9051_board_impl.c"
 //Put location: "dm9051_lw_cint.c"
 void EXINT9_5_IRQHandler(void) {
-	DM_ETH_InterruptHdlr(); //cint_exint9_5_handler();
+	DM_ETH_InterruptEvent(); //cint_exint9_5_handler();
 }
 
 /**

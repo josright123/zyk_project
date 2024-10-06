@@ -85,7 +85,7 @@ extern "C"
 #define CHIPR_DM9051A (0x19)
 #define CHIPR_DM9051B (0x1B)
 
-#define DM9051_REG_RESET (0x01)
+#define DM9051_NCR_RESET (0x01)
 #define DM9051_IMR_OFF (0x80)
 #define DM9051_TCR2_SET (0x90) /* set one packet */
 #define DM9051_RCR_SET (0x31)
@@ -202,12 +202,12 @@ uint16_t dm9051_rx(uint8_t *buff);
 void dm9051_tx(uint8_t *buf, uint16_t len);
 
 //[API]lwip dm9051.h
-uint16_t dm9051_read_chip_id(void);
-void dm9051_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd);
-uint16_t dm9051_read_bmsr(void);
-uint16_t dm9051_read_control_status(void);
-void dm9051_probe_link(int nsr_poll);
-void dm9051_write_rst_isr(void);
+//uint16_t dm9051_read_chip_id(void);
+//uint16_t dm9051_read_bmsr(void);
+//uint16_t dm9051_read_control_status(void);
+//void dm9051_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd);
+//void dm9051_probe_link(int nsr_poll);
+//void dm9051_write_rst_isr(void);
 
 #if 1
 
@@ -222,17 +222,22 @@ void dm9051_write_rst_isr(void);
 		//[API]env.h
 		int env_init_setup(uint16_t *id);
 		uint16_t env_evaluate_rxb(uint8_t rxb);
-		const uint8_t *env_reset_process(const uint8_t *macaddr, enable_t en);
+		//const uint8_t *env_reset_process(const uint8_t *macaddr, enable_t en);
 		uint16_t env_err_rsthdlr(char *err_explain_str, uint32_t valuecode);
 
     uint16_t cspi_phy_read(uint16_t uReg);
     void cspi_phy_write(uint16_t reg, uint16_t value); //[function "phy_write" was available but could never referenced.]
     // uint16_t eeprom_read(uint16_t uWord);
 
-    uint16_t cspi_read_control_status(void);
     uint16_t cspi_read_chip_id(void);
+    uint16_t cspi_read_control_status(void);
+
+    void cspi_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd);
+    uint16_t cspi_diff_rxpa(void);
+	
+		uint16_t cspi_isr_enab(void); //read and/then write
+	
     void cspi_vid_pid_revisions(uint8_t *ids, uint8_t *rev_ad);
-    // uint16_t impl_phy_read(uint16_t uReg); //#define	impl_phy_read		phy_read
     void read_chip_revision(uint8_t *ids, uint8_t *rev_ad);
     void impl_read_par(uint8_t *buff);
 
@@ -240,34 +245,20 @@ void dm9051_write_rst_isr(void);
     void cspi_ncr_reset(uint16_t nms);
     void cspi_soft_default(void);
 
-    void cspi_core_reset(void);
-
-    void cspi_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd);
-    uint16_t cspi_diff_rxpa(void);
-
-    void cspi_set_par(const uint8_t *macadd);
+    //void _cspi_core_reset(void);
+    //const uint8_t *cspi_dm_start1(const uint8_t *adr);
+    //void cspi_set_par(const uint8_t *macadd);
     void cspi_set_mar(void);
     void cspi_set_recv(void);
-    void cspi_rx_mode(void); // ethernetif.c (of _lwip_set_mac_address())
-    const uint8_t *cspi_dm_start1(const uint8_t *adr);
+    //void cspi_rx_mode(void); // ethernetif.c (of _lwip_set_mac_address())
     void cspi_rx_head(uint8_t *receivedata);
     void cspi_rx_read(uint8_t *buff, uint16_t rx_len);
     void cspi_tx_write(uint8_t *buf, uint16_t len);
     void cspi_tx_req(void);
-    uint16_t cspi_isr_enab(void);
-
-//[dm_eth_status.c]
-#if DM_ETH_DEBUG_MODE
-		void dm_eth_input_hexdump_reset(void);
-		void dm_eth_input_hexdump(const void *buf, size_t len);
-#endif
 
 //#include "dm9051_cstate.h"
-		void inc_task_tryint(void);
-		unsigned long get_task_tryint(void);
-		uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e);
-		void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
-								size_t tlen, int rowsize, const void *buf, int seg_start, size_t len, /*int useflg*/ int cast_lf);
+		//void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
+								//size_t tlen, int rowsize, const void *buf, int seg_start, size_t len, /*int useflg*/ int cast_lf);
 		//unsigned long get_task_tryint_saved(void);
 		//void do_task_tryint_saved(void);
 

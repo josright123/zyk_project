@@ -179,7 +179,7 @@ void NU_cint_enable_mcu_irq(void)
 }
 
 /* IRQ handler support */
-void NU_cint_exint9_5_handler(void)
+int NU_cint_exint9_5_handler(void)
 {
 	
 	identify_irq_stat(ISTAT_IRQ_NOW);
@@ -191,12 +191,14 @@ void NU_cint_exint9_5_handler(void)
 	
 		identify_irq_stat(ISTAT_IRQ_NOW2);
 		trace_irq_stat(ISTAT_IRQ_NOW2);
-		DM_ETH_ToSet_InterruptEvent();
+	
+		//DM_ETH_ToSet_InterruptEvent();
 
 	//	exint_flag_clear(EXINT_LINE_7);
 	//}
 	
 	deidentify_irq_stat(ISTAT_IRQ_NOW | ISTAT_IRQ_NOW2);
+	return 1;
 }
 #endif
 

@@ -1,10 +1,6 @@
-#include "dm9051opts.h" //#include "_dm9051_env.h"
+#include "dm9051opts.h"
 #include "dm9051_lw.h"
-
-#include "dm_identify_impl.h" //[h file implement]
-/* Only used, in [ env.c ] */
-//typedef uint8_t mac_t[MAC_ADDR_LENGTH];
-//typedef uint8_t ip_t[ADDR_LENGTH];
+#include "dm_identify_impl.h"
 
 #define DM_TYPE 1
 #include "dm_identify_types_define.h"
@@ -16,25 +12,9 @@
  * candidate
  */
 
-typedef struct eth_node_st
-{
-	uint8_t mac_addresse[MAC_ADDR_LENGTH];
-	uint8_t local_ipaddr[ADDR_LENGTH];
-	uint8_t local_gwaddr[ADDR_LENGTH];
-	uint8_t local_maskaddr[ADDR_LENGTH];
-} eth_node_t;
-
-//(define is as rather than '_ETHERNET_COUNT', refer to as '_BOARD_SPI_COUNT' counter) define BOARD_SPI_COUNT 'N'
-const eth_node_t node_candidate[1] = {
+const struct eth_node_t node_candidate[1] = {
 	{
-		{
-			0,
-			0x60,
-			0x6e,
-			0x00,
-			0x00,
-			0x17,
-		},
+		{0, 0x60, 0x6e, 0x00, 0x00, 0x17},
 		{192, 168, 6, 17},
 		{192, 168, 6, 1},
 		{255, 255, 255, 0},
@@ -66,124 +46,199 @@ const eth_node_t node_candidate[1] = {
 	   */
 };
 
+//---------------------------------------
+
+unsigned long dispc_int_active = 0; //, dispc_int_active_saved = 0;
+
+void inc_interrupt_count(void)
+{
+	dispc_int_active++;
+	// at32_led_toggle(LED2);
+}
+
+unsigned long get_task_tryint(void)
+{
+	return dispc_int_active;
+}
+
+//---------------------------------------
+
+uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e)
+{
+	return (rwpa_e >= rwpa_s) ? rwpa_e - rwpa_s : (rwpa_e + 0x4000 - 0xc00) - rwpa_s;
+}
+
+//---------------------------------------
 /*
- * HCC: Hard Core Candidate (hcc)
+ * cboard_print_hex
  */
- 
-#define candidate_eth_mac() &node_candidate[0].mac_addresse[0]	  //[pin_code]
-#define candidate_eth_ip() &node_candidate[0].local_ipaddr[0]	  //[pin_code]
-#define candidate_eth_gw() &node_candidate[0].local_gwaddr[0]	  //[pin_code]
-#define candidate_eth_mask() &node_candidate[0].local_maskaddr[0] //[pin_code]
 
-const uint8_t *identify_eth_mac(const uint8_t *macadr)
+#define kkmin(a, b) (a < b) ? a : b
+
+static void printf_space(int n)
 {
-	return SET_FIELD(final_mac, macadr ? macadr : candidate_eth_mac()); // DM_SET_FIELDmac(macadr);
-	//return GET_FIELD(final_mac);
+	while (n--)
+		printf("%c", ' ');
 }
 
-uint8_t *identify_tcpip_ip(uint8_t *ip4adr)
+static int printf_space_init(size_t tlen)
 {
-	return SET_FIELD(final_ip, ip4adr ? ip4adr : candidate_eth_ip()); // DM_SET_FIELD_ips(dm.final_ip, ip4adr); //DM_SET_FIELD(ip_t ,ip, ip4adr ? ip4adr : candidate_eth_ip());
-	//return GET_FIELD(final_ip);								   // DM_GET_FIELD_ips(dm.final_ip); //return DM_GET_FIELD(ip_t, ip);
-}
-uint8_t *identify_tcpip_gw(uint8_t *ip4adr)
-{
-	return SET_FIELD(final_gw, ip4adr ? ip4adr : candidate_eth_gw()); // DM_SET_FIELD_ips(dm.final_gw, ip4adr); //DM_SET_FIELD(ip_t ,gw, ip4adr ? ip4adr : candidate_eth_gw());
-	//return GET_FIELD(final_gw);								   // DM_GET_FIELD_ips(dm.final_gw); //return DM_GET_FIELD(ip_t, gw);
-}
-uint8_t *identify_tcpip_mask(uint8_t *ip4adr)
-{
-	return SET_FIELD(final_mask, ip4adr ? ip4adr : candidate_eth_mask()); // DM_SET_FIELD_ips(dm.final_mask, ip4adr); //DM_SET_FIELD(ip_t ,mask, ip4adr ? ip4adr : candidate_eth_mask());
-	//return GET_FIELD(final_mask);								   // DM_GET_FIELD_ips(dm.final_mask); //return DM_GET_FIELD(ip_t, mask);
+	char cspace[16];
+	int n = sprintf(cspace, "rxlen %4d", tlen);
+#if 1
+	printf_space(n);
+	printf(" %s\r\n", cspace);
+#endif
+	return n;
 }
 
-void trace_identified_eth_mac(int showf)
+static int printf_rxlen_head(size_t tlen, int nspc)
 {
-	if (showf)
+#if 1
+	if (!nspc)
+		nspc = printf_space_init(tlen);
+
+	printf_space(nspc);
+	return nspc;
+#endif
+}
+
+static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
+							 size_t tlen, int rowsize, const void *buf, int seg_start, size_t len, /*int useflg*/ int cast_lf) //, int must, int dgroup
+{
+	// #undef printf
+	// #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
+	// if (useflg) {
+	int si, se, titlec = 0;
+	int i, linelen, remaining = len; // hs, const eth_class_t *ec = &eclass[10];
+	int nspace = 0;
+
+	(void)head_space;
+	//(void) tlen;
+
+	si = seg_start;
+	se = seg_start + len;
+	for (i = si; i < se; i += rowsize)
 	{
-		const uint8_t *mac = GET_FIELD(final_mac);
-		printf("mac address %02x%02x%02x%02x%02x%02x\r\n",
-			   mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+		// unsigned
+		char linebuf[(12 * 3) + (3 * 16) + 1 + 32]; // here!
+
+		nspace = printf_rxlen_head(tlen, nspace);
+
+		linelen = kkmin(remaining, rowsize);
+		remaining -= rowsize;
+		do
+		{
+			const uint8_t *ptr = buf;
+			int j;
+			int nb = 0;
+			for (j = 0; j < linelen && (size_t)nb < sizeof(linebuf); j++)
+			{
+				if (j && !(j % 8))
+					nb += snprintf(linebuf + nb, sizeof(linebuf) - nb, " ");
+				if (((rowsize >> 1) != 8) && !(j % (rowsize >> 1)))
+					nb += snprintf(linebuf + nb, sizeof(linebuf) - nb, " ");
+
+				nb += snprintf(linebuf + nb, sizeof(linebuf) - nb, "%02x ", *(ptr + i + j));
+			}
+		} while (0);
+		//.nspace = printf_rxlen_head(tlen, nspace);
+
+#if 0
+		hs = head_space;
+		while(hs--)
+#endif
+		printf(" ");
+
+		if (prefix_str)
+		{
+			printf("(%s) %.3x %s", prefix_str, i, linebuf); //"%s", ec->str //CHECK (XXX >> )
+			while (titledn)
+			{
+				titledn--;
+				prefix_str[titlec++] = ' ';
+			}
+		}
+		else
+		{
+			printf("(dm9 xfer) %.3x %s", i, linebuf); //"%s", ec->str
+		}
+
+		if ((i + rowsize) < se)
+			printf("\r\n");
+		else
+		{
+			if (cast_lf)
+				printf("\r\n");
+#if 0
+				if (IS_UDP) {
+					//ptr
+#if 0
+					size_t ulen = tlen; // larger for with 4-bytes CRC
+					ulen = UIP_LLH_LEN;
+					ulen += HTONS(UDPBUF->udplen) - 8;
+					ulen += sizeof(struct uip_udpip_hdr); // correct for without 4-bytes CRC (htons)
+
+					if (cast_lf)
+						printf("\r\n");
+
+					printf(" ..SrcIP %d.%d.%d.%d", (IPBUF->srcipaddr[0] >> 0) & 0xff, (IPBUF->srcipaddr[0] >> 8),
+						(IPBUF->srcipaddr[1] >> 0) & 0xff, (IPBUF->srcipaddr[1] >> 8));
+					printf("  DestIP %d.%d.%d.%d", (IPBUF->destipaddr[0] >> 0) & 0xff, (IPBUF->destipaddr[0] >> 8),
+						(IPBUF->destipaddr[1] >> 0) & 0xff, (IPBUF->destipaddr[1] >> 8));
+					printf("  Len %d", ulen);
+					printf("  (%5d -> %d Len %d)", UDPBUF->srcport, UDPBUF->destport, HTONS(UDPBUF->udplen) - 8);
+					printf("\r\n");
+#endif
+				}
+				if (IS_TCP) {
+					size_t ulen = tlen; // larger for with 4-bytes CRC
+					printf(" ..SrcIP %d.%d.%d.%d", (IPBUF->srcipaddr[0] >> 0) & 0xff, (IPBUF->srcipaddr[0] >> 8),
+						(IPBUF->srcipaddr[1] >> 0) & 0xff, (IPBUF->srcipaddr[1] >> 8));
+					printf("  DestIP %d.%d.%d.%d", (IPBUF->destipaddr[0] >> 0) & 0xff, (IPBUF->destipaddr[0] >> 8),
+						(IPBUF->destipaddr[1] >> 0) & 0xff, (IPBUF->destipaddr[1] >> 8));
+					printf("  Len %d", ulen);
+					
+					if (TCPBUF->flags == 0x18)
+						printf("  (%5d -> %d) flags %02x (PSH, ACK)", HTONS(TCPBUF->srcport), HTONS(TCPBUF->destport), TCPBUF->flags);
+					else
+						printf("  (%5d -> %d) flags %02x", HTONS(TCPBUF->srcport), HTONS(TCPBUF->destport), TCPBUF->flags);
+					
+					printf("\r\n");
+				}
+#endif
+		}
+	}
+	//}
+	// #undef printf
+	// #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
+}
+
+/* print log
+ */
+
+#if DM_ETH_DEBUG_MODE
+// void dm_eth_input_hexdump_reset(void) {
+//	link_log_reset_allow_num = 0;
+// }
+
+int link_log_reset_allow_num = 0;
+const int rx_modle_log_reset_allow_num = 3;
+#define limit_len(n, nTP) ((n <= nTP) ? n : nTP)
+
+void dm_eth_input_hexdump(const void *buf, size_t len)
+{
+	int titledn = 0;
+	DM_UNUSED_ARG(buf);
+	DM_UNUSED_ARG(len);
+
+	if (link_log_reset_allow_num < rx_modle_log_reset_allow_num)
+	{
+		link_log_reset_allow_num++;
+		// if (link_log_reset_allow_num == rx_modle_log_reset_allow_num && get_tcpip_thread_state() == 1) {
+		// set_tcpip_thread_state(6);
+		//}
+		sprint_hex_dump0(2, titledn, "dm9 head   <<rx", len, 32, buf, 0, limit_len(len, 66), DM_TRUE);
 	}
 }
-
-// const uint8_t *identified_eth_mac(void) {
-//	return GET_FIELD(final_mac); //DM_GET_FIELDmac(); //DM_GET_FIELD(mac_t, final_mac);
-// }
-// uint8_t *identified_tcpip_ip(void) {
-//	return GET_FIELD(final_ip); //DM_GET_FIELD_ips(dm.final_ip); //return DM_GET_FIELD(ip_t, ip);
-// }
-// uint8_t *identified_tcpip_gw(void) {
-//	return GET_FIELD(final_gw); //DM_GET_FIELD_ips(dm.final_gw); //return DM_GET_FIELD(ip_t, gw);
-// }
-// uint8_t *identified_tcpip_mask(void) {
-//	return GET_FIELD(final_mask); //DM_GET_FIELD_ips(dm.final_mask); //return DM_GET_FIELD(ip_t, mask);
-// }
-
-/*
- * ---------------------- cstate -------------------------------------------------------------
- */
-
-//#define CB_TYPE 0
-//#include "cb_types2.h"
-
-//#define CB_TYPE 1
-//#include "cb_types2.h"
-
-//#define CB_TYPE 2
-//#include "cb_types2.h"
-
-/*
- * cboard_trace_irq_flow
- */
-
-// uint16_t irqst = 0;
-
-void deidentify_irq_stat(uint16_t bitflg)
-{
-	// irqst &= ~bitflg; //return DM_GET_FIELD(uint16_t, irqst);
-	SET_CSTATE(irqst, GET_CSTATE(irqst) & ~bitflg); // DM_SET_FIELDirqst(DM_GET_FIELDirqst() & ~bitflg);
-}
-void identify_irq_stat(uint16_t bitflg)
-{
-	// irqst |= bitflg; //DM_SET_FIELD(uint16_t, irqst, DM_GET_FIELD(uint16_t, irqst) | bitflg); //store into dm9051optsex[i].read_chip_id
-	SET_CSTATE(irqst, GET_CSTATE(irqst) | bitflg); // DM_SET_FIELDirqst(DM_GET_FIELDirqst() | bitflg);
-}
-
-void trace_irq_stat(uint16_t bitflg)
-{
-	char istat_term[22];
-	switch (bitflg)
-	{
-	case ISTAT_IRQ_CFG:
-		sprintf(istat_term, "[IRQ_CFG]");
-		break;
-	case ISTAT_IRQ_ENAB:
-		sprintf(istat_term, "[IRQ_ENAB]");
-		break;
-	case ISTAT_DM_IMR:
-		sprintf(istat_term, "(IMR.pr)");
-		break;
-	case ISTAT_DM_RCR:
-		sprintf(istat_term, "(RCR.rxen)");
-		break;
-	case ISTAT_LOW_TRIGGER:
-		sprintf(istat_term, "[IRQ_LOW_TRIGGER]");
-		break;
-	case ISTAT_LOW_ACTIVE:
-		sprintf(istat_term, "(INTR.lo)");
-		break;
-	case ISTAT_IRQ_NOW2:
-		sprintf(istat_term, "(INT %lu)", get_task_tryint());
-		break;
-	case ISTAT_IRQ_NOW:
-	default:
-		istat_term[0] = 0;
-		break;
-	}
-
-	if (get_task_tryint() > 5 && (bitflg == ISTAT_IRQ_NOW || bitflg == ISTAT_IRQ_NOW2))
-		return;
-
-	printf("[irq_stat]:                   ------------> irqst= %02x on add %02x %s\r\n", identified_irq_stat(), bitflg, istat_term);
-}
+#endif

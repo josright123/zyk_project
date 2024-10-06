@@ -6,12 +6,11 @@
  * @brief    as particular range control relate to dm_eth.c
  **************************************************************************
  */
-#include "stdio.h"
-#include <string.h>
+//#include "stdio.h"
+//#include <string.h>
 
 #include "dm_eth_opts.h"
 //#include "dm_eth_api.h"
-//#include "dm9051_lw.h" //#include "_dm9051_env.h"
 
 #if freeRTOS
 #include "FreeRTOS.h" //#include "task.h"

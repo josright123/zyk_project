@@ -44,6 +44,15 @@ typedef enum
     }                                        \
   } while (0)
 
+#define DM9051_TX_DELAY(expression, handler) \
+	do                                       \
+	{                                        \
+		if ((expression))                    \
+		{                                    \
+			handler;                         \
+		}                                    \
+	} while (0)
+
 //[2.0]
 
 #define POLL_ON_FORCE			(1 << 0)

@@ -4,9 +4,9 @@
 #include "dm9051opts.h"
 
 #if ETHERNET_INTERRUPT_MODE
-int DM_ETH_ToGet_InterruptEvent(void);
-void DM_ETH_ToSet_InterruptEvent(void);
-void DM_ETH_InterruptHdlr(void);
+int DM_ETH_GetInterruptEvent(void);
+//void DM_ETH_SetInterruptEvent(void);
+void DM_ETH_InterruptEvent(void);
 void DM_ETH_ToRst_ISR(void);
 #endif
 

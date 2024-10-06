@@ -57,15 +57,15 @@ extern "C"
   void intr_add(void);
 
   //[hw]
-  void AT_cint_exint9_5_handler(void);
-  void AT_cint_disable_mcu_irq(void);
-  void AT_cint_enable_mcu_irq(void);
+  int cint_exint9_5_handler_AT(void);
+  void cint_disable_mcu_irq_AT(void);
+  void cint_enable_mcu_irq_AT(void);
   void AT_spi_cs_lo(void);
   void AT_spi_cs_hi(void);
   uint8_t spi_exc_data(uint8_t byte);
-#define cint_exint9_5_handler() AT_cint_exint9_5_handler()
-#define cint_disable_mcu_irq() AT_cint_disable_mcu_irq()
-#define cint_enable_mcu_irq() AT_cint_enable_mcu_irq()
+#define cint_exint9_5_handler() cint_exint9_5_handler_AT()
+#define cint_disable_mcu_irq() cint_disable_mcu_irq_AT()
+#define cint_enable_mcu_irq() cint_enable_mcu_irq_AT()
 #define dm9051if_cs_lo() AT_spi_cs_lo()
 #define dm9051if_cs_hi() AT_spi_cs_hi()
 #endif
@@ -94,7 +94,7 @@ extern "C"
 #define spi_mem_write(buf, len) NU_spi_mem_write(buf, len)
 
   //[hw]
-  void NU_cint_exint9_5_handler(void);
+  int NU_cint_exint9_5_handler(void);
   void NU_cint_disable_mcu_irq(void);
   void NU_cint_enable_mcu_irq(void);
   void NU_spi_cs_lo(void);

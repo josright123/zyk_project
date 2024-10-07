@@ -709,9 +709,9 @@
           <GroupName>dm9051_cboard</GroupName>
           <Files>
             <File>
-              <FileName>dm9051_u.c</FileName>
+              <FileName>dm9051.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\dm9051_udriver\dm9051\dm9051_u.c</FilePath>
+              <FilePath>..\..\dm9051_udriver\dm9051\dm9051.c</FilePath>
             </File>
             <File>
               <FileName>dm9051_Hw_AT32F437xx - P1.c</FileName>
@@ -744,9 +744,9 @@
           <GroupName>dm9051_uip0</GroupName>
           <Files>
             <File>
-              <FileName>DM9051.c</FileName>
+              <FileName>xDM9051.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\DM9051\DM9051.c</FilePath>
+              <FilePath>..\..\DM9051\xDM9051.c</FilePath>
             </File>
           </Files>
         </Group>

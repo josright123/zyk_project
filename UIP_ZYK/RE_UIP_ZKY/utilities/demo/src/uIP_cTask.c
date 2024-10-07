@@ -74,9 +74,9 @@
 //#define tapdev_send()							DM_ETH_Output((uint8_t *)uip_buf, uip_len) //dm9051_tx((uint8_t *)uip_buf, uip_len)
 //#define tapdev_read()							DM_ETH_Input((uint8_t *)uip_buf) //_DM_ETH_RXHandler((uint8_t *)uip_buf) //dm9051_rx((uint8_t *)uip_buf)
 //[version_1]
-#define tapdev_init()								DM9051_init()
-#define tapdev_send()								DM9051_tx()
-#define tapdev_read()								DM9051_rx()
+#define tapdev_init(adr)								DM9051_init(adr)
+#define tapdev_send(buf,len)						DM9051_tx(buf,len)
+#define tapdev_read(buf)								DM9051_rx(buf)
 //#define	input_intr()							DM9051_rx()
 #define tapdev_get_ievent()					DM_ETH_GetInterruptEvent()
 #define tapdev_clr_ievent()					DM_ETH_ToRst_ISR()
@@ -101,7 +101,7 @@ uint32_t LED_flag;
 //			//dm9051_isr_disab();
 //			DM_ETH_IRQDisable();
 //		}
-//		uip_len = tapdev_read();
+//		uip_len = tapdev_read(uip_buf);
 //		if (uip_len) {
 //			u16_t wrapper_len = uip_len;
 //			n++;
@@ -112,7 +112,7 @@ uint32_t LED_flag;
 //		else {
 //			flgSemaphore_r = 0;
 //			if (n >= 3)
-//				printf("tapdev_read exint9_5_handler(void) EXINT_LINE_%d, set flgSemaphore_r %d (conti %d packets)\r\n",
+//				printf("_tapdev_read exint9_5_handler(void) EXINT_LINE_%d, set flgSemaphore_r %d (conti %d packets)\r\n",
 //						de_enum(dm9051_irq_exint_line(0)), flgSemaphore_r, n);
 //			n = 0;
 //			DM_ETH_IRQEnable();
@@ -158,7 +158,7 @@ void diff_rx_pointers_e(int n, uint16_t *pMdra_rds) {
 
 int input_intr(void)
 {
-	uip_len = tapdev_read();
+	uip_len = tapdev_read(uip_buf);
 	return (uip_len > 0) ? 1 : 0;
 }
 
@@ -168,7 +168,7 @@ int input_intr(void)
 .......... old version_0..
 uint16_t DM_ETH_RXHandler_Poll(void)
 {
-	uip_len = tapdev_read();
+	uip_len = tapdev_read(uip_buf);
 	if (uip_len)
 		/* Polling, per 1 packet */
 		rcx_handler_direct();
@@ -194,7 +194,7 @@ void vuIP_Task(void *pvParameters)
     timer_set(&periodic_timer, CLOCK_SECOND / 2); 		//500ms
     timer_set(&arp_timer, CLOCK_SECOND * 10);         // 10sec
 	
-	tapdev_init(); //DM_ETH_Init(&uip_ethaddr.addr[0]); //DM_Eth_Open();
+	tapdev_init(&uip_ethaddr.addr[0]); //DM_ETH_Init(&uip_ethaddr.addr[0]); //DM_Eth_Open();
 	
     uip_init();
     uip_arp_init(); // Clear arp table.
@@ -279,7 +279,7 @@ void vuIP_Task(void *pvParameters)
 						if (uip_len > 0)
 						{
 							uip_arp_out();
-							tapdev_send();
+							tapdev_send(uip_buf, uip_len);
 						}
 					}
 					else if (BUF->type == htons(UIP_ETHTYPE_ARP))
@@ -291,7 +291,7 @@ void vuIP_Task(void *pvParameters)
 						   uip_len is set to a value > 0. */
 						if (uip_len > 0)
 						{
-							tapdev_send();
+							tapdev_send(uip_buf, uip_len);
 						}
 					}
 					isrSemaphore_n++;
@@ -337,7 +337,7 @@ void vuIP_Task(void *pvParameters)
                 if (uip_len > 0)
                 {
                     uip_arp_out();
-                    tapdev_send();
+                    tapdev_send(uip_buf, uip_len);
                 }
             }
 
@@ -352,7 +352,7 @@ void vuIP_Task(void *pvParameters)
                 if (uip_len > 0)
                 {
                     uip_arp_out();
-                    tapdev_send();
+                    tapdev_send(uip_buf, uip_len);
                 }
             }
 

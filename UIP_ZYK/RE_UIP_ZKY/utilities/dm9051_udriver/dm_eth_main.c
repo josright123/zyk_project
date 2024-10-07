@@ -46,25 +46,23 @@ void DM_ETH_InterruptEvent(void) // DM_ETH_InterruptHdlr
 	}
 }
 
-int32_t DM_ETH_Init(void) // DM9051_init(void)
+const uint8_t *DM_ETH_Init(const uint8_t *adr) // DM9051_init(void)
 {
 	// DM9051_Configuration_NU();
 	dm9051_boards_initialize();
-	dm9051_init(&uip_ethaddr.addr[0]);
-	return 0;
+	return dm9051_init(adr);
 }
 
-uint16_t DM_ETH_Input(void) // DM9051_rx(void)
+uint16_t DM_ETH_Input(uint8_t *bff) // DM9051_rx(void)
 {
-	uip_len = dm9051_rx(uip_buf);
-	dm_eth_input_hexdump(uip_buf, uip_len); //"dm_eth_status.c"
-	return uip_len;
+	uint16_t len = dm9051_rx(bff);
+	dm_eth_input_hexdump(bff, len); //"dm_eth_status.c"
+	return len;
 }
 
-uint32_t DM_ETH_Output(void) // DM9051_tx(void)
+void DM_ETH_Output(uint8_t *bff, uint16_t len) // DM9051_tx(void)
 {
-	dm9051_tx(uip_buf, uip_len);
-	return 0;
+	dm9051_tx(bff, len);
 }
 
 // Reset functionality

@@ -959,8 +959,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\dm9051_udriver\dm9051\dm9051_u.c</PathWithFileName>
-      <FilenameWithoutPath>dm9051_u.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\dm9051_udriver\dm9051\dm9051.c</PathWithFileName>
+      <FilenameWithoutPath>dm9051.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1035,8 +1035,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\DM9051\DM9051.c</PathWithFileName>
-      <FilenameWithoutPath>DM9051.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\DM9051\xDM9051.c</PathWithFileName>
+      <FilenameWithoutPath>xDM9051.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

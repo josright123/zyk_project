@@ -31,9 +31,9 @@
  * Date: 20230411
  * Date: 20230428 (V3)
  */
-#include "dm9051_lw.h"
+#include "dm9051.h"
 #include "cboard/dm9051_Hw_api.h"
-#include "dm_identify_impl.h" //[h file implement]
+#include "cboard/dm_identify_impl.h" //[h file implement]
 
 // Constants and Definitions
 #define PBUF_POOL_BUFSIZE (1514 + 4) //.2000	//.2000(tested)

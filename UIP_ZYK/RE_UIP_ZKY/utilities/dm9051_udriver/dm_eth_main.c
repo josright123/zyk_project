@@ -13,9 +13,9 @@
  */
 #include "uip-conf.h"
 #include "uip.h"
-#include "dm9051_lw.h"
+#include "dm9051.h"
 #include "cboard/dm9051_Hw_api.h"
-#include "dm_identify_impl.h"
+#include "cboard/dm_identify_impl.h"
 
 // Configuration flags
 // #define DM_ETH_USE_INTERRUPTS 1

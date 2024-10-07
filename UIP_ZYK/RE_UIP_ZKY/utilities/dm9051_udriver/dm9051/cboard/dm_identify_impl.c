@@ -1,5 +1,5 @@
 #include "dm9051opts.h"
-#include "dm9051_lw.h"
+#include "dm9051.h"
 #include "dm_identify_impl.h"
 
 #define DM_TYPE 1

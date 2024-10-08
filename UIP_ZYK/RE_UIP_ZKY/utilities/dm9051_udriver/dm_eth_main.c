@@ -24,10 +24,7 @@
 // Interrupt event flag
 // #if defined(DM9051_DRIVER_INTERRUPT)
 // #endif
-static volatile int flgSemaphore_r = 0;
-
-// Function prototypes
-static void dm_eth_update_ip_config(const uint8_t *ip, const uint8_t *gw, const uint8_t *mask);
+volatile int flgSemaphore_r = 0;
 
 int DM_ETH_GetInterruptEvent(void)
 {
@@ -73,10 +70,9 @@ void DM_ETH_ToRst_ISR(void)
 
 void DM_ETH_IpConfiguration(uint8_t *ip, uint8_t *gw, uint8_t *mask)
 {
-	dm_eth_update_ip_config(
-		identify_tcpip_ip(ip),
-		identify_tcpip_gw(gw),
-		identify_tcpip_mask(mask));
+	identify_tcpip_ip(ip);
+	identify_tcpip_gw(gw);
+	identify_tcpip_mask(mask);
 }
 
 // DM_Eth_GetStatus: cid/bmsr/ncr_nsr
@@ -110,15 +106,3 @@ uint16_t DM_ETH_ToCalc_rx_pointers(int state, uint16_t *mdra_rd_org, uint16_t *m
 	return (state == 0) ? 0 : wrpadiff(*mdra_rd_org, *mdra_rdp);
 }
 #endif
-
-static void dm_eth_update_ip_config(const uint8_t *ip, const uint8_t *gw, const uint8_t *mask)
-{
-	uip_ipaddr_t ipaddr;
-
-	uip_ipaddr(&ipaddr, ip[0], ip[1], ip[2], ip[3]);
-	uip_sethostaddr(ipaddr);
-	uip_ipaddr(&ipaddr, gw[0], gw[1], gw[2], gw[3]);
-	uip_setdraddr(ipaddr);
-	uip_ipaddr(&ipaddr, mask[0], mask[1], mask[2], mask[3]);
-	uip_setnetmask(ipaddr);
-}

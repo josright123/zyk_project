@@ -1,3 +1,5 @@
+#include "dm_eth_opts.h"
+
 //[5] dependency
 #ifdef freeRTOS_CONF
 #define freeRTOS														freeRTOS_CONF

@@ -55,6 +55,7 @@
 
 #if 1
 #include "../dm_eth_api.h" //#include "dm9051_lw.h" //#include "dm9051_env.h"
+#include "cboard/dm_identify_impl.h"
 
 //#include "dm_identify.h"
 //#include "dm_identify_impl.h" //[h file implement]
@@ -80,7 +81,11 @@
 //#define	input_intr()							DM9051_rx()
 #define tapdev_get_ievent()					DM_ETH_GetInterruptEvent()
 #define tapdev_clr_ievent()					DM_ETH_ToRst_ISR()
-#define	tapdev_ip_configure(i,g,m)	DM_ETH_IpConfiguration(i,g,m)
+#define	tapdev_ip_configure(i,g,m)	DM_ETH_IpConfiguration(i,g,m); \
+									uip_update_ip_config( \
+										identified_tcpip_ip(), \
+										identified_tcpip_gw(), \
+										identified_tcpip_mask())
 
 #define BUF ((struct uip_eth_hdr *)&uip_buf[0])
 
@@ -93,6 +98,22 @@
 #endif
 
 uint32_t LED_flag;
+
+// Function prototypes
+//static void uip_update_ip_config(const uint8_t *ip, const uint8_t *gw, const uint8_t *mask);
+	
+static void uip_update_ip_config(const uint8_t *ip, const uint8_t *gw, const uint8_t *mask)
+{
+	uip_ipaddr_t ipaddr;
+
+	uip_ipaddr(&ipaddr, ip[0], ip[1], ip[2], ip[3]);
+	uip_sethostaddr(ipaddr);
+	uip_ipaddr(&ipaddr, gw[0], gw[1], gw[2], gw[3]);
+	uip_setdraddr(ipaddr);
+	uip_ipaddr(&ipaddr, mask[0], mask[1], mask[2], mask[3]);
+	uip_setnetmask(ipaddr);
+}
+
 /*---------------------------------------------------------------------------*/
 //uint16_t rx_wrapper_read(void) {
 //	static int n = 0;
@@ -427,7 +448,7 @@ void    dhcpc_configured(const struct dhcpc_state *s)
 //        uip_ipaddr(ipaddr, p[0], p[1], p[2], p[3]); //Network Mask
 //        uip_setnetmask(ipaddr);
 				
-				DM_ETH_IpConfiguration(NULL, NULL, NULL);
+				tapdev_ip_configure(NULL, NULL, NULL);
         printf("\n--Fixed IP address ---------------------\r\n");
     }
     else
@@ -439,7 +460,7 @@ void    dhcpc_configured(const struct dhcpc_state *s)
 //        uip_setdraddr(s->default_router);
 //        //  resolv_conf(s->dnsaddr);            // Now don't need DNS
 				
-				DM_ETH_IpConfiguration(
+				tapdev_ip_configure(
 					(uint8_t *)s->ipaddr,
 					(uint8_t *)s->default_router,
 					(uint8_t *)s->netmask);

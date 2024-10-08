@@ -18,7 +18,10 @@ uint16_t DM_ETH_ToCalc_rx_pointers(int state, uint16_t *mdra_rd_org, uint16_t *m
 const uint8_t *DM_ETH_Init(const uint8_t *adr);
 uint16_t DM_ETH_Input(uint8_t *bff);
 void DM_ETH_Output(uint8_t *bff, uint16_t len);
-void DM_ETH_IpConfiguration(uint8_t *ip, uint8_t *gw, uint8_t *mask);
+//void DM_ETH_IpConfiguration(uint8_t *ip, uint8_t *gw, uint8_t *mask);
+uint8_t *DM_ETH_Ip_Configuration(const uint8_t *ip);
+uint8_t *DM_ETH_Gw_Configuration(const uint8_t *ip);
+uint8_t *DM_ETH_Mask_Configuration(const uint8_t *ip);
 void DM_Eth_ReadRegsInfo(uint8_t *stat);
 
 #if 0

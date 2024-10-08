@@ -68,11 +68,24 @@ void DM_ETH_ToRst_ISR(void)
 	cspi_isr_enab(); // dm9051_write_rst_isr();
 }
 
-void DM_ETH_IpConfiguration(uint8_t *ip, uint8_t *gw, uint8_t *mask)
+//void DM_ETH_IpConfiguration(uint8_t *ip, uint8_t *gw, uint8_t *mask)
+//{
+//	identify_tcpip_ip(ip);
+//	identify_tcpip_gw(gw);
+//	identify_tcpip_mask(mask);
+//}
+
+uint8_t *DM_ETH_Ip_Configuration(const uint8_t *ip)
 {
-	identify_tcpip_ip(ip);
-	identify_tcpip_gw(gw);
-	identify_tcpip_mask(mask);
+	return identify_tcpip_ip(ip);
+}
+uint8_t *DM_ETH_Gw_Configuration(const uint8_t *ip)
+{
+	return identify_tcpip_gw(ip);
+}
+uint8_t *DM_ETH_Mask_Configuration(const uint8_t *ip)
+{
+	return identify_tcpip_mask(ip);
 }
 
 // DM_Eth_GetStatus: cid/bmsr/ncr_nsr

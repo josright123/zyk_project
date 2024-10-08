@@ -57,9 +57,6 @@
 #include "../dm_eth_api.h" //#include "dm9051_lw.h" //#include "dm9051_env.h"
 #include "cboard/dm_identify_impl.h"
 
-//#include "dm_identify.h"
-//#include "dm_identify_impl.h" //[h file implement]
-
 #else
 //#include "DM9051.h"
 //#include "RttPrintf.h"
@@ -71,21 +68,20 @@
 #define	DM9051_init									DM_ETH_Init
 #define	DM9051_tx										DM_ETH_Output
 #define	DM9051_rx										DM_ETH_Input
-//[version_0.ok]
-//#define tapdev_send()							DM_ETH_Output((uint8_t *)uip_buf, uip_len) //dm9051_tx((uint8_t *)uip_buf, uip_len)
-//#define tapdev_read()							DM_ETH_Input((uint8_t *)uip_buf) //_DM_ETH_RXHandler((uint8_t *)uip_buf) //dm9051_rx((uint8_t *)uip_buf)
-//[version_1]
+
+//[version_1.ok]
 #define tapdev_init(adr)								DM9051_init(adr)
 #define tapdev_send(buf,len)						DM9051_tx(buf,len)
 #define tapdev_read(buf)								DM9051_rx(buf)
-//#define	input_intr()							DM9051_rx()
+//#define tapdev_send()							DM_ETH_Output((uint8_t *)uip_buf, uip_len)
+//#define tapdev_read()							DM_ETH_Input((uint8_t *)uip_buf)
+//#define input_intr()							DM9051_rx()
 #define tapdev_get_ievent()					DM_ETH_GetInterruptEvent()
 #define tapdev_clr_ievent()					DM_ETH_ToRst_ISR()
-#define	tapdev_ip_configure(i,g,m)	DM_ETH_IpConfiguration(i,g,m); \
-									uip_update_ip_config( \
-										identified_tcpip_ip(), \
-										identified_tcpip_gw(), \
-										identified_tcpip_mask())
+//#define tapdev_ip_configure(i,g,m)	DM_ETH_IpConfiguration(i,g,m)
+#define	tapdev_set_ip(ip)				DM_ETH_Ip_Configuration(ip)
+#define	tapdev_set_gw(ip)				DM_ETH_Gw_Configuration(ip)
+#define	tapdev_set_mask(ip)				DM_ETH_Mask_Configuration(ip)
 
 #define BUF ((struct uip_eth_hdr *)&uip_buf[0])
 
@@ -98,50 +94,24 @@
 #endif
 
 uint32_t LED_flag;
-
-// Function prototypes
-//static void uip_update_ip_config(const uint8_t *ip, const uint8_t *gw, const uint8_t *mask);
 	
 static void uip_update_ip_config(const uint8_t *ip, const uint8_t *gw, const uint8_t *mask)
 {
-	uip_ipaddr_t ipaddr;
+//	uip_ipaddr_t ipaddr;
+	uint8_t *ipn = tapdev_set_ip(ip);
+	uint8_t *gwn = tapdev_set_gw(gw);
+	uint8_t *maskn = tapdev_set_mask(mask);
 
-	uip_ipaddr(&ipaddr, ip[0], ip[1], ip[2], ip[3]);
-	uip_sethostaddr(ipaddr);
-	uip_ipaddr(&ipaddr, gw[0], gw[1], gw[2], gw[3]);
-	uip_setdraddr(ipaddr);
-	uip_ipaddr(&ipaddr, mask[0], mask[1], mask[2], mask[3]);
-	uip_setnetmask(ipaddr);
+//	uip_ipaddr(&ipaddr, ip[0], ip[1], ip[2], ip[3]);
+//	uip_sethostaddr(ipaddr);
+//	uip_ipaddr(&ipaddr, gw[0], gw[1], gw[2], gw[3]);
+//	uip_setdraddr(ipaddr);
+//	uip_ipaddr(&ipaddr, mask[0], mask[1], mask[2], mask[3]);
+//	uip_setnetmask(ipaddr);
+	uip_sethostaddr(ipn);
+	uip_setdraddr(gwn);
+	uip_setnetmask(maskn);
 }
-
-/*---------------------------------------------------------------------------*/
-//uint16_t rx_wrapper_read(void) {
-//	static int n = 0;
-//	if (flgSemaphore_r) {
-//		if (n == 0) {
-//			//dm9051_isr_disab();
-//			DM_ETH_IRQDisable();
-//		}
-//		uip_len = tapdev_read(uip_buf);
-//		if (uip_len) {
-//			u16_t wrapper_len = uip_len;
-//			n++;
-//			/* Interrupt, per increase 1 packet */
-//			rcx_handler_direct();
-//			return wrapper_len; //continue;
-//		}
-//		else {
-//			flgSemaphore_r = 0;
-//			if (n >= 3)
-//				printf("_tapdev_read exint9_5_handler(void) EXINT_LINE_%d, set flgSemaphore_r %d (conti %d packets)\r\n",
-//						de_enum(dm9051_irq_exint_line(0)), flgSemaphore_r, n);
-//			n = 0;
-//			DM_ETH_IRQEnable();
-//			//dm9051_isr_enab();
-//		}
-//	}
-//	return 0;
-//}
 
 #if defined(DM9051_DRIVER_INTERRUPT)
 
@@ -149,9 +119,6 @@ uint16_t isrSemaphore_src;
 int isrSemaphore_n = 0;
 
 #if DM_ETH_DEBUG_MODE
-//static
-//extern uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e);
-
 static void debug_packets(int n) {
 //	printf("(%d packets)\r\n", n);
 }
@@ -182,11 +149,10 @@ int input_intr(void)
 	uip_len = tapdev_read(uip_buf);
 	return (uip_len > 0) ? 1 : 0;
 }
-
 #endif
 
 #if defined(DM9051_DRIVER_POLL)
-.......... old version_0..
+.......... old version_0...
 uint16_t DM_ETH_RXHandler_Poll(void)
 {
 	uip_len = tapdev_read(uip_buf);
@@ -198,7 +164,7 @@ uint16_t DM_ETH_RXHandler_Poll(void)
 #endif
 
 /*---------------------------------------------------------------------------*/
-#if 1 //0 [!!TEST]
+
 void vuIP_Task(void *pvParameters)
 {
 	int i; //n = 0;
@@ -206,7 +172,7 @@ void vuIP_Task(void *pvParameters)
     TickType_t xLastWakeTime = xTaskGetTickCount();
 
 #ifndef __DHCPC_H__
-    uip_ipaddr_t ipaddr={0,0};
+    uip_ipaddr_t ip, gw, mask; //ipaddr={0,0};
 #endif
 
     struct timer periodic_timer, arp_timer;
@@ -226,12 +192,16 @@ void vuIP_Task(void *pvParameters)
     dhcpc_init(&uip_ethaddr, 6);
     //dhcpc_request();
 #else //Fixed IP set
-    uip_ipaddr(ipaddr, 10, 0, 2, 222);   //Host IP address
-    uip_sethostaddr(ipaddr);
-    uip_ipaddr(ipaddr, 10, 0, 205, 2);   //Default Gateway
-    uip_setdraddr(ipaddr);
-    uip_ipaddr(ipaddr, 255, 255, 255, 0); //Network Mask
-    uip_setnetmask(ipaddr);
+
+    uip_ipaddr(ip, 10, 0, 2, 222);   //Host IP address
+    uip_ipaddr(gw, 10, 0, 2, 205);   //Default Gateway
+    uip_ipaddr(mask, 255, 255, 255, 0); //Network Mask
+	
+	uip_update_ip_config(
+		ip, //uip_sethostaddr(ipaddr);
+		gw, //uip_setdraddr(ipaddr);
+		mask); //uip_setnetmask(ipaddr);
+
     /* Display system information */
     printf("\n---------------------------------------------\n");
     printf("Network chip: DAVICOM DM9051 \n");
@@ -249,29 +219,9 @@ void vuIP_Task(void *pvParameters)
 
     while (1)
     {
-#if 0
-//[version_0.ok]
-/* Interrupt */
-//		if (intr_gpio_mptr()) {
-//			if (DM_ETH_RXHandler())
-//				continue;
-//		}
-/* Polling */
-//		else {
-//			if (DM_ETH_RXHandler_Poll())
-//				continue;
-//		}
-#endif
-#if 1
-#if defined(DM9051_DRIVER_INTERRUPT)
-//[version_1]
-/* Interrupt */
-		//if (DM_ETH_RXHandler())
-		//	continue;
-			
-		//if (flgSemaphore_r == 1)
-			//flgSemaphore_r = 0; //for next to direct no-limited change-in
-		
+	#if defined(DM9051_DRIVER_INTERRUPT)
+	//[version_1]
+	/* Interrupt */
 		if (tapdev_get_ievent()) {
 
 			isrSemaphore_src = 0x5555 >> 8;
@@ -331,21 +281,14 @@ void vuIP_Task(void *pvParameters)
 			//DM9051_MUTEX_OPS((freeRTOS), sys_mutex_lock_start(&lock_dm9051_core));
 			tapdev_clr_ievent(); //DM_ETH_ToRst_ISR(); //cspi_isr_enab(); //DM_ETH_IRQEnable(); //dm9051_isr_enab();
 			//DM9051_MUTEX_OPS((freeRTOS), sys_mutex_unlock_end(&lock_dm9051_core));
-			//nExpireCount = 0; //= dm_eth_semaphore_renew();
 		}
-#else
-//[version_1, to be continued.]
-/* Polling */
+	#else
+	//[version_1, to be continued.]
+	/* Polling */
 		if (DM_ETH_RXHandler_Poll())
 			continue;
-#endif
-#endif
+	#endif
 
-		//uip_len = .. ; 
-		//;[can insteaded, used for common-used of interrupt/polling]
-        //if (uip_len > 0) {
-		//	rcx_handler_direct();
-        //} else
         if (timer_expired(&periodic_timer))
         {
             timer_reset(&periodic_timer);
@@ -362,7 +305,7 @@ void vuIP_Task(void *pvParameters)
                 }
             }
 
-#if UIP_UDP
+	#if UIP_UDP
 
             for (i = 0; i < UIP_UDP_CONNS; i++)
             {
@@ -377,7 +320,7 @@ void vuIP_Task(void *pvParameters)
                 }
             }
 
-#endif /* UIP_UDP */
+	#endif /* UIP_UDP */
 
             /* Call the ARP timer function every 10 seconds. */
             if (timer_expired(&arp_timer))
@@ -387,7 +330,7 @@ void vuIP_Task(void *pvParameters)
             }
         }
 
-#ifdef __DHCPC_H__
+	#ifdef __DHCPC_H__
         else if (timer_expired(&dhcp_timer))
         {
             // for now turn off the led when we start the dhcp process
@@ -395,15 +338,14 @@ void vuIP_Task(void *pvParameters)
             timer_reset(&dhcp_timer);
         }
 
-#endif // __DHCPC_H__
+	#endif // __DHCPC_H__
         else
         {
             /* task delay */
             vTaskDelayUntil(&xLastWakeTime, xFrequency);
         }
-    }
+    } //while
 }
-#endif //[TEST]
 
 /*---------------------------------------------------------------------------*/
 void    uip_log(char *m)
@@ -448,7 +390,7 @@ void    dhcpc_configured(const struct dhcpc_state *s)
 //        uip_ipaddr(ipaddr, p[0], p[1], p[2], p[3]); //Network Mask
 //        uip_setnetmask(ipaddr);
 				
-				tapdev_ip_configure(NULL, NULL, NULL);
+				uip_update_ip_config(NULL, NULL, NULL);
         printf("\n--Fixed IP address ---------------------\r\n");
     }
     else
@@ -460,10 +402,10 @@ void    dhcpc_configured(const struct dhcpc_state *s)
 //        uip_setdraddr(s->default_router);
 //        //  resolv_conf(s->dnsaddr);            // Now don't need DNS
 				
-				tapdev_ip_configure(
-					(uint8_t *)s->ipaddr,
-					(uint8_t *)s->default_router,
-					(uint8_t *)s->netmask);
+				uip_update_ip_config(
+					(const uint8_t *) s->ipaddr,
+					(const uint8_t *) s->default_router,
+					(const uint8_t *) s->netmask);
         printf("\n--IP address setting from DHCP-----------\r\n");
     }
 

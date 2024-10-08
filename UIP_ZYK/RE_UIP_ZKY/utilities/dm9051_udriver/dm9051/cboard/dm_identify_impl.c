@@ -218,13 +218,14 @@ static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
  */
 
 #if DM_ETH_DEBUG_MODE
-// void dm_eth_input_hexdump_reset(void) {
-//	link_log_reset_allow_num = 0;
-// }
-
 int link_log_reset_allow_num = 0;
 const int rx_modle_log_reset_allow_num = 3;
 #define limit_len(n, nTP) ((n <= nTP) ? n : nTP)
+
+void dm_eth_input_hexdump_reset(void) {
+	if (link_log_reset_allow_num) //Jos like protect from always write-it.
+		link_log_reset_allow_num = 0;
+}
 
 void dm_eth_input_hexdump(const void *buf, size_t len)
 {

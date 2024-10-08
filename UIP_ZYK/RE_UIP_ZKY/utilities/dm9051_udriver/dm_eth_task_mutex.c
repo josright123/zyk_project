@@ -23,7 +23,7 @@
 
 unsigned long dispc = 0;
 
-int freertos_task_tryDisplay(int tryDisp2, int tryDisp3)
+static int freertos_task_tryDisplay(int tryDisp2, int tryDisp3)
 {
 
 	if (dispc % LIST_BASE_COUNT)

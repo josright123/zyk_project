@@ -23,6 +23,7 @@ uint8_t *DM_ETH_Ip_Configuration(const uint8_t *ip);
 uint8_t *DM_ETH_Gw_Configuration(const uint8_t *ip);
 uint8_t *DM_ETH_Mask_Configuration(const uint8_t *ip);
 void DM_Eth_ReadRegsInfo(uint8_t *stat);
+void DM_Eth_Input_HexDumpReset(uint8_t *stat);
 
 #if 0
 //#if 0

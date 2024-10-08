@@ -11,8 +11,8 @@
  * Last updated: 20240905
  *
  */
-#include "uip-conf.h"
-#include "uip.h"
+//#include "uip-conf.h"
+//#include "uip.h"
 #include "dm9051.h"
 #include "cboard/dm9051_Hw_api.h"
 #include "cboard/dm_identify_impl.h"
@@ -119,3 +119,14 @@ uint16_t DM_ETH_ToCalc_rx_pointers(int state, uint16_t *mdra_rd_org, uint16_t *m
 	return (state == 0) ? 0 : wrpadiff(*mdra_rd_org, *mdra_rdp);
 }
 #endif
+
+void DM_Eth_Input_HexDumpReset(uint8_t *stat)
+{
+#if DM_ETH_DEBUG_MODE
+	// =DM9051_HEXDUMP_RESET(DM_Eth_StatusLink(stat), dm_eth_input_hexdump_reset());
+	#if 0
+	if (DM_Eth_StatusLink(stat))
+	#endif
+		dm_eth_input_hexdump_reset();
+#endif
+}

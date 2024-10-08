@@ -101,7 +101,9 @@
         <sRunDeb>0</sRunDeb>
         <sLrtime>0</sLrtime>
         <bEvRecOn>1</bEvRecOn>
-        <nTsel>2</nTsel>
+        <bSchkAxf>0</bSchkAxf>
+        <bTchkAxf>0</bTchkAxf>
+        <nTsel>3</nTsel>
         <sDll></sDll>
         <sDllPa></sDllPa>
         <sDlgDll></sDlgDll>
@@ -969,8 +971,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\dm9051_udriver\dm9051\cboard\dm9051_Hw_AT32F437xx - P1.c</PathWithFileName>
-      <FilenameWithoutPath>dm9051_Hw_AT32F437xx - P1.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\dm9051_udriver\dm9051\cboard\dm_identify_impl.c</PathWithFileName>
+      <FilenameWithoutPath>dm_identify_impl.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -981,8 +983,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\dm9051_udriver\dm9051\cboard\dm_identify_impl.c</PathWithFileName>
-      <FilenameWithoutPath>dm_identify_impl.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\dm9051_udriver\dm9051\cboard\dm9051_Hw_AT32F437xx - P1.c</PathWithFileName>
+      <FilenameWithoutPath>dm9051_Hw_AT32F437xx - P1.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

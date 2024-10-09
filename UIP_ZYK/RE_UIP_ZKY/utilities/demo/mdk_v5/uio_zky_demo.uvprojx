@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER,AT_START_F437_V1</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\uIP;..\..\apps\dhcpc;..\..\apps\webserver;..\inc;..\src;..\..\dm9051_udriver\dm9051;..\..\..\libraries\drivers\inc;..\..\..\libraries\cmsis\cm4\device_support;..\..\..\libraries\cmsis\cm4\core_support;..\..\..\middlewares\freertos\source\include;..\..\..\middlewares\freertos\source\portable\memmang;..\..\..\project\at32f435_437_board;..\..\..\middlewares\freertos_lwip_header;..\..\..\middlewares\freertos_lwip_header\port;..\..\..\middlewares\freertos_lwip_header\port\arch;..\..\DM9051</IncludePath>
+              <IncludePath>..\..\uIP;..\..\apps\dhcpc;..\..\apps\webserver;..\inc;..\src;..\..\dm9051_edriver\dm9051;..\..\..\libraries\drivers\inc;..\..\..\libraries\cmsis\cm4\device_support;..\..\..\libraries\cmsis\cm4\core_support;..\..\..\middlewares\freertos\source\include;..\..\..\middlewares\freertos\source\portable\memmang;..\..\..\project\at32f435_437_board;..\..\..\middlewares\freertos_lwip_header;..\..\..\middlewares\freertos_lwip_header\port;..\..\..\middlewares\freertos_lwip_header\port\arch;..\..\DM9051</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -696,12 +696,12 @@
             <File>
               <FileName>dm_eth_main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\dm9051_udriver\dm_eth_main.c</FilePath>
+              <FilePath>..\..\dm9051_edriver\dm9051\eth\dm_eth_main.c</FilePath>
             </File>
             <File>
-              <FileName>dm_eth_task_mutex.c</FileName>
+              <FileName>dm_eth_task_log0.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\dm9051_udriver\dm_eth_task_mutex.c</FilePath>
+              <FilePath>..\..\dm9051_edriver\dm9051\eth_rt\dm_eth_task_log0.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -711,17 +711,17 @@
             <File>
               <FileName>dm9051.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\dm9051_udriver\dm9051\dm9051.c</FilePath>
-            </File>
-            <File>
-              <FileName>dm_identify_impl.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\dm9051_udriver\dm9051\cboard\dm_identify_impl.c</FilePath>
+              <FilePath>..\..\dm9051_edriver\dm9051\dm9051.c</FilePath>
             </File>
             <File>
               <FileName>dm9051_Hw_AT32F437xx - P1.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\dm9051_udriver\dm9051\cboard\dm9051_Hw_AT32F437xx - P1.c</FilePath>
+              <FilePath>..\..\dm9051_edriver\dm9051\dm9051_Hw_AT32F437xx - P1.c</FilePath>
+            </File>
+            <File>
+              <FileName>dm_identify_impl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\dm9051_edriver\dm9051\identify\dm_identify_impl.c</FilePath>
             </File>
           </Files>
         </Group>

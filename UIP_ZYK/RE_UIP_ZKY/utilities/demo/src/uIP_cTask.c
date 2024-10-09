@@ -54,8 +54,8 @@
 #include "queue.h"
 
 #if 1
-#include "../dm_eth_api.h" //#include "dm9051_lw.h" //#include "dm9051_env.h"
-#include "cboard/dm_identify_impl.h"
+#include "eth/dm_eth_api.h" //#include "dm9051_lw.h" //#include "dm9051_env.h"
+#include "identify/dm_identify_impl.h"
 
 #else
 //#include "DM9051.h"

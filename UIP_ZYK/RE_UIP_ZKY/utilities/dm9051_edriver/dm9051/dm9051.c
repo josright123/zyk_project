@@ -32,8 +32,8 @@
  * Date: 20230428 (V3)
  */
 #include "dm9051.h"
-#include "cboard/dm9051_Hw_api.h"
-#include "cboard/dm_identify_impl.h" //[h file implement]
+#include "identify/dm9051_Hw_api.h"
+#include "identify/dm_identify_impl.h" //[h file implement]
 
 // Constants and Definitions
 #define PBUF_POOL_BUFSIZE (1514 + 4) //.2000	//.2000(tested)
@@ -155,6 +155,23 @@ void cspi_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd)
 {
 	*rwpa_wt = (uint16_t)cspi_read_reg(0x24) | (uint16_t)cspi_read_reg(0x25) << 8; // DM9051_RWPAL
 	*mdra_rd = (uint16_t)cspi_read_reg(0x74) | (uint16_t)cspi_read_reg(0x75) << 8; // DM9051_MRRL;
+}
+
+void cspi_read_regs_info(uint8_t *stat)
+{
+	uint16_t cs;
+	uint32_t pbm;
+
+	pbm = cspi_phy_read(PHY_STATUS_REG); // pbm = dm9051_read_bmsr();
+	pbm |= cspi_read_chip_id() << 16;	 // dm9051_read_chip_id() << 16;
+	cs = cspi_read_control_status();	 // dm9051_read_control_status();
+
+	stat[0] = cs & 0xff;
+	stat[1] = (cs >> 8) & 0xff;
+	stat[2] = (pbm >> 24) & 0xff;
+	stat[3] = (pbm >> 16) & 0xff;
+	stat[4] = (pbm >> 8) & 0xff;
+	stat[5] = (pbm) & 0xff;
 }
 
 // void cspi_vid_pid_revisions(uint8_t *ids, uint8_t *rev_ad)

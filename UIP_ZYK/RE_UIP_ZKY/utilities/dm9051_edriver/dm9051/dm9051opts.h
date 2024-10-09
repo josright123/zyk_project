@@ -20,6 +20,6 @@
 #define DM_ETH_DEBUG_MODE 1       // 0
 #define qprint 0                  // 1 // on/off
 
-#include "dm9051_driver_define.h"
+#include "identify/dm9051_driver_define.h"
 
 #endif //__DM9051_OPTS_H

@@ -23,7 +23,8 @@ uint8_t *DM_ETH_Ip_Configuration(const uint8_t *ip);
 uint8_t *DM_ETH_Gw_Configuration(const uint8_t *ip);
 uint8_t *DM_ETH_Mask_Configuration(const uint8_t *ip);
 void DM_Eth_ReadRegsInfo(uint8_t *stat);
-void DM_Eth_Input_HexDumpReset(uint8_t *stat);
+int DM_Eth_Regs_Info_Linkup(uint8_t *stat);
+//void DM_Eth_Input_HexDumpReset(uint8_t *stat);
 
 #if 0
 //#if 0
@@ -32,9 +33,6 @@ void DM_Eth_Input_HexDumpReset(uint8_t *stat);
 //	struct pbuf *DM_ETH_Input(void);
 //	err_t DM_ETH_Output(struct netif *netif, struct pbuf *p);
 //	
-//	int DM_Eth_LinkBitStatus(uint8_t *stat);
-//	void DM_Eth_ReadRegsInfo(uint8_t *stat);
-//	void DM_Eth_Input_HexDumpReset(uint8_t *stat);
 //	#if ETHERNET_INTERRUPT_MODE
 //	int DM_ETH_InterruptHdlr_Supplement(void);
 //	#endif

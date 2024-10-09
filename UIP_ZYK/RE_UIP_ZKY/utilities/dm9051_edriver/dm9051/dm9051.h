@@ -235,6 +235,8 @@ void dm9051_tx(uint8_t *buf, uint16_t len);
     void cspi_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd);
     uint16_t cspi_diff_rxpa(void);
 	
+		void cspi_read_regs_info(uint8_t *stat);
+	
 		uint16_t cspi_isr_enab(void); //read and/then write
 	
     void cspi_vid_pid_revisions(uint8_t *ids, uint8_t *rev_ad);

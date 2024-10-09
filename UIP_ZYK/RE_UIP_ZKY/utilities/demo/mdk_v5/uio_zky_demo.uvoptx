@@ -927,7 +927,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\dm9051_udriver\dm_eth_main.c</PathWithFileName>
+      <PathWithFileName>..\..\dm9051_edriver\dm9051\eth\dm_eth_main.c</PathWithFileName>
       <FilenameWithoutPath>dm_eth_main.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -939,8 +939,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\dm9051_udriver\dm_eth_task_mutex.c</PathWithFileName>
-      <FilenameWithoutPath>dm_eth_task_mutex.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\dm9051_edriver\dm9051\eth_rt\dm_eth_task_log0.c</PathWithFileName>
+      <FilenameWithoutPath>dm_eth_task_log0.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -959,7 +959,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\dm9051_udriver\dm9051\dm9051.c</PathWithFileName>
+      <PathWithFileName>..\..\dm9051_edriver\dm9051\dm9051.c</PathWithFileName>
       <FilenameWithoutPath>dm9051.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -971,8 +971,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\dm9051_udriver\dm9051\cboard\dm_identify_impl.c</PathWithFileName>
-      <FilenameWithoutPath>dm_identify_impl.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\dm9051_edriver\dm9051\dm9051_Hw_AT32F437xx - P1.c</PathWithFileName>
+      <FilenameWithoutPath>dm9051_Hw_AT32F437xx - P1.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -983,8 +983,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\dm9051_udriver\dm9051\cboard\dm9051_Hw_AT32F437xx - P1.c</PathWithFileName>
-      <FilenameWithoutPath>dm9051_Hw_AT32F437xx - P1.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\dm9051_edriver\dm9051\identify\dm_identify_impl.c</PathWithFileName>
+      <FilenameWithoutPath>dm_identify_impl.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

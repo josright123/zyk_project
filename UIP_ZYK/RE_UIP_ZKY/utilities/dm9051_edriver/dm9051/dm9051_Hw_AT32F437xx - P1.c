@@ -9,9 +9,9 @@
  **************************************************************************
  */
 #include "dm9051opts.h"		  //#include "dm9051_env.h"
-#include "dm_identify_impl.h" //[h file implement]
-#include "../dm_eth_api.h"
-#include "dm9051_Hw_api.h"
+#include "identify/dm_identify_impl.h" //[h file implement]
+//#include "../dm_eth_api.h"
+#include "identify/dm9051_Hw_api.h"
 
 #if defined(_DLW_AT32F437xx)
 
@@ -423,8 +423,16 @@ void cspi_write_mem(uint8_t *buf, uint16_t len)
 /* dm9051_Hw_common delay funcrions
  * source code.
  */
+/* dm9051_Hw_common delay funcrions
+ * Select ether [0] or [1], or otherwise coding user's sys_now().
+ */
+//(0)[uip]
+//#include "clock.h"
+//#define sys_now clock_time // or xTaskGetTickCount()
 #include "clock.h"
 #define sys_now clock_time // or xTaskGetTickCount()
+//(1)[lwip]
+//#include "lwip/sys.h"
 
 void dm_delay_us(uint32_t nus)
 {

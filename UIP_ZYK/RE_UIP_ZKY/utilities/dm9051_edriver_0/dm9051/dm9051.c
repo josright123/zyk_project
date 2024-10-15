@@ -32,8 +32,8 @@
  * Date: 20230428 (V3)
  */
 #include "dm9051.h"
-
-#include "../debug/dm9051_eth_debug.h"
+#include "identify/dm9051_Hw_api.h"
+#include "identify/dm_identify_impl.h" //[h file implement]
 
 // Constants and Definitions
 #define PBUF_POOL_BUFSIZE (1514 + 4) //.2000	//.2000(tested)
@@ -70,15 +70,13 @@ const uint8_t *dm9051_init(const uint8_t *adr)
 	const uint8_t *mac = impl_dm9051_init(adr);
 
 	// Print initialization status
-	// printf("dm9051_init done\r\n");
-
+	printf("dm9051_init done\r\n");
 #ifdef DM9051_DRIVER_INTERRUPT
 	printf("[interrupt]\r\n");
 #else
-	printf("[polling].e\r\n");
+	printf("[polling]\r\n");
 #endif
 	printf("\r\n");
-
 	return mac;
 }
 
@@ -286,7 +284,8 @@ int env_init_setup(uint16_t *id)
 		return 0;
 	}
 
-	printf("\r\n"); // printf("DM9051 chip rev: %02x\r\n", rev);
+	printf("\r\n");
+	printf("DM9051 chip rev: %02x\r\n", rev);
 	printf("DM9051 found: %04x\r\n", *id);
 	return 1;
 }
@@ -298,10 +297,7 @@ int env_init_setup(uint16_t *id)
 
 static void dm9051_show_rxbstatistic(uint8_t *htc, int n)
 {
-	int i;
-#if (drv_print && PRINT_SEMA == SEMA_ON) // depend
-	int j;
-#endif
+	int i, j;
 
 	printf("SHW rxbStatistic, 254 wrngs\r\n");
 	for (i = 0; i < (n + 2); i++)
@@ -317,9 +313,7 @@ static void dm9051_show_rxbstatistic(uint8_t *htc, int n)
 			printf("  ");
 			continue;
 		}
-#if (drv_print && PRINT_SEMA == SEMA_ON) // depend
 		j = i - 2;
-#endif
 		printf("%d ", htc[j]);
 	}
 	printf("\r\n");
@@ -365,11 +359,7 @@ static const uint8_t *env_reset_process(const uint8_t *macaddr)
 
 uint16_t env_err_rsthdlr(char *err_explain_str, uint32_t valuecode)
 {
-	char bff[180];
-	sprintf(bff, err_explain_str, valuecode);
-	printf("%s", bff);
-	//printf(err_explain_str, valuecode);
-	
+	printf(err_explain_str, valuecode);
 	env_reset_process(identified_eth_mac());
 	return 0;
 }

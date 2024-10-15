@@ -43,6 +43,9 @@
 //#include "dm9051opts.h"
 //#include "dm9051_lw_cint.h"
 
+#include "../debug/dm9051_ap_debug.h"
+#define printf(fmt, ...) TASK_DM9051_DEBUGF(PRINT_SEMA, PRINT_INFO_AP, (fmt, ##__VA_ARGS__)) //PRINT_AP or "[MAIN] "
+
 #if defined PORT_APP_MAPPER
     bool dhcpc_running = 0;
 #endif
@@ -297,7 +300,7 @@ static PT_THREAD(handle_dhcp(void))
 		);
 #endif
 
-    printf("handle_dhcp...\n");
+    printf("handle_dhcp...\r\n");
 
     if (s.state == STATE_RENEW)
         goto send_request_section;
@@ -322,7 +325,7 @@ static PT_THREAD(handle_dhcp(void))
 
         if (uip_newdata())
         {
-            printf("DHCP - newdata\n");
+            printf("DHCP - newdata\r\n");
 
             //sendString("Data\n\r");
             if (parse_msg() == DHCPOFFER)
@@ -377,7 +380,7 @@ send_request_section:
 
             if (msg_type == DHCPACK)
             {
-                printf("DHCPACK\n");
+                printf("DHCPACK\r\n");
 
                 s.state = STATE_CONFIG_RECEIVED;
                 break;

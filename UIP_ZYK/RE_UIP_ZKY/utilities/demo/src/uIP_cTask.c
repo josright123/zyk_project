@@ -54,15 +54,16 @@
 #include "queue.h"
 
 #if 1
-#include "eth/dm_eth_api.h" //#include "dm9051_lw.h" //#include "dm9051_env.h"
-#include "identify/dm_identify_impl.h"
+#include "../eth/dm_eth_api.h" //#include "dm9051_lw.h" //#include "dm9051_env.h"
+//#include "identify/dm_identify_impl.h"
 
 #else
 //#include "DM9051.h"
 //#include "RttPrintf.h"
 #endif
 
-//#include "dhcpc.h"
+#include "../debug/dm9051_ap_debug.h"
+#define printf(fmt, ...) TASK_DM9051_DEBUGF(PRINT_SEMA, PRINT_INFO_AP, (fmt, ##__VA_ARGS__)) //PRINT_AP or "[MAIN] "
 
 //[version_1]
 #define	DM9051_init									DM_ETH_Init
@@ -188,6 +189,7 @@ void vuIP_Task(void *pvParameters)
 
 #ifdef __DHCPC_H__ //if use fixed ip, #ifdef modify #ifndef
     // setup the dhcp renew timer the make the first request
+		printf("config: DHCPC\r\n");
     timer_set(&dhcp_timer, CLOCK_SECOND * 600);
     dhcpc_init(&uip_ethaddr, 6);
     //dhcpc_request();
@@ -406,20 +408,20 @@ void    dhcpc_configured(const struct dhcpc_state *s)
 					(const uint8_t *) s->ipaddr,
 					(const uint8_t *) s->default_router,
 					(const uint8_t *) s->netmask);
-        printf("\n--IP address setting from DHCP-----------\r\n");
+        printf("--IP address setting from DHCP-----------\r\n");
     }
 
     /* Display system information */
 
-    printf("Network chip: DAVICOM DM9051 \n");
-    printf("MAC Address: %X:%X:%X:%X:%X:%X \n", uip_ethaddr.addr[0], uip_ethaddr.addr[1],
+    printf("Network chip: DAVICOM DM9051 \r\n");
+    printf("MAC Address: %X:%X:%X:%X:%X:%X \r\n", uip_ethaddr.addr[0], uip_ethaddr.addr[1],
            uip_ethaddr.addr[2], uip_ethaddr.addr[3], uip_ethaddr.addr[4], uip_ethaddr.addr[5]);
     uip_gethostaddr(ipaddr);
-    printf("Host IP Address: %d.%d.%d.%d \n", uip_ipaddr1(ipaddr), uip_ipaddr2(ipaddr), uip_ipaddr3(ipaddr), uip_ipaddr4(ipaddr));
+    printf("Host IP Address: %d.%d.%d.%d \r\n", uip_ipaddr1(ipaddr), uip_ipaddr2(ipaddr), uip_ipaddr3(ipaddr), uip_ipaddr4(ipaddr));
     uip_getnetmask(ipaddr);
-    printf("Network Mask: %d.%d.%d.%d \n", uip_ipaddr1(ipaddr), uip_ipaddr2(ipaddr), uip_ipaddr3(ipaddr), uip_ipaddr4(ipaddr));
+    printf("Network Mask: %d.%d.%d.%d \r\n", uip_ipaddr1(ipaddr), uip_ipaddr2(ipaddr), uip_ipaddr3(ipaddr), uip_ipaddr4(ipaddr));
     uip_getdraddr(ipaddr);
-    printf("Gateway IP Address: %d.%d.%d.%d \n", uip_ipaddr1(ipaddr), uip_ipaddr2(ipaddr), uip_ipaddr3(ipaddr), uip_ipaddr4(ipaddr));
+    printf("Gateway IP Address: %d.%d.%d.%d \r\n", uip_ipaddr1(ipaddr), uip_ipaddr2(ipaddr), uip_ipaddr3(ipaddr), uip_ipaddr4(ipaddr));
     printf("---------------------------------------------\r\n");
 }
 #endif /* __DHCPC_H__ */

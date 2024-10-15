@@ -1,9 +1,9 @@
 /* define to prevent recursive inclusion -------------------------------------*/
 #ifndef __DM9051_H
 #define __DM9051_H
-#include "../dm9051opts.h"
-#include "../identify_opts.h"
-#include "dm9051_hal.h"
+#include "identify/dm9051opts.h"
+#include "identify/identify_opts.h"
+#include "dm9051_Hw_mcu_default_IN.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -94,7 +94,7 @@ extern "C"
 #define DM9051_BPTR_SET (0x37)
 #define DM9051_FCTR_SET (0x38)
 #define DM9051_FCR_SET (0x28)
-  // #define DM9051_TCR_SET    (0x01)
+    // #define DM9051_TCR_SET    (0x01)
 
 #define NCR_EXT_PHY (1 << 7)
 #define NCR_WAKEEN (1 << 6)
@@ -191,92 +191,94 @@ extern "C"
 /* 0x5E */
 #define MBNDRY_WORD 0
 #define MBNDRY_BYTE (1 << 7)
-  // #define MBNDRY_DEFAULTx	MBNDRY_WORD //MBNDRY_BYTE
+    // #define MBNDRY_DEFAULTx	MBNDRY_WORD //MBNDRY_BYTE
 
 #define ISR_PR (1 << 0)
 
 #define IMR_PAR (1 << 7)
 #define IMR_PRM (1 << 0)
 
-  //[API]uip
-  const uint8_t *dm9051_init(const uint8_t *adr);
-  uint16_t dm9051_rx(uint8_t *buff);
-  void dm9051_tx(uint8_t *buf, uint16_t len);
+//[API]uip
+const uint8_t *dm9051_init(const uint8_t *adr);
+uint16_t dm9051_rx(uint8_t *buff);
+void dm9051_tx(uint8_t *buf, uint16_t len);
 
-  //[API]lwip
-  // uint16_t dm9051_read_chip_id(void);
-  // uint16_t dm9051_read_bmsr(void);
-  // uint16_t dm9051_read_control_status(void);
-  // void dm9051_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd);
-  // void dm9051_probe_link(int nsr_poll);
-  // void dm9051_write_rst_isr(void);
+//[API]lwip
+//uint16_t dm9051_read_chip_id(void);
+//uint16_t dm9051_read_bmsr(void);
+//uint16_t dm9051_read_control_status(void);
+//void dm9051_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd);
+//void dm9051_probe_link(int nsr_poll);
+//void dm9051_write_rst_isr(void);
 
 #if 1
 
-  int link_flag(void);
-  void impl_dm9051_set_recv(void);
-  // void lwip_set_mac_address_IN_DRV(const uint8_t* macadd);
-  uint16_t evaluate_link(void);
-  unsigned long get_fire_polling(void);
+    int link_flag(void);
+    void impl_dm9051_set_recv(void);
+    // void lwip_set_mac_address_IN_DRV(const uint8_t* macadd);
+    uint16_t evaluate_link(void);
+    unsigned long get_fire_polling(void);
 
 #endif
 
-  //[API]env.h
-  int env_init_setup(uint16_t *id);
-  uint16_t env_evaluate_rxb(uint8_t rxb);
-  // const uint8_t *env_reset_process(const uint8_t *macaddr, enable_t en);
-  uint16_t env_err_rsthdlr(char *err_explain_str, uint32_t valuecode);
+		//[API]env.h
+		int env_init_setup(uint16_t *id);
+		uint16_t env_evaluate_rxb(uint8_t rxb);
+		//const uint8_t *env_reset_process(const uint8_t *macaddr, enable_t en);
+		uint16_t env_err_rsthdlr(char *err_explain_str, uint32_t valuecode);
 
-  uint16_t cspi_phy_read(uint16_t uReg);
-  void cspi_phy_write(uint16_t reg, uint16_t value); //[function "phy_write" was available but could never referenced.]
-  // uint16_t eeprom_read(uint16_t uWord);
+    uint16_t cspi_phy_read(uint16_t uReg);
+    void cspi_phy_write(uint16_t reg, uint16_t value); //[function "phy_write" was available but could never referenced.]
+    // uint16_t eeprom_read(uint16_t uWord);
 
-  uint16_t cspi_read_chip_id(void);
-  uint16_t cspi_read_control_status(void);
+    uint16_t cspi_read_chip_id(void);
+    uint16_t cspi_read_control_status(void);
 
-  void cspi_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd);
-  uint16_t cspi_diff_rxpa(void);
+    void cspi_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd);
+    uint16_t cspi_diff_rxpa(void);
 
-  void cspi_read_regs_info(uint8_t *stat);
+		void cspi_read_regs_info(uint8_t *stat);
+	
+		uint16_t cspi_isr_enab(void); //read and/then write
+	
+    void cspi_vid_pid_revisions(uint8_t *ids, uint8_t *rev_ad);
+    void read_chip_revision(uint8_t *ids, uint8_t *rev_ad);
+    void impl_read_par(uint8_t *buff);
 
-  uint16_t cspi_isr_enab(void); // read and/then write
+    void cspi_phycore_on(uint16_t nms);
+    void cspi_ncr_reset(uint16_t nms);
+    void cspi_soft_default(void);
 
-  void cspi_vid_pid_revisions(uint8_t *ids, uint8_t *rev_ad);
-  void read_chip_revision(uint8_t *ids, uint8_t *rev_ad);
-  void impl_read_par(uint8_t *buff);
+    //void _cspi_core_reset(void);
+    //const uint8_t *cspi_dm_start1(const uint8_t *adr);
+    //void cspi_set_par(const uint8_t *macadd);
+    void cspi_set_mar(void);
+    void cspi_set_recv(void);
+    //void cspi_rx_mode(void); // ethernetif.c (of _lwip_set_mac_address())
+    void cspi_rx_head(uint8_t *receivedata);
+    void cspi_rx_read(uint8_t *buff, uint16_t rx_len);
+    void cspi_tx_write(uint8_t *buf, uint16_t len);
+    void cspi_tx_req(void);
 
-  void cspi_phycore_on(uint16_t nms);
-  void cspi_ncr_reset(uint16_t nms);
-  void cspi_soft_default(void);
+//#include "dm9051_cstate.h"
+		//void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
+								//size_t tlen, int rowsize, const void *buf, int seg_start, size_t len, /*int useflg*/ int cast_lf);
+		//unsigned long get_task_tryint_saved(void);
+		//void do_task_tryint_saved(void);
 
-  // void _cspi_core_reset(void);
-  // const uint8_t *cspi_dm_start1(const uint8_t *adr);
-  // void cspi_set_par(const uint8_t *macadd);
-  void cspi_set_mar(void);
-  void cspi_set_recv(void);
-  // void cspi_rx_mode(void); // ethernetif.c (of _lwip_set_mac_address())
-  void cspi_rx_head(uint8_t *receivedata);
-  void cspi_rx_read(uint8_t *buff, uint16_t rx_len);
-  void cspi_tx_write(uint8_t *buf, uint16_t len);
-  void cspi_tx_req(void);
-
-  // #include "dm9051_cstate.h"
-  // void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
-  // size_t tlen, int rowsize, const void *buf, int seg_start, size_t len, /*int useflg*/ int cast_lf);
-  // unsigned long get_task_tryint_saved(void);
-  // void do_task_tryint_saved(void);
-
-  //
-  // #include "dm9051_Hw_api.h"
-  //
+//
+//#include "dm9051_Hw_api.h"
+//
 
 #if defined(_DLW_AT32F437xx)
   //[impl]
+  void dm9051_boards_initialize_AT(void); // AT
   uint8_t AT_spi_data_read(uint8_t reg);
   void AT_spi_data_write(uint8_t reg, uint8_t val);
   uint8_t AT_spi_mem2x_read(void);
   void AT_spi_mem_read(uint8_t *buf, uint16_t len);
   void AT_spi_mem_write(uint8_t *buf, uint16_t len);
+#define dm9051_boards_initialize() dm9051_boards_initialize_AT()
 #define spi_data_read(reg) AT_spi_data_read(reg)
 #define spi_data_write(reg, val) AT_spi_data_write(reg, val)
 #define spi_mem2x_read() AT_spi_mem2x_read()
@@ -357,51 +359,55 @@ extern "C"
   void cspi_write_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode);
 #define cspi_read_rxb cspi_read_mem2x
 
+  void dm_delay_us(uint32_t nus);
+  void dm_delay_ms(uint16_t nms);
+
 //
-// #include "dm_identify_impl.h"
+//#include "dm_identify_impl.h"
 //
+
+void inc_interrupt_count(void); //inc_task_tryint(void);
+unsigned long get_task_tryint(void);
 
 /* APIs
  */
 #define DM_TYPE 0
 #include "identify/dm_identify_types_define.h"
 
-  struct eth_node_t
-  {
-    uint8_t mac_addresse[MAC_ADDR_LENGTH];
-    uint8_t local_ipaddr[ADDR_LENGTH];
-    uint8_t local_gwaddr[ADDR_LENGTH];
-    uint8_t local_maskaddr[ADDR_LENGTH];
-  };
+struct eth_node_t
+{
+	uint8_t mac_addresse[MAC_ADDR_LENGTH];
+	uint8_t local_ipaddr[ADDR_LENGTH];
+	uint8_t local_gwaddr[ADDR_LENGTH];
+	uint8_t local_maskaddr[ADDR_LENGTH];
+};
 
-  /*
-   * HCC: Hard Core Candidate (hcc)
-   */
-
-  extern const struct eth_node_t node_candidate[1];
+/*
+ * HCC: Hard Core Candidate (hcc)
+ */
+ 
+extern const struct eth_node_t node_candidate[1];
 
 /* APIs.identify
  */
-#define candidate_eth_mac() &node_candidate[0].mac_addresse[0]    //[pin_code]
-#define candidate_eth_ip() &node_candidate[0].local_ipaddr[0]     //[pin_code]
-#define candidate_eth_gw() &node_candidate[0].local_gwaddr[0]     //[pin_code]
+#define candidate_eth_mac() &node_candidate[0].mac_addresse[0]	  //[pin_code]
+#define candidate_eth_ip() &node_candidate[0].local_ipaddr[0]	  //[pin_code]
+#define candidate_eth_gw() &node_candidate[0].local_gwaddr[0]	  //[pin_code]
 #define candidate_eth_mask() &node_candidate[0].local_maskaddr[0] //[pin_code]
-// const uint8_t *identify_eth_mac(const uint8_t *macadr);
-// uint8_t *identify_tcpip_ip(uint8_t *ip4adr);
-// uint8_t *identify_tcpip_gw(uint8_t *ip4adr);
-// uint8_t *identify_tcpip_mask(uint8_t *ip4adr);
-// void trace_identify_eth_mac(void);
-#define identify_eth_mac(macadr) SET_FIELD(final_mac, macadr ? macadr : candidate_eth_mac())
-#define identify_tcpip_ip(ip4adr) SET_FIELD(final_ip, ip4adr ? ip4adr : candidate_eth_ip())
-#define identify_tcpip_gw(ip4adr) SET_FIELD(final_gw, ip4adr ? ip4adr : candidate_eth_gw())
-#define identify_tcpip_mask(ip4adr) SET_FIELD(final_mask, ip4adr ? ip4adr : candidate_eth_mask())
-#define trace_identify_eth_mac()                            \
-  do                                                        \
-  {                                                         \
-    const uint8_t *mac = GET_FIELD(final_mac);              \
-    printf("mac address %02x%02x%02x%02x%02x%02x\r\n",      \
-           mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]); \
-  } while (0)
+//const uint8_t *identify_eth_mac(const uint8_t *macadr);
+//uint8_t *identify_tcpip_ip(uint8_t *ip4adr);
+//uint8_t *identify_tcpip_gw(uint8_t *ip4adr);
+//uint8_t *identify_tcpip_mask(uint8_t *ip4adr);
+//void trace_identify_eth_mac(void);
+#define	identify_eth_mac(macadr)	SET_FIELD(final_mac, macadr ? macadr : candidate_eth_mac())
+#define	identify_tcpip_ip(ip4adr)	SET_FIELD(final_ip, ip4adr ? ip4adr : candidate_eth_ip())
+#define	identify_tcpip_gw(ip4adr)	SET_FIELD(final_gw, ip4adr ? ip4adr : candidate_eth_gw())
+#define	identify_tcpip_mask(ip4adr)	SET_FIELD(final_mask, ip4adr ? ip4adr : candidate_eth_mask())
+#define	trace_identify_eth_mac()	do {	\
+		const uint8_t *mac = GET_FIELD(final_mac); \
+		printf("mac address %02x%02x%02x%02x%02x%02x\r\n", \
+				 mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]); \
+	} while(0)
 
 /* APIs.identified
  */
@@ -414,10 +420,10 @@ extern "C"
 #define identified_tcpip_gw() GET_FIELD(final_gw)
 #define identified_tcpip_mask() GET_FIELD(final_mask)
 
-  /*
-   * cstate trace_irq_flow
-   */
-
+/*
+ * cstate trace_irq_flow
+ */
+	
 #define ISTAT_IRQ_CFG (1 << 0)
 #define ISTAT_IRQ_ENAB (1 << 1)
 #define ISTAT_DM_IMR (1 << 2)
@@ -431,57 +437,63 @@ extern "C"
 
 /* irqstate.identify
  */
-// void deidentify_irq_stat(uint16_t bitflg);
-// void identify_irq_stat(uint16_t bitflg);
-#define deidentify_irq_stat(bitflg) SET_CSTATE(irqst, GET_CSTATE(irqst) & ~bitflg)
-#define identify_irq_stat(bitflg) SET_CSTATE(irqst, GET_CSTATE(irqst) | bitflg)
+//void deidentify_irq_stat(uint16_t bitflg);
+//void identify_irq_stat(uint16_t bitflg);
+#define deidentify_irq_stat(bitflg)	SET_CSTATE(irqst, GET_CSTATE(irqst) & ~bitflg)
+#define	identify_irq_stat(bitflg)	SET_CSTATE(irqst, GET_CSTATE(irqst) | bitflg)
 
 /* irqstate.identified
  */
-// uint16_t identified_irq_stat(void);
-// void trace_irq_stat(uint16_t bitflg);
-#define identified_irq_stat() GET_CSTATE(irqst)
+//uint16_t identified_irq_stat(void);
+//void trace_irq_stat(uint16_t bitflg);
+#define	identified_irq_stat()	GET_CSTATE(irqst)
 
-#if IDENTIFY_PRINTF_IRQ_STATE
-#define trace_irq_stat(bitflg)                                                           \
-  do                                                                                     \
-  {                                                                                      \
-    char istat_term[22];                                                                 \
-    switch (bitflg)                                                                      \
-    {                                                                                    \
-    case ISTAT_IRQ_CFG:                                                                  \
-      sprintf(istat_term, "[IRQ_CFG]");                                                  \
-      break;                                                                             \
-    case ISTAT_IRQ_ENAB:                                                                 \
-      sprintf(istat_term, "[IRQ_ENAB]");                                                 \
-      break;                                                                             \
-    case ISTAT_DM_IMR:                                                                   \
-      sprintf(istat_term, "(IMR.pr)");                                                   \
-      break;                                                                             \
-    case ISTAT_DM_RCR:                                                                   \
-      sprintf(istat_term, "(RCR.rxen)");                                                 \
-      break;                                                                             \
-    case ISTAT_LOW_TRIGGER:                                                              \
-      sprintf(istat_term, "[IRQ_LOW_TRIGGER]");                                          \
-      break;                                                                             \
-    case ISTAT_LOW_ACTIVE:                                                               \
-      sprintf(istat_term, "(INTR.lo)");                                                  \
-      break;                                                                             \
-    case ISTAT_IRQ_NOW2:                                                                 \
-      sprintf(istat_term, "(INT %lu)", get_task_tryint());                               \
-      break;                                                                             \
-    case ISTAT_IRQ_NOW:                                                                  \
-    default:                                                                             \
-      istat_term[0] = 0;                                                                 \
-      break;                                                                             \
-    }                                                                                    \
-    if (get_task_tryint() > 5 && (bitflg == ISTAT_IRQ_NOW || bitflg == ISTAT_IRQ_NOW2))  \
-      /*return;*/ break;                                                                 \
-    printf("[irq_stat]:                   ------------> irqst= %02x on add %02x %s\r\n", \
-           GET_CSTATE(irqst), bitflg, istat_term);                                       \
-  } while (0)
+#if IDENTIFY_PRINTF_IRQ_STATE 
+#define	trace_irq_stat(bitflg) do { \
+	char istat_term[22]; \
+	switch (bitflg) \
+	{ \
+	case ISTAT_IRQ_CFG: \
+		sprintf(istat_term, "[IRQ_CFG]"); \
+		break; \
+	case ISTAT_IRQ_ENAB: \
+		sprintf(istat_term, "[IRQ_ENAB]"); \
+		break; \
+	case ISTAT_DM_IMR: \
+		sprintf(istat_term, "(IMR.pr)"); \
+		break; \
+	case ISTAT_DM_RCR: \
+		sprintf(istat_term, "(RCR.rxen)"); \
+		break; \
+	case ISTAT_LOW_TRIGGER: \
+		sprintf(istat_term, "[IRQ_LOW_TRIGGER]"); \
+		break; \
+	case ISTAT_LOW_ACTIVE: \
+		sprintf(istat_term, "(INTR.lo)"); \
+		break; \
+	case ISTAT_IRQ_NOW2: \
+		sprintf(istat_term, "(INT %lu)", get_task_tryint()); \
+		break; \
+	case ISTAT_IRQ_NOW: \
+	default: \
+		istat_term[0] = 0; \
+		break; \
+	} \
+	if (get_task_tryint() > 5 && (bitflg == ISTAT_IRQ_NOW || bitflg == ISTAT_IRQ_NOW2)) \
+		/*return;*/ break; \
+	printf("[irq_stat]:                   ------------> irqst= %02x on add %02x %s\r\n", \
+					GET_CSTATE(irqst), bitflg, istat_term); \
+} while(0)
 #else
-#define trace_irq_stat(bitflg)
+#define	trace_irq_stat(bitflg)	
+#endif
+
+//[dm9051_cstate.c]
+uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e);
+//[dm_eth_status.c]
+#if DM_ETH_DEBUG_MODE
+		void dm_eth_input_hexdump_reset(void);
+		void dm_eth_input_hexdump(const void *buf, size_t len);
 #endif
 
 #ifdef __cplusplus

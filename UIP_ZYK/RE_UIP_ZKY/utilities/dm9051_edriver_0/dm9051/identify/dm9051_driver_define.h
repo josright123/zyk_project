@@ -3,14 +3,9 @@
  */
 #ifndef __DM9051_LW_DRIVER_DEF_H
 #define __DM9051_LW_DRIVER_DEF_H
-#include "../dm9051opts.h"
-//#include "dm9051_lw_usr_default.h" //for intelligent editor to recognize designed macro define!
 
-//[0]
-enum sema_tag_t {
-	SEMA_OFF = 0,
-	SEMA_ON,
-};
+#include "dm9051opts.h"
+//#include "dm9051_lw_usr_default.h" //for intelligent editor to recognize designed macro define!
 
 //[1]
 #ifdef DRV_INTR_MODE
@@ -19,7 +14,7 @@ enum sema_tag_t {
 #define	DM9051_DRIVER_POLL
 #endif
 
-//[1.0]
+//[0]
 #ifdef DRV_INTR_MODE
 #define INTERRUPT_HANDLER_ON										1 //0, 1 when '_DRV_INTR_MODE', accept INT active (default active low) trigger.
 #define INTERRUPT_HANDLER_SUPPLIMENT						0 //0, 1 when '_DRV_INTR_MODE', poll suppliment.

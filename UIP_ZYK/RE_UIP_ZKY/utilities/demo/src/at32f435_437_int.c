@@ -32,7 +32,7 @@
 #include "semphr.h"
 //#include "dm9051opts.h"
 //#include "dm9051_lw.h"
-#include "eth/dm_eth_api.h"
+#include "../eth/dm_eth_api.h"
 //#include "../freertos_tasks_debug.h"
 
 /** @addtogroup AT32F437_periph_examples

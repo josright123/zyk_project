@@ -1,10 +1,5 @@
 #include "dm9051.h"
 
-#if 1
-//[macro define to run by macro-definition!]
-#include "../debug/dm9051_eth_debug.h"
-#endif
-
 #define DM_TYPE 1
 #include "dm_identify_types_define.h"
 
@@ -78,68 +73,33 @@ uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e)
 
 #define kkmin(a, b) (a < b) ? a : b
 
-static int room_printf_space(char *lineroom, int offset, int n)
+static void printf_space(int n)
 {
 	while (n--)
-		offset += sprintf(lineroom + offset, "%c", ' ');
-	return offset;
+		printf("%c", ' ');
 }
 
-//static void printf_space(int n)
-//{
-//	while (n--)
-//		printf("%c", ' ');
-//}
-
-//static int printf_space_init(size_t tlen)
-//{
-//	int offset = 0;
-//	char lineroombuff[180];
-
-//	char textspace[16];
-//	int n = sprintf(textspace, "rxlen %4d", tlen);
-
-//#if 1
-//	offset = room_printf_space(lineroombuff, offset, n);
-//	offset += sprintf(lineroombuff + offset, " %s", textspace);
-//	printf("%s\r\n", lineroombuff );
-//#endif
-//	return n;
-//}
-
-static int room_printf_space_init(char *lineroom, size_t tlen)
+static int printf_space_init(size_t tlen)
 {
-	int offset = 0;
-
-	char textspace[16];
-	int n = sprintf(textspace, "rxlen %4d", tlen);
+	char cspace[16];
+	int n = sprintf(cspace, "rxlen %4d", tlen);
 #if 1
-	offset = room_printf_space(lineroom, offset, n);
-	offset += sprintf(lineroom + offset, " %s", textspace);
-	printf("%s\r\n", lineroom);
+	printf_space(n);
+	printf(" %s\r\n", cspace);
 #endif
 	return n;
 }
 
-static int room_printf_rxlen_head(char *lineroom, size_t tlen, int nspc)
+static int printf_rxlen_head(size_t tlen, int nspc)
 {
-	if (!nspc)
-		nspc = room_printf_space_init(lineroom, tlen);
 #if 1
-	room_printf_space(lineroom, 0, nspc);
+	if (!nspc)
+		nspc = printf_space_init(tlen);
+
+	printf_space(nspc);
 	return nspc;
 #endif
 }
-
-//static int printf_rxlen_head(size_t tlen, int nspc)
-//{
-//	if (!nspc)
-//		nspc = printf_space_init(tlen);
-//#if 1
-//	printf_space(nspc);
-//	return nspc;
-//#endif
-//}
 
 static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 							 size_t tlen, int rowsize, const void *buf, int seg_start, size_t len, /*int useflg*/ int cast_lf) //, int must, int dgroup
@@ -147,8 +107,6 @@ static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 	// #undef printf
 	// #define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_ON, (fmt, ##__VA_ARGS__))
 	// if (useflg) {
-	char lineroombuff[180];
-	int print_linefeed_flag;
 	int si, se, titlec = 0;
 	int i, linelen, remaining = len; // hs, const eth_class_t *ec = &eclass[10];
 	int nspace = 0;
@@ -163,8 +121,7 @@ static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 		// unsigned
 		char linebuf[(12 * 3) + (3 * 16) + 1 + 32]; // here!
 
-		//.nspace = printf_rxlen_head(tlen, nspace);
-		nspace = room_printf_rxlen_head(lineroombuff, tlen, nspace);
+		nspace = printf_rxlen_head(tlen, nspace);
 
 		linelen = kkmin(remaining, rowsize);
 		remaining -= rowsize;
@@ -183,18 +140,17 @@ static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 				nb += snprintf(linebuf + nb, sizeof(linebuf) - nb, "%02x ", *(ptr + i + j));
 			}
 		} while (0);
+		//.nspace = printf_rxlen_head(tlen, nspace);
 
 #if 0
 		hs = head_space;
 		while(hs--)
 #endif
-		//printf(" ");
-		nspace += sprintf(lineroombuff+nspace, " ");
+		printf(" ");
 
 		if (prefix_str)
 		{
-			//printf("(%s) %.3x %s", prefix_str, i, linebuf);
-			nspace += sprintf(lineroombuff+nspace, "(%s) %.3x %s", prefix_str, i, linebuf);
+			printf("(%s) %.3x %s", prefix_str, i, linebuf); //"%s", ec->str //CHECK (XXX >> )
 			while (titledn)
 			{
 				titledn--;
@@ -203,17 +159,15 @@ static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 		}
 		else
 		{
-			//printf("(dm9 xfer) %.3x %s", i, linebuf);
-			nspace += sprintf(lineroombuff+nspace, "(dm9 xfer) %.3x %s", i, linebuf);
+			printf("(dm9 xfer) %.3x %s", i, linebuf); //"%s", ec->str
 		}
 
-		print_linefeed_flag = 0;
 		if ((i + rowsize) < se)
-			print_linefeed_flag = 1; //printf("\r\n");
+			printf("\r\n");
 		else
 		{
 			if (cast_lf)
-				print_linefeed_flag = 1; //printf("\r\n");
+				printf("\r\n");
 #if 0
 				if (IS_UDP) {
 					//ptr
@@ -252,11 +206,6 @@ static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 				}
 #endif
 		}
-		
-		if (print_linefeed_flag)
-			printf("%s\r\n", lineroombuff);
-		else
-			printf("%s", lineroombuff);
 	}
 	//}
 	// #undef printf
@@ -268,7 +217,7 @@ static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 
 #if DM_ETH_DEBUG_MODE
 int link_log_reset_allow_num = 0;
-const int rx_modle_log_reset_allow_num = 1; //3;
+const int rx_modle_log_reset_allow_num = 3;
 #define limit_len(n, nTP) ((n <= nTP) ? n : nTP)
 
 void dm_eth_input_hexdump_reset(void) {
@@ -288,9 +237,7 @@ void dm_eth_input_hexdump(const void *buf, size_t len)
 		// if (link_log_reset_allow_num == rx_modle_log_reset_allow_num && get_tcpip_thread_state() == 1) {
 		// set_tcpip_thread_state(6);
 		//}
-		sprint_hex_dump0(2, titledn, "dm9 head   <<rx", len, 32, buf, 0, 
-			limit_len(len, 14) /*limit_len(len, 66)*/,
-			DM_TRUE);
+		sprint_hex_dump0(2, titledn, "dm9 head   <<rx", len, 32, buf, 0, limit_len(len, 66), DM_TRUE);
 	}
 }
 #endif

@@ -87,9 +87,10 @@ int main(void)
   system_clock_config();
   uart_print_init(115200);
   
- #if 0
-  xxx = 
- #endif
+  printf("\r\n");
+  printf("\r\n");
+  printf("\r\n");
+  printf("[ZYK_project/re_zyk]\r\n");
   //tasks_dm9051_debug_init();
   
 #if 0 //[TEST]
@@ -119,6 +120,10 @@ int main(void)
 #endif
 }
 
+#include "../debug/dm9051_ap_debug.h"
+#define printf(fmt, ...) TASK_DM9051_DEBUGF(PRINT_SEMA, PRINT_INFO_AP, (fmt, ##__VA_ARGS__)) //PRINT_AP or "[MAIN] "
+#define	printk(fmt, ...) TASK_DM9051_DEBUGK(PRINT_SEMA, (fmt, ##__VA_ARGS__))
+
 //void task_periodic_polling(void)
 //{
 //  while(1)
@@ -130,14 +135,8 @@ int main(void)
 void network_task(void *pvParameters)
 {
   (void) pvParameters;
-  printf("\r\n");
-  printf("\r\n");
-  printf("\r\n");
-  printf("TESTING UIP_ZKY create network_task() ...\r\n");
-  printf("network_task().s\r\n");
-  printf("vuIP_Task().s\r\n");
-  printf("\r\n");
 
+	dm_eth_create_mutex_print();
 //if (_intr_gpio_mptr()) {
 //  DM_Eth_Initialize();
 //}

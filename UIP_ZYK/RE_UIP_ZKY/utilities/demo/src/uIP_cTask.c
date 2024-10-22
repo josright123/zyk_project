@@ -352,7 +352,7 @@ void vuIP_Task(void *pvParameters)
 /*---------------------------------------------------------------------------*/
 void    uip_log(char *m)
 {
-    printf("uIP log message: %s\n", m);
+    printf("uIP log message: %s\r\n", m);
 }
 
 void    resolv_found(char *name, u16_t *ipaddr)
@@ -393,7 +393,7 @@ void    dhcpc_configured(const struct dhcpc_state *s)
 //        uip_setnetmask(ipaddr);
 				
 				uip_update_ip_config(NULL, NULL, NULL);
-        printf("\n--Fixed IP address ---------------------\r\n");
+        printf("--Fixed IP address ---------------------\r\n");
     }
     else
     {

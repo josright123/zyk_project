@@ -10,7 +10,13 @@
 #include "dm9051.h"
 #include "../identify_opts.h"
 #include "../dm_eth_opts.h"
+
+#if application_Type == uipAPP_CONF
+//#include "../eth_print_opts.h"
+#include "../ap_print_opts.h" //#include "../config/rt_print_opts.h"
+#elif application_Type == lwipAPP_CONF
 #include "../rt_print_opts.h"
+#endif
 				
 	//#define TASK_SEMAPHORE_TCPOUT      		0 //1
 	//#define TASK_SEMAPHORE_TX_THREAD    	0 //1
@@ -19,8 +25,37 @@
 	#define PRINTK_OFF										0
 	#define PRINTK_ON											1
 
-#include "../debug/dm_eth_task_mut_print.h"
-#include "../debug/task_msg.h"
+//#include "../debug/dm9051_mut_print.h"
+
+//#include "../debug/task_msg.h"
+//= of
+#if !qprint //total
+	#define TASK_DM9051_DEBUGF(mux, headstr, message)
+	#define TASK_DM9051_DEBUGK(mux, fmt)
+#elif !ap_print //section
+	#define TASK_DM9051_DEBUGF(mux, headstr, message)
+	#define TASK_DM9051_DEBUGK(mux, fmt)
+//#elif PRINT_SEMA == SEMA_ON //(freeRTOS)
+//	#define TASK_DM9051_DEBUGF(mux, headstr, message) do { \
+//			if (tasks_dm9051_mutex_begin(qprint, mux, &mutex_print) == pdTRUE) { \
+//					TASK_DEBUGF(headstr, message); \
+//					tasks_dm9051_mutex_end(qprint, mux, &mutex_print); \
+//			} \
+//			} while(0)
+//	#define TASK_DM9051_DEBUGK(mux, fmt) do { \
+//				if (tasks_dm9051_mutex_begin(qprint, mux, &mutex_print) == pdTRUE) { \
+//					LIST_DEBUGF(PRINTK_ON, fmt); \
+//					tasks_dm9051_mutex_end(qprint, mux, &mutex_print); \
+//				} \
+//			} while(0)
+#else
+	#define TASK_DM9051_DEBUGF(mux, headstr, message) do { \
+				TASK_DEBUGF(headstr, message); /*TASK_DM9051_DRIVER_DIAG(message);*/ \
+			} while(0)
+	#define TASK_DM9051_DEBUGK(mux, fmt) do { \
+				LIST_DEBUGF(PRINTK_ON, fmt); \
+			} while(0)
+#endif
 
 //[Re-directed:]
 #if !qprint //total

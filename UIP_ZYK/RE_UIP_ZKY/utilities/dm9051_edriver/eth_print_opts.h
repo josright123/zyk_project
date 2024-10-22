@@ -9,7 +9,7 @@
 //};
 
 
-#define	PRINT_SEMA	SEMA_OFF	//ON to print with sema, OFF without sema.
+//#define	PRINT_SEMA	SEMA_OFF	//ON to print with sema, OFF without sema.
 #define	PRINT_DRV	" .drv " //"ap"
 //#define PRINT_INFO	"[DM9051 INFO] "
 #define PRINT_INFO	"[DM9051 DRV] "

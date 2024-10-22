@@ -351,7 +351,7 @@ static PT_THREAD(handle_dhcp(void))
             //Spenser - If no DHCP server, run with fix IP address.
             if (++dhcp_try > 5)
             {
-                printf("DHCP Fail..\n");
+                printf("DHCP Fail..\r\n");
                 s.state = STATE_FAIL;
                 goto dhcp_done;
             }

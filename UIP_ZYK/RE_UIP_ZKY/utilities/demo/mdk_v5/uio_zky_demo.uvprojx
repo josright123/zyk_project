@@ -423,11 +423,6 @@
               <FileType>1</FileType>
               <FilePath>..\src\tapdev.c</FilePath>
             </File>
-            <File>
-              <FileName>task_msg.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\dm9051_edriver\debug\task_msg.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>

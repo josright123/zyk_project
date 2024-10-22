@@ -136,7 +136,10 @@ void network_task(void *pvParameters)
 {
   (void) pvParameters;
 
+#if 0 
+	//[uip no-need]
 	dm_eth_create_mutex_print();
+#endif
 //if (_intr_gpio_mptr()) {
 //  DM_Eth_Initialize();
 //}

@@ -36,6 +36,7 @@
 //#include "../freertos_tasks_debug.h"
 
 void EXINT9_5_UserFunction(void);
+uint32_t HAL_IRQLine(void);
 
 /** @addtogroup AT32F437_periph_examples
   * @{
@@ -163,11 +164,11 @@ void DebugMon_Handler(void)
 #endif
 
 void EXINT9_5_IRQHandler(void) {
-	if (exint_flag_get(EXINT_LINE_7) != RESET)
+	if (exint_flag_get(HAL_IRQLine()) != RESET)
 	{
 	//	_DM_ETH_InterruptEvent();
 			EXINT9_5_UserFunction();
-			exint_flag_clear(EXINT_LINE_7);
+			exint_flag_clear(HAL_IRQLine());
 	}
 }
 

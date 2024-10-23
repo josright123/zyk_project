@@ -12,6 +12,8 @@
 #include "../config/conf_core.h"
 #include "utils/dm9051_eth_debug.h"
 
+#define	dm9051_hal_irqline HAL_IRQLine
+
 void dm9051_hal_init(void);
 
 #if defined(_DLW_AT32F437xx)
@@ -38,27 +40,23 @@ struct spi_config_t
 struct interrupt_config_t
 {
 	struct gpio_mux_t gpio;
-	struct
-	{
-		scfg_port_source_type port_source;
-		scfg_pins_source_type pin_source;
-		crm_periph_clock_type clock;
-	} scfg;
-	struct
-	{
-		uint32_t line;
-		crm_periph_clock_type clock;
-	} exti;
+	//struct
+	//{
+	//} scfg;
+	//struct
+	//{
+	//} exti;
 	//struct
 	//{
 	//} nvic;
-	IRQn_Type irqn;
+	crm_periph_clock_type scfgclock;
+	crm_periph_clock_type clock;
+	scfg_port_source_type port_source;
+	scfg_pins_source_type pin_source;
+	uint32_t line;
 	nvic_priority_group_type priority_group;
+	IRQn_Type irqn;
 };
-
-#define cs_gpio_port() spi_cset[0].cs.port // #define pin_cs() spi_cset[0].cs
-#define cs_gpio_pin() spi_cset[0].cs.pin
-#define spi_number() spi_cset[0].spi
 
 static const struct spi_config_t spi_cset[1] = {
 	{
@@ -73,37 +71,38 @@ static const struct spi_config_t spi_cset[1] = {
 static /*const*/ struct interrupt_config_t spi_cintr[1] = {
 	{
 		{GPIOC, GPIO_PINS_7, (gpio_pins_source_type)0, (gpio_mux_sel_type)0, CRM_GPIOC_PERIPH_CLOCK, GPIO_MODE_INPUT},
-		{SCFG_PORT_SOURCE_GPIOC, SCFG_PINS_SOURCE7, CRM_SCFG_PERIPH_CLOCK},
-		{EXINT_LINE_7, CRM_GPIOC_PERIPH_CLOCK},
-		EXINT9_5_IRQn,
+		CRM_SCFG_PERIPH_CLOCK,
+		CRM_GPIOC_PERIPH_CLOCK,
+		SCFG_PORT_SOURCE_GPIOC,
+		SCFG_PINS_SOURCE7,
+		EXINT_LINE_7,
 		NVIC_PRIORITY_GROUP_0,
+		EXINT9_5_IRQn,
 	}};
+
+#define spi_number() spi_cset[0].spi
+#define cs_gpio_port() spi_cset[0].cs.port // #define pin_cs() spi_cset[0].cs
+#define cs_gpio_pin() spi_cset[0].cs.pin
+#define nvic_irqn() spi_cintr[0].irqn
+#define nvic_prio() spi_cintr[0].priority_group
 
 static void spi_config_init(const struct spi_config_t *config);
 static void interrupt_config_init(const struct interrupt_config_t *config);
 
 void dm9051_hal_init(void) //for AT32F437
 {
-	//to, spi_cintr[0].exti = 
-	spi_cintr[0].gpio.port = GPIOC;
-	spi_cintr[0].gpio.pin = GPIO_PINS_7;
-	spi_cintr[0].gpio.clock = CRM_GPIOC_PERIPH_CLOCK;
-	spi_cintr[0].exti.line = EXINT_LINE_7;
-	spi_cintr[0].exti.clock = CRM_GPIOC_PERIPH_CLOCK;
-	spi_cintr[0].scfg.clock = CRM_SCFG_PERIPH_CLOCK;
-	spi_cintr[0].irqn = EXINT9_5_IRQn;
-	spi_cintr[0].priority_group = NVIC_PRIORITY_GROUP_0;
-	//to, spi_cintr[0].gpio = {GPIOC, GPIO_PINS_7, (gpio_pins_source_type)0, (gpio_mux_sel_type)0, CRM_GPIOC_PERIPH_CLOCK, GPIO_MODE_INPUT};
-	
 	/* spi_add();
 	 */
 	spi_config_init(spi_cset);
 
 	/* intr_add();
 	 */
-	#ifdef DM9051_DRIVER_INTERRUPT
 	interrupt_config_init(spi_cintr);
-	#endif
+}
+
+uint32_t dm9051_hal_irqline(void)
+{
+	return spi_cintr[0].line;
 }
 
 static void configure_cspi(const struct spi_config_t *ss)
@@ -166,16 +165,16 @@ static void configure_cirq(const struct interrupt_config_t *cf, gpio_pull_type g
 	/* config irq
 	 */
 
-	crm_periph_clock_enable(cf->scfg.clock, TRUE);
-	crm_periph_clock_enable(cf->exti.clock, TRUE);
+	crm_periph_clock_enable(cf->scfgclock, TRUE);
+	crm_periph_clock_enable(cf->clock, TRUE);
 
-	scfg_exint_line_config(cf->scfg.port_source,
-						   cf->scfg.pin_source);
+	scfg_exint_line_config(cf->port_source,
+						   cf->pin_source);
 
 	exint_default_para_init(&exint_init_struct);
 	exint_init_struct.line_enable = TRUE;
 	exint_init_struct.line_mode = EXINT_LINE_INTERRUPUT;
-	exint_init_struct.line_select = cf->exti.line;
+	exint_init_struct.line_select = cf->line;
 	exint_init_struct.line_polarity = polarity;
 	exint_init(&exint_init_struct);
 
@@ -200,23 +199,14 @@ static void spi_config_init(const struct spi_config_t *config)
 // Static function prototypes
 static void interrupt_config_init(const struct interrupt_config_t *config)
 {
+	#ifdef DM9051_DRIVER_INTERRUPT
 	configure_cirq(config, GPIO_PULL_UP, EXINT_TRIGGER_FALLING_EDGE);
+	#endif
 }
 
 /* IRQ handler support */
 //int cint_exint9_5_handler_AT(void)
 //{
-//	// add user's mcu irq-handler source code here.
-//	if (exint_flag_get(spi_cintr[0].exti.line) != RESET)
-//	{
-//		exint_flag_clear(spi_cintr[0].exti.line);
-//		return 1;
-//		// DM_ETH_SetInterruptEvent();
-//	} else {
-//		identify_irq_stat(ISTAT_IRQ_NOT_NOW);
-//		trace_irq_stat(ISTAT_IRQ_NOT_NOW);
-//	}
-//	return 0;
 //}
 
 // ---------------------- hw_impl -------------------------------------------------------------
@@ -233,7 +223,7 @@ static void interrupt_config_init(const struct interrupt_config_t *config)
 void cint_disable_mcu_irq_AT(void)
 {
 	deidentify_irq_stat(ISTAT_IRQ_ENAB);
-	nvic_irq_disable(spi_cintr[0].irqn);
+	nvic_irq_disable(nvic_irqn());
 }
 
 void cint_enable_mcu_irq_AT(void)
@@ -241,8 +231,8 @@ void cint_enable_mcu_irq_AT(void)
 	identify_irq_stat(ISTAT_IRQ_ENAB);
 	trace_irq_stat(ISTAT_IRQ_ENAB);
 
-	nvic_priority_group_config(spi_cintr[0].priority_group);
-	nvic_irq_enable(spi_cintr[0].irqn, 1, 0);
+	nvic_priority_group_config(nvic_prio());
+	nvic_irq_enable(nvic_irqn(), 1, 0);
 }
 
 void AT_spi_cs_lo(void)

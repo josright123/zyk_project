@@ -36,6 +36,6 @@
 #include "../hal/dm9051_hal.h" //such as designed a MCU
   
 /* eth_main */
-#define	DM_ETH_IRQHandler	EXINT9_5_UserFunction	//EXINT9_5_IRQHandler
+//#define	DM_ETH_IRQHandler	EXINT9_5_UserFunction	//EXINT9_5_IRQHandler
 	
 #endif //__DM_DEF_H__

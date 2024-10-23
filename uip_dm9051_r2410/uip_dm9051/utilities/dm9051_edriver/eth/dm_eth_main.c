@@ -19,7 +19,6 @@
 #include "utils/dm9051_eth_debug.h"
 #endif
 
-/* eth_main */
 #define	DM_ETH_IRQHandler	EXINT9_5_UserFunction	//EXINT9_5_IRQHandler
 //void DM_ETH_IRQHandler(void);
 

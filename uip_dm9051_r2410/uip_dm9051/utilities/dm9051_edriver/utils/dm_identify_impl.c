@@ -1,10 +1,9 @@
 #include "config/conf.h"
-//#include "../config/conf_core.h"
-
 #if 0
-	//[macro define to run by macro-definition!]
+	//#include "config/conf_core.h"
 	#include "utils/dm9051_eth_debug.h"
 #else
+	//#include "config/conf_ap.h"
 	#include "utils/dm9051_ap_debug.h"
 	#define printf(fmt, ...) TASK_DM9051_DEBUGF(PRINT_INFO_APIN, (fmt, ##__VA_ARGS__)) //PRINT_AP or "[NET] "
 	#define	printk(fmt, ...) TASK_DM9051_DEBUGK((fmt, ##__VA_ARGS__))

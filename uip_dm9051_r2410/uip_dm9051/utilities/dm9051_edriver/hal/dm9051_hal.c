@@ -1,5 +1,6 @@
 /**
  **************************************************************************
+ * @file     dm9051_hal.c
  * The use of structures for SPI and interrupt configurations allows
  *	for easy modification if needed.
  * There are separate functions for SPI initialization (spi_add) and
@@ -8,8 +9,8 @@
  *	for debugging purposes.
  **************************************************************************
  */
-#include "../config/conf.h"
-#include "../config/conf_core.h"
+#include "config/conf.h"
+#include "config/conf_core.h"
 #include "utils/dm9051_eth_debug.h"
 
 #define	dm9051_hal_irqline HAL_IRQLine
@@ -261,16 +262,16 @@ uint8_t AT_spi_exc_data(uint8_t byte)
 #define DM9051_MRCMD (0x72)	 // Read_Mem
 #define DM9051_MWCMD (0x78)	 // Write_Mem
 
-uint8_t AT_spi_data_read(uint8_t reg);
+void AT_spi_data_read(uint8_t reg, uint8_t *pd);
 void AT_spi_data_write(uint8_t reg, uint8_t val);
-uint8_t AT_spi_mem2x_read(void);
+void AT_spi_mem2x_read(uint8_t *pd);
 void AT_spi_mem_read(uint8_t *buf, uint16_t len);
 void AT_spi_mem_write(uint8_t *buf, uint16_t len);
 
-uint8_t AT_spi_data_read(uint8_t reg)
+void AT_spi_data_read(uint8_t reg, uint8_t *pd)
 {
 	dm9051_spi_command_write(reg | OPC_REG_R);
-	return dm9051_spi_dummy_read();
+	*pd = dm9051_spi_dummy_read();
 }
 void AT_spi_data_write(uint8_t reg, uint8_t val)
 {
@@ -278,11 +279,11 @@ void AT_spi_data_write(uint8_t reg, uint8_t val)
 	dm9051_spi_command_write(val);
 }
 
-uint8_t AT_spi_mem2x_read(void)
+void AT_spi_mem2x_read(uint8_t *pd)
 {
 	dm9051_spi_command_write(DM9051_MRCMDX | OPC_REG_R);
 	dm9051_spi_dummy_read();
-	return dm9051_spi_dummy_read();
+	*pd = dm9051_spi_dummy_read();
 }
 void AT_spi_mem_read(uint8_t *buf, uint16_t len)
 {
@@ -300,26 +301,26 @@ void AT_spi_mem_write(uint8_t *buf, uint16_t len)
 }
 #endif //_DLW_AT32F437xx
 
-#if defined(_DLW_AT32F437xx)
-void AT_spi_datas_read(uint8_t reg, uint8_t *buf, uint16_t len)
-{
-	int i;
-	for (i = 0; i < len; i++, reg++)
-	{
-		dm9051_spi_command_write(reg | OPC_REG_R);
-		buf[i] = dm9051_spi_dummy_read();
-	}
-}
-void AT_spi_datas_write(uint8_t reg, uint8_t *buf, uint16_t len)
-{
-	int i;
-	for (i = 0; i < len; i++, reg++)
-	{
-		dm9051_spi_command_write(reg | OPC_REG_W);
-		dm9051_spi_command_write(buf[i]);
-	}
-}
-#endif
+//#if defined(_DLW_AT32F437xx)
+//void AT_spi_datas_read(uint8_t reg, uint8_t *buf, uint16_t len)
+//{
+//	int i;
+//	for (i = 0; i < len; i++, reg++)
+//	{
+//		dm9051_spi_command_write(reg | OPC_REG_R);
+//		buf[i] = dm9051_spi_dummy_read();
+//	}
+//}
+//void AT_spi_datas_write(uint8_t reg, uint8_t *buf, uint16_t len)
+//{
+//	int i;
+//	for (i = 0; i < len; i++, reg++)
+//	{
+//		dm9051_spi_command_write(reg | OPC_REG_W);
+//		dm9051_spi_command_write(buf[i]);
+//	}
+//}
+//#endif
 
 /* dm9051_Hw_common implementation
  * source code.
@@ -328,7 +329,7 @@ uint8_t cspi_read_reg(uint8_t reg) // static (todo)
 {
 	uint8_t val;
 	dm9051if_cs_lo();
-	val = spi_data_read(reg);
+	spi_data_read(reg, &val);
 	dm9051if_cs_hi();
 	return val;
 }
@@ -347,7 +348,8 @@ void cspi_read_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode)
 	if (csmode == CS_LONG)
 	{
 		dm9051if_cs_lo();
-		spi_datas_read(reg, buf, len);
+		for (i = 0; i < len; i++, reg++)
+			spi_data_read(reg, &buf[i]);
 		dm9051if_cs_hi();
 	}
 	else
@@ -357,28 +359,29 @@ void cspi_read_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode)
 	}
 }
 
-void cspi_write_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode)
-{
-	int i;
+//void cspi_write_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode)
+//{
+//	int i;
 
-	if (csmode == CS_LONG)
-	{
-		dm9051if_cs_lo();
-		spi_datas_write(reg, buf, len);
-		dm9051if_cs_hi();
-	}
-	else
-	{ // CS_EACH
-		for (i = 0; i < len; i++, reg++)
-			cspi_write_reg(reg + i, buf[i]);
-	}
-}
+//	if (csmode == CS_LONG)
+//	{
+//		dm9051if_cs_lo();
+//		for (i = 0; i < len; i++, reg++)
+//			spi_data_write(reg, buf[i]);
+//		dm9051if_cs_hi();
+//	}
+//	else
+//	{ // CS_EACH
+//		for (i = 0; i < len; i++, reg++)
+//			cspi_write_reg(reg, buf[i]);
+//	}
+//}
 
 uint8_t cspi_read_mem2x(void)
 {
 	uint8_t rxb;
 	dm9051if_cs_lo();
-	rxb = spi_mem2x_read();
+	spi_mem2x_read(&rxb);
 	dm9051if_cs_hi();
 	return rxb;
 }

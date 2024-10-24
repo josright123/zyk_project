@@ -4,7 +4,6 @@
 #define	__DM_CONF_AP_H__
 
 /* domain */
-//#include "cdef.h"
 #include "conf.h"
 
 /* core */

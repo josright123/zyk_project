@@ -82,9 +82,9 @@ uint8_t AT_spi_exc_data(uint8_t byte);
   void NU_spi_mem_read(uint8_t *buf, uint16_t len);
   void NU_spi_mem_write(uint8_t *buf, uint16_t len);
 #define DM9051_Configuration_NU	dm9051_boards_initialize
-#define spi_data_read(reg) NU_spi_data_read(reg)
+#define spi_data_read(reg,pd) NU_spi_data_read(reg,pd)
 #define spi_data_write(reg, val) NU_spi_data_write(reg, val)
-#define spi_mem2x_read() NU_spi_mem2x_read()
+#define spi_mem2x_read(pd) NU_spi_mem2x_read(pd)
 #define spi_mem_read(buf, len) NU_spi_mem_read(buf, len)
 #define spi_mem_write(buf, len) NU_spi_mem_write(buf, len)
 
@@ -106,8 +106,8 @@ uint8_t AT_spi_exc_data(uint8_t byte);
 #define dm9051if_cs_hi() NU_spi_cs_hi()
 #endif
 
-#define spi_datas_read(r, b, l) AT_spi_datas_read(r, b, l)
-#define spi_datas_write(r, b, l) AT_spi_datas_write(r, b, l)
+//#define spi_datas_read(r, b, l) AT_spi_datas_read(r, b, l)
+//#define spi_datas_write(r, b, l) AT_spi_datas_write(r, b, l)
 
 /* dm9051_Hw_common implementation
  * source code.
@@ -118,7 +118,7 @@ uint8_t AT_spi_exc_data(uint8_t byte);
 uint8_t cspi_read_reg(uint8_t reg);
 void cspi_write_reg(uint8_t reg, uint8_t val);
 void cspi_read_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode);
-void cspi_write_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode);
+//void cspi_write_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode);
 uint8_t cspi_read_mem2x(void);
 void cspi_read_mem(uint8_t *buf, uint16_t len);
 void cspi_write_mem(uint8_t *buf, uint16_t len);

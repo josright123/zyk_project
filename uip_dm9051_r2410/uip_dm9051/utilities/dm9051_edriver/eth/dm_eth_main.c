@@ -12,15 +12,11 @@
  */
 #include "config/conf.h"
 #include "config/conf_core.h"
-//#include "rtos/dm9051_rtos.h"
-
 #if 0
-//[macro define to run by macro-definition!]
 #include "utils/dm9051_eth_debug.h"
 #endif
 
 #define	DM_ETH_IRQHandler	EXINT9_5_UserFunction	//EXINT9_5_IRQHandler
-//void DM_ETH_IRQHandler(void);
 
 // Configuration flags
 // #define DM_ETH_USE_INTERRUPTS 1

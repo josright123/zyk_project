@@ -30,10 +30,6 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
-//#include "dm9051opts.h"
-//#include "dm9051_lw.h"
-//#include "eth/dm_eth_api.h"
-//#include "../freertos_tasks_debug.h"
 
 void EXINT9_5_UserFunction(void);
 uint32_t HAL_IRQLine(void);

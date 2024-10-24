@@ -42,9 +42,6 @@
 
 #include "config/cdef.h"
 #include "config/conf_ap.h"
-//#include "dm9051opts.h"
-//#include "dm9051_lw_cint.h"
-
 #include "utils/dm9051_ap_debug.h"
 #define printf(fmt, ...) TASK_DM9051_DEBUGF(PRINT_INFO_AP, (fmt, ##__VA_ARGS__)) //PRINT_AP or "[N] "
 

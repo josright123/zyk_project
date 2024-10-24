@@ -15,6 +15,8 @@
 #define PRINT_INFO	"[DM9051 DRV] "
 #define PRINT_INFO_SP	" "
 
+#define	PRINT_INFO_IRQ	"[DM9051 IRQ] "
+
 #endif
 
 #endif //__ETH_PRINT_OPTS_H

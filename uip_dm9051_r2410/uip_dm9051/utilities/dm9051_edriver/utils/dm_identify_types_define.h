@@ -5,34 +5,31 @@
 #if DM_TYPE == 0
 
 /* [ identify.h/identify.c ] */
-//typedef uint8_t mac_t[MAC_ADDR_LENGTH];
-//typedef uint8_t ip_t[ADDR_LENGTH];
+#define GET_FIELD(field) dm_mget_##field()		   // call-use
+#define SET_FIELD(field, val) dm_mset_##field(val) // call-use
 
-#define GET_FIELD(field) dm_mget_##field() //call-use
-#define SET_FIELD(field, val) dm_mset_##field(val) //call-use
-		
 #undef DM_AMACRO
 #define DM_AMACRO(rtype, mtype, field) \
-		rtype dm_mget_##field(void); \
-		rtype dm_mset_##field(const mtype adr);
+	rtype dm_mget_##field(void);       \
+	rtype dm_mset_##field(const mtype adr);
 
-		DM_AMACRO(uint8_t *, mac_t, final_mac);
-		DM_AMACRO(uint8_t *, ip_t, final_ip);
-		DM_AMACRO(uint8_t *, ip_t, final_gw);
-		DM_AMACRO(uint8_t *, ip_t, final_mask);
-	
-#define GET_CSTATE(field) cb_get_##field() //call-use
-#define SET_CSTATE(field, v) cb_set_##field(v) //call-use
+DM_AMACRO(uint8_t *, mac_t, final_mac);
+DM_AMACRO(uint8_t *, ip_t, final_ip);
+DM_AMACRO(uint8_t *, ip_t, final_gw);
+DM_AMACRO(uint8_t *, ip_t, final_mask);
+
+#define GET_CSTATE(field) cb_get_##field()	   // call-use
+#define SET_CSTATE(field, v) cb_set_##field(v) // call-use
 
 #define CB_TYPES_GET_CSTATE_FX(field) cb_get_##field(void)
 #define CB_TYPES_SET_CSTATE_FX(mtype, field, v) cb_set_##field(const mtype v)
 
 #undef CB_MACRO
-#define CB_MACRO(mtype, field)              \
-		mtype CB_TYPES_GET_CSTATE_FX(field);							\
-		mtype CB_TYPES_SET_CSTATE_FX(mtype, field, v);
+#define CB_MACRO(mtype, field)           \
+	mtype CB_TYPES_GET_CSTATE_FX(field); \
+	mtype CB_TYPES_SET_CSTATE_FX(mtype, field, v);
 
-	CB_MACRO(uint16_t, irqst);
+CB_MACRO(uint16_t, irqst);
 
 #endif
 
@@ -68,17 +65,17 @@ static struct cbtype_data
 	/*rtype DM_TYPES_GET_FUNC(mtype, field) {*/                               \
 	/*	return (rtype) dm9051optsex[mstep_get_net_index()].field;*/            \
 	/*}*/                                                                     \
-	/*static*/ rtype dm_mget_##field(void)                                        \
+	/*static*/ rtype dm_mget_##field(void)                                    \
 	{ /*DM_GET_FIELDmac(void)*/                                               \
 		return dm.field;                                                      \
 	}                                                                         \
 	/*void DM_TYPES_SET_FUNC(mtype, field, setval) {*/                        \
 	/*	memcpy(dm9051optsex[mstep_get_net_index()].field, setval, adr_len); */ \
 	/*}*/                                                                     \
-	/*static*/ rtype dm_mset_##field(const mtype adr)                              \
+	/*static*/ rtype dm_mset_##field(const mtype adr)                         \
 	{ /*DM_SET_FIELDmac(const mtype adr)*/                                    \
 		memcpy(dm.field, adr, adr_len);                                       \
-		return dm.field;																											\
+		return dm.field;                                                      \
 	}
 
 // static void DM_SET_FIELDmac(const uint8_t *macadr){
@@ -104,17 +101,17 @@ DM_RMACRO(uint8_t *, ip_t, final_mask, ADDR_LENGTH)
 #define CB_TYPES_SET_CSTATE_FUNC(mtype, field, v) cb_set_##field(const mtype v)
 
 #undef CB_MACRO
-#define CB_MACRO(mtype, field)              \
-	mtype CB_TYPES_GET_CSTATE_FUNC(field)          \
-	{                                       \
-		return cb.field;                    \
-	}                                       \
+#define CB_MACRO(mtype, field)                      \
+	mtype CB_TYPES_GET_CSTATE_FUNC(field)           \
+	{                                               \
+		return cb.field;                            \
+	}                                               \
 	mtype CB_TYPES_SET_CSTATE_FUNC(mtype, field, v) \
-	{                                       \
-		cb.field = v;                       \
-		return v;                    \
+	{                                               \
+		cb.field = v;                               \
+		return v;                                   \
 	}
-	
+
 CB_MACRO(uint16_t, irqst);
 
 #endif
@@ -124,9 +121,9 @@ CB_MACRO(uint16_t, irqst);
 //
 
 #if DM_TYPE == 0
-  /*
-   * cstate trace_irq_flow
-   */
+/*
+ * cstate trace_irq_flow
+ */
 
 #define ISTAT_IRQ_CFG (1 << 0)
 #define ISTAT_IRQ_ENAB (1 << 1)
@@ -158,57 +155,59 @@ CB_MACRO(uint16_t, irqst);
 #include "config/identify_opts.h"
 
 #if IDENTIFY_PRINTF_IRQ_STATE
-#define trace_irq_stat(bitflg)                                                           \
-  do                                                                                     \
-  {                                                                                      \
-    char istat_term[22];                                                                 \
-    switch (bitflg)                                                                      \
-    {                                                                                    \
-    case ISTAT_IRQ_CFG:                                                                  \
-      sprintf(istat_term, "[IRQ_CFG]");                                                  \
-      break;                                                                             \
-    case ISTAT_IRQ_ENAB:                                                                 \
-      sprintf(istat_term, "[IRQ_ENAB]");                                                 \
-      break;                                                                             \
-    case ISTAT_DM_IMR:                                                                   \
-      sprintf(istat_term, "(IMR.pr)");                                                   \
-      break;                                                                             \
-    case ISTAT_DM_RCR:                                                                   \
-      sprintf(istat_term, "(RCR.rxen)");                                                 \
-      break;                                                                             \
-    case ISTAT_LOW_TRIGGER:                                                              \
-      sprintf(istat_term, "[IRQ_LOW_TRIGGER]");                                          \
-      break;                                                                             \
-    case ISTAT_LOW_ACTIVE:                                                               \
-      sprintf(istat_term, "(INTR.lo)");                                                  \
-      break;                                                                             \
-    case ISTAT_IRQ_NOW:                                                                  \
-      sprintf(istat_term, "(ISrvRoutine)");                                                  \
-      break;                                                                             \
-    case ISTAT_IRQ_NOT_NOW:                                                                  \
-      sprintf(istat_term, "(ISrvRoutine NOT match)");                                                  \
-      break;                                                                             \
-    case ISTAT_IRQ_NOW2:                                                                 \
-      sprintf(istat_term, "(INT %lu)", get_interrupt_count());                               \
-      break;                                                                             \
-    case ISTAT_IRQ_NOW2END:                                                                 \
-      sprintf(istat_term, "(INT.End)");                               \
-      break;                                                                             \
-    default:                                                                             \
-      istat_term[0] = 0;                                                                 \
-      break;                                                                             \
-    }                                                                                    \
-		if (get_interrupt_count() > 5 && bitflg == ISTAT_IRQ_NOW) \
-				; \
-		else if (get_interrupt_count() > 5 && bitflg == ISTAT_IRQ_NOW2) { \
-				if (!(get_interrupt_count()%25)) \
-					printf("[irq_stat]: --> %s\r\n", istat_term);         \
-		} else if (get_interrupt_count() > 5 && bitflg == ISTAT_IRQ_NOW2END)\
-				printf("[irq_stat]: --> %s\r\n", istat_term);         \
-		else \
-				printf("[irq_stat]: --> irqst= %02x on add-bit %02x %s\r\n", \
-					GET_CSTATE(irqst), bitflg, istat_term);                                       \
-  } while (0)
+#define trace_irq_stat(bitflg)                                             \
+	do                                                                     \
+	{                                                                      \
+		char istat_term[22];                                               \
+		switch (bitflg)                                                    \
+		{                                                                  \
+		case ISTAT_IRQ_CFG:                                                \
+			sprintf(istat_term, "[IRQ_CFG]");                              \
+			break;                                                         \
+		case ISTAT_IRQ_ENAB:                                               \
+			sprintf(istat_term, "[IRQ_ENAB]");                             \
+			break;                                                         \
+		case ISTAT_DM_IMR:                                                 \
+			sprintf(istat_term, "(IMR.pr)");                               \
+			break;                                                         \
+		case ISTAT_DM_RCR:                                                 \
+			sprintf(istat_term, "(RCR.rxen)");                             \
+			break;                                                         \
+		case ISTAT_LOW_TRIGGER:                                            \
+			sprintf(istat_term, "[IRQ_LOW_TRIGGER]");                      \
+			break;                                                         \
+		case ISTAT_LOW_ACTIVE:                                             \
+			sprintf(istat_term, "(INTR.lo)");                              \
+			break;                                                         \
+		case ISTAT_IRQ_NOW:                                                \
+			sprintf(istat_term, "(ISrvRoutine)");                          \
+			break;                                                         \
+		case ISTAT_IRQ_NOT_NOW:                                            \
+			sprintf(istat_term, "(ISrvRoutine NOT match)");                \
+			break;                                                         \
+		case ISTAT_IRQ_NOW2:                                               \
+			sprintf(istat_term, "(INT %lu)", get_interrupt_count());       \
+			break;                                                         \
+		case ISTAT_IRQ_NOW2END:                                            \
+			sprintf(istat_term, "(INT.End)");                              \
+			break;                                                         \
+		default:                                                           \
+			istat_term[0] = 0;                                             \
+			break;                                                         \
+		}                                                                  \
+		if (get_interrupt_count() > 5 && bitflg == ISTAT_IRQ_NOW)          \
+			;                                                              \
+		else if (get_interrupt_count() > 5 && bitflg == ISTAT_IRQ_NOW2)    \
+		{                                                                  \
+			if (!(get_interrupt_count() % 25))                             \
+				printf("%s--> %s\r\n", PRINT_INFO_IRQ, istat_term);              \
+		}                                                                  \
+		else if (get_interrupt_count() > 5 && bitflg == ISTAT_IRQ_NOW2END) \
+			printf("%s--> %s\r\n", PRINT_INFO_IRQ, istat_term);                  \
+		else                                                               \
+			printf("%s--> irqst= %02x on add-bit %02x %s\r\n",   \
+				   PRINT_INFO_IRQ, GET_CSTATE(irqst), bitflg, istat_term);                 \
+	} while (0)
 #else
 #define trace_irq_stat(bitflg)
 #endif

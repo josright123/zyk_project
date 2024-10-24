@@ -14,6 +14,8 @@
 #define PRINT_INFO_AP	"[DM9051 AP] "
 #define PRINT_INFO_APIN	"[DM9051 APIN] "
 
+#define	PRINT_INFO_IRQ	"[DM9051 IRQ] "
+
 #endif
 
 #endif //__ETH_PRINT_OPTS_H

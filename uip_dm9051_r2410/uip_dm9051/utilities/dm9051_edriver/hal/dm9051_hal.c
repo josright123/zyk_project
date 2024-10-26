@@ -11,7 +11,7 @@
  */
 #include "config/conf.h"
 #include "config/conf_core.h"
-#include "utils/dm9051_eth_debug.h"
+#include "debug/dm9051_eth_debug.h"
 
 #define	dm9051_hal_irqline HAL_IRQLine
 

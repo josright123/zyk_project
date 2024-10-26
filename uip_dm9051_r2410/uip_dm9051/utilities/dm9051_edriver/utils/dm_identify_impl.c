@@ -1,10 +1,10 @@
 #include "config/conf.h"
 #if 0
 	//#include "config/conf_core.h"
-	#include "utils/dm9051_eth_debug.h"
+	#include "debug/dm9051_eth_debug.h"
 #else
 	//#include "config/conf_ap.h"
-	#include "utils/dm9051_ap_debug.h"
+	#include "debug/dm9051_ap_debug.h"
 	#define printf(fmt, ...) TASK_DM9051_DEBUGF(PRINT_INFO_APIN, (fmt, ##__VA_ARGS__)) //PRINT_AP or "[NET] "
 	#define	printk(fmt, ...) TASK_DM9051_DEBUGK((fmt, ##__VA_ARGS__))
 #endif
@@ -245,9 +245,6 @@ void dm_eth_input_hexdump_reset(void) {
 void dm_eth_input_hexdump(const void *buf, size_t len)
 {
 	int titledn = 0;
-	DM_UNUSED_ARG(buf);
-	DM_UNUSED_ARG(len);
-
 	if (link_log_reset_allow_num < rx_modle_log_reset_allow_num)
 	{
 		link_log_reset_allow_num++;

@@ -148,13 +148,13 @@ CB_MACRO(uint16_t, irqst);
 
 /* irqstate.identified
  */
+#include "config/print_opts.h"
+
 // uint16_t identified_irq_stat(void);
-// void trace_irq_stat(uint16_t bitflg);
 #define identified_irq_stat() GET_CSTATE(irqst)
 
-#include "config/identify_opts.h"
-
 #if IDENTIFY_PRINTF_IRQ_STATE
+// void trace_irq_stat(uint16_t bitflg);
 #define trace_irq_stat(bitflg)                                             \
 	do                                                                     \
 	{                                                                      \

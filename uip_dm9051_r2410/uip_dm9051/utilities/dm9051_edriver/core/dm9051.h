@@ -2,7 +2,6 @@
 #ifndef __DM9051_H
 #define __DM9051_H
 #include "config/dm9051opts.h"
-//#include "../config/identify_opts.h"
 //#include "dm9051_hal.h"
 
 #ifdef __cplusplus
@@ -272,23 +271,6 @@ extern "C"
   void cspi_rx_read(uint8_t *buff, uint16_t rx_len);
   void cspi_tx_write(uint8_t *buf, uint16_t len);
   void cspi_tx_req(void);
-
-//
-// #include "dm_identify_impl.h"
-//
-
-/* APIs
- */
-//#define DM_TYPE 0
-//#include "identify/dm_identify_types_define.h"
-
-//  struct eth_node_t
-//  {
-//    uint8_t mac_addresse[MAC_ADDR_LENGTH];
-//    uint8_t local_ipaddr[ADDR_LENGTH];
-//    uint8_t local_gwaddr[ADDR_LENGTH];
-//    uint8_t local_maskaddr[ADDR_LENGTH];
-//  };
 
   /*
    * HCC: Hard Core Candidate (hcc)

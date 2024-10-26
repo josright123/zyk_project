@@ -1,3 +1,5 @@
+#ifndef __DM_ETH_DRVDEF_H__
+#define	__DM_ETH_DRVDEF_H__
 #include "../config/dm_eth_opts.h"
 
 //[5] dependency
@@ -18,3 +20,4 @@
 #warning "freeRTOS is NOT defined"
 	
 #endif
+#endif //__DM_ETH_DRVDEF_H__

@@ -12,8 +12,8 @@
  */
 #include "config/conf.h"
 #include "config/conf_core.h"
-#if 0
-#include "utils/dm9051_eth_debug.h"
+#if 1
+#include "debug/dm9051_eth_debug.h"
 #endif
 
 #define	DM_ETH_IRQHandler	EXINT9_5_UserFunction	//EXINT9_5_IRQHandler

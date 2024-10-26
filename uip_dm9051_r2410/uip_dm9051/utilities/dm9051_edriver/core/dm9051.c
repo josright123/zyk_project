@@ -40,7 +40,7 @@
 
 #include "config/conf.h"
 #include "config/conf_core.h"
-#include "utils/dm9051_eth_debug.h"
+#include "debug/dm9051_eth_debug.h"
 
 // Constants and Definitions
 #define PBUF_POOL_BUFSIZE (1514 + 4) //.2000	//.2000(tested)

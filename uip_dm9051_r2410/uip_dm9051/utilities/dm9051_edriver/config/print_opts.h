@@ -1,4 +1,4 @@
-/* identify_opts.h
+/* print_opts.h / (identify_opts.h)
  * 
  * Top config
  * Middle settings
@@ -11,7 +11,7 @@
 #define rt_print					0 //section
 #define drv_print					0 //1 //section
 
-//#define qprint					1 //1 //total	// print-out // on/off
+//#define qprint					1 //1 //total
 #define qprint 						(ap_print | rt_print | drv_print)
 
 #define IDENTIFY_PRINTF_IRQ_STATE	1 //0

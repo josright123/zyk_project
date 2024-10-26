@@ -28,12 +28,17 @@
     CS_LONG,
   } csmode_t;
 
+//#define PRINTK_OFF	0
+//#define PRINTK_ON		1
+  typedef enum
+  {
+    PRINTK_OFF = 0,
+    PRINTK_ON,
+  } typedef_name_t;
+
 /* domain */
 #define	uipAPP_CONF	1
 #define	lwipAPP_CONF	2
-
-/* hal */
-#include "../hal/dm9051_hal.h" //such as designed a MCU
   
 /* eth_main */
 //#define	DM_ETH_IRQHandler	EXINT9_5_UserFunction	//EXINT9_5_IRQHandler

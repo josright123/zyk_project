@@ -148,7 +148,7 @@ CB_MACRO(uint16_t, irqst);
 
 /* irqstate.identified
  */
-#include "config/print_opts.h"
+#include "debug/print_opts.h"
 
 // uint16_t identified_irq_stat(void);
 #define identified_irq_stat() GET_CSTATE(irqst)

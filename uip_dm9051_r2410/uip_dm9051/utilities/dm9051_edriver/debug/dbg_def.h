@@ -2,7 +2,7 @@
 #define __DM9051_DEBUG_H
 
 #include <stdio.h>
-#include "config/print_opts.h"
+#include "debug/print_opts.h"
 
 #define DM9051_DEBUG_LEVEL 3
 

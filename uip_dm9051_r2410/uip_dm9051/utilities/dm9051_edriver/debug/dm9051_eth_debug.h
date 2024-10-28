@@ -1,8 +1,8 @@
 #ifndef __DM9051_ETH_DEBUG_H
 #define __DM9051_ETH_DEBUG_H
 
-#include "config/eth_print_opts.h"
-#include "config/print_opts.h"
+#include "debug/eth_print_def.h"
+#include "debug/print_opts.h"
 #include "dbg_def.h"
 
 #if !qprint //total

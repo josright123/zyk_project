@@ -1,12 +1,13 @@
 #include "config/conf.h"
+
 #if 0
 	//#include "config/conf_core.h"
 	#include "debug/dm9051_eth_debug.h"
 #else
 	//#include "config/conf_ap.h"
 	#include "debug/dm9051_ap_debug.h"
-	#define printf(fmt, ...) TASK_DM9051_DEBUGF(PRINT_INFO_APIN, (fmt, ##__VA_ARGS__)) //PRINT_AP or "[NET] "
-	#define	printk(fmt, ...) TASK_DM9051_DEBUGK((fmt, ##__VA_ARGS__))
+	//#define printf(fmt, ...) TASK_DM9051_DEBUGF(PRINT_INFO_APIN, (fmt, ##__VA_ARGS__)) //PRINT_AP or "[NET] "
+	//#define printk(fmt, ...) TASK_DM9051_DEBUGK((fmt, ##__VA_ARGS__))
 #endif
 
 #define DM_TYPE 1
@@ -252,5 +253,24 @@ void dm_eth_input_hexdump(const void *buf, size_t len)
 			limit_len(len, 14) /*limit_len(len, 66)*/,
 			DM_TRUE);
 	}
+}
+#endif
+
+/* debug definition, dbg_def~
+ * Implementation of the debug handler
+ */
+#if 0
+inline void _dm9051_eth_debug_handler(dm9051_eth_debug_level_t level, const char *message) {
+    const char *level_str;
+    switch (level) {
+        case DM9051_ETH_DEBUG_LEVEL_ERROR: level_str = "ERROR"; break;
+        case DM9051_ETH_DEBUG_LEVEL_WARN:  level_str = "WARN";  break;
+        case DM9051_ETH_DEBUG_LEVEL_INFO:  level_str = "INFO";  break;
+        case DM9051_ETH_DEBUG_LEVEL_DEBUG: level_str = "DEBUG"; break;
+        default:                           level_str = "UNKNOWN";
+    }
+	
+	if (level >= LOG_LEVEL)
+		printf("[%s] %s", level_str, message);	
 }
 #endif

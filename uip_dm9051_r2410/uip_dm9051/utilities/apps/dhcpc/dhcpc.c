@@ -43,7 +43,7 @@
 #include "config/cdef.h"
 #include "config/conf_ap.h"
 #include "debug/dm9051_ap_debug.h"
-#define printf(fmt, ...) TASK_DM9051_DEBUGF(PRINT_INFO_AP, (fmt, ##__VA_ARGS__)) //PRINT_AP or "[N] "
+//#define printf(fmt, ...) TASK_DM9051_DEBUGF(PRINT_INFO_AP, (fmt, ##__VA_ARGS__)) //PRINT_AP or "[N] "
 
 #if defined PORT_APP_MAPPER
     bool dhcpc_running = 0;
@@ -299,7 +299,7 @@ static PT_THREAD(handle_dhcp(void))
 		);
 #endif
 
-    printf("handle_dhcp...\r\n");
+    //printf("handle_dhcp...\r\n");
 
     if (s.state == STATE_RENEW)
         goto send_request_section;
@@ -324,7 +324,7 @@ static PT_THREAD(handle_dhcp(void))
 
         if (uip_newdata())
         {
-            printf("DHCP - newdata\r\n");
+            //printf("DHCP - newdata\r\n");
 
             //sendString("Data\n\r");
             if (parse_msg() == DHCPOFFER)
@@ -524,10 +524,12 @@ void dhcpc_renew(void)
     // if no server ip then we have to do a full request
     if (s.serverid[0] == 0)
     {
+		printf("new dhcpc_init [%d]...\r\n", 1);
         dhcpc_init(s.mac_addr, s.mac_len);
         return;
     }
 
+	printf("renew dhcpc_init [%d]...\r\n", 2);
     // unicast to dhcp server
     uip_ipaddr(addr, s.serverid[0], s.serverid[1], s.serverid[2], s.serverid[3]);
     s.conn = uip_udp_new(&addr, HTONS(DHCPC_SERVER_PORT));

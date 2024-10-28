@@ -2,13 +2,18 @@
 #define __ETH_PRINT_OPTS_H
 #include "../config/dm_eth_opts.h"
 
-#if freeRTOS
-#define	PRINT_SEMA	SEMA_OFF //SEMA_ON	//ON to print with sema, OFF without sema.
-#define	PRINT_AP	"[ap] " //"ap"
-#define PRINT_INFO_AP	"[DM9051 AP] "
-#define PRINT_INFO_APIN	"[DM9051 APIN] "
+//#if freeRTOS
+//#define	PRINT_SEMA	SEMA_OFF //SEMA_ON	//ON to print with sema, OFF without sema.
+////#define	PRINT_AP	"[ap] " //"ap"
+//#define PRINT_INFO_AP	"[DM9051 APi] "
+//#define PRINT_INFO_APIN	"[DM9051 APIN] "
 
-#define	PRINT_INFO_IRQ	"[DM9051 IRQ] "
-#endif
+//#define	PRINT_INFO_IRQ	"[DM9051 IRQ] "
+//#endif
+
+#define	PRINT_SEMA	SEMA_OFF
+#define PRINT_INFO_AP	"[iAP] "
+#define PRINT_INFO_APIN	"[APIN] "
+#define	PRINT_INFO_IRQ	"[IRQ] "
 
 #endif //__ETH_PRINT_OPTS_H

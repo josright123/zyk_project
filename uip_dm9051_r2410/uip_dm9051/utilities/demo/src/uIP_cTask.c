@@ -56,7 +56,7 @@
 #include "config/cdef.h"
 #include "config/conf_ap.h"
 #include "debug/dm9051_ap_debug.h"
-#define printf(fmt, ...) TASK_DM9051_DEBUGF(PRINT_INFO_AP, (fmt, ##__VA_ARGS__)) //PRINT_AP or "[N] "
+//#define printf(fmt, ...) TASK_DM9051_DEBUGF(PRINT_INFO_AP, (fmt, ##__VA_ARGS__)) //PRINT_AP or "[N] "
 
 //[version_1]
 #define	DM9051_init									DM_ETH_Init
@@ -193,7 +193,7 @@ void vuIP_Task(void *pvParameters)
 
 #ifdef __DHCPC_H__ //if use fixed ip, #ifdef modify #ifndef
     // setup the dhcp renew timer the make the first request
-		printf("config: DHCPC\r\n");
+	//printf("config: DHCPC\r\n");
     timer_set(&dhcp_timer, CLOCK_SECOND * 600);
     dhcpc_init(&uip_ethaddr, 6);
     //dhcpc_request();

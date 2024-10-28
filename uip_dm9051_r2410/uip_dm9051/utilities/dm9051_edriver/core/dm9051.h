@@ -224,7 +224,7 @@ extern "C"
   uint16_t env_evaluate_rxb(uint8_t rxb);
   uint16_t env_err_rsthdlr(char *err_explain_str, uint32_t valuecode);
   uint16_t env_err_rsthdlr1(void (*callback)(char *, uint32_t), char *explain_str, uint32_t code);
-  uint16_t env_err_rsthdlr2(int sz);
+  uint16_t env_err_rsthdlr2(void); //(int sz);
   uint16_t env_err_rsthdlr3(const char *format, ...); //uint16_t env_err_rsthdlr3(fmt, ...);
 
 	void debug_diff_rx_pointers(int state, uint16_t rd_now);

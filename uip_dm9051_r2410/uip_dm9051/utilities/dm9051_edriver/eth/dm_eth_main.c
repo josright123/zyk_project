@@ -12,7 +12,7 @@
  */
 #include "config/conf.h"
 #include "config/conf_core.h"
-#if 1
+#if 0
 #include "debug/dm9051_eth_debug.h"
 #endif
 

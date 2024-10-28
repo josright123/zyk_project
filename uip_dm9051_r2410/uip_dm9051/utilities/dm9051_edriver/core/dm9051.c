@@ -379,9 +379,9 @@ uint16_t env_err_rsthdlr1(void (*callback)(char *, uint32_t), char *explain_str,
     return 0;
 }
 
-uint16_t env_err_rsthdlr2(int sz)
+uint16_t env_err_rsthdlr2(void) //(int sz)
 {
-    DM_UNUSED_ARG(sz);
+    //DM_UNUSED_ARG(sz);
     env_reset_process(identified_eth_mac());
     return 0;
 }
@@ -491,11 +491,11 @@ static uint16_t impl_dm9051_rx(uint8_t *buff)
 	rx_len = ReceiveData[2] + (ReceiveData[3] << 8);
 	DM9051_RX_BREAK((rx_status & (0xbf & ~RSR_PLE)),
 					return env_err_rsthdlr1(err_callback, "_dm9051f rx_status error : 0x%02x\r\n", rx_status));
-#if !drv_print
+//#if !drv_print
+//#else
+//	DM9051_RX_BREAK((rx_len > PBUF_POOL_BUFSIZE), return env_err_rsthdlr2(printf("_dm9051f rx_len error : %u\r\n", rx_len)));
+//#endif
 	DM9051_RX_BREAK((rx_len > PBUF_POOL_BUFSIZE), return env_err_rsthdlr("_dm9051f rx_len error : %u\r\n", rx_len));
-#else
-	DM9051_RX_BREAK((rx_len > PBUF_POOL_BUFSIZE), return env_err_rsthdlr2(printf("_dm9051f rx_len error : %u\r\n", rx_len)));
-#endif
 	pad = rx_len & 1;				  // 16-bit
 	cspi_rx_read(buff, rx_len + pad); // 8/16-bit
 	return rx_len;
@@ -521,18 +521,17 @@ static const uint8_t *impl_dm9051_init(const uint8_t *adr)
 	trace_identify_eth_mac();
 
 	// Perform reset process
-	#if 0
 	return env_reset_process(mac);
-	#else
-	//[Testing]
-  env_err_rsthdlr("env_err_rsthdlr to reset_process(mac): %d\r\n", 25);
-  env_err_rsthdlr1(err_callback, "env_err_rsthdlr1 to reset_process(mac): %d\r\n", 25);
-#if drv_print
-	env_err_rsthdlr2(printf("env_err_rsthdlr2 to reset_process(mac): %d\r\n", 25));
-#endif
-	env_err_rsthdlr3("env_err_rsthdlr3 to reset_process(mac): %d\r\n", 25);
-	return mac;
-	#endif
+//	//[Testing]
+//	#if 0
+//	env_err_rsthdlr("env_err_rsthdlr to reset_process(mac): %d\r\n", 25);
+//	env_err_rsthdlr1(err_callback, "env_err_rsthdlr1 to reset_process(mac): %d\r\n", 25);
+//	//#if drv_print
+//	//#endif
+//	//	env_err_rsthdlr2(printf("env_err_rsthdlr2 to reset_process(mac): %d\r\n", 25));
+//	env_err_rsthdlr3("env_err_rsthdlr3 to reset_process(mac): %d\r\n", 25);
+//	return mac;
+//	#endif
 }
 
 static void cspi_core_reset(void)

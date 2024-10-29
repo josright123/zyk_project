@@ -55,6 +55,23 @@ const struct eth_node_t node_candidate[1] = {
 };
 
 //---------------------------------------
+/*
+ * dbg_def info-function
+ */
+const char *level_str_impl(dm9051_eth_debug_level_t level)
+{
+	const char *level_str;
+	switch (level) {
+		case DM9051_ETH_DEBUG_LEVEL_ERROR: level_str = "ERROR"; break;
+		case DM9051_ETH_DEBUG_LEVEL_WARN:  level_str = "WARN";  break;
+		case DM9051_ETH_DEBUG_LEVEL_INFO:  level_str = "INFO";  break;
+		case DM9051_ETH_DEBUG_LEVEL_DEBUG: level_str = "DEBUG"; break;
+		default:                           level_str = "UNKNOWN";
+	} \
+	return level_str;
+}
+
+//---------------------------------------
 
 unsigned long dispc_int_active = 0; //, dispc_int_active_saved = 0;
 
@@ -253,24 +270,5 @@ void dm_eth_input_hexdump(const void *buf, size_t len)
 			limit_len(len, 14) /*limit_len(len, 66)*/,
 			DM_TRUE);
 	}
-}
-#endif
-
-/* debug definition, dbg_def~
- * Implementation of the debug handler
- */
-#if 0
-inline void _dm9051_eth_debug_handler(dm9051_eth_debug_level_t level, const char *message) {
-    const char *level_str;
-    switch (level) {
-        case DM9051_ETH_DEBUG_LEVEL_ERROR: level_str = "ERROR"; break;
-        case DM9051_ETH_DEBUG_LEVEL_WARN:  level_str = "WARN";  break;
-        case DM9051_ETH_DEBUG_LEVEL_INFO:  level_str = "INFO";  break;
-        case DM9051_ETH_DEBUG_LEVEL_DEBUG: level_str = "DEBUG"; break;
-        default:                           level_str = "UNKNOWN";
-    }
-	
-	if (level >= LOG_LEVEL)
-		printf("[%s] %s", level_str, message);	
 }
 #endif

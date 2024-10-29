@@ -12,8 +12,15 @@
  */
 #include "config/conf.h"
 #include "config/conf_core.h"
+
 #if 0
 #include "debug/dm9051_eth_debug.h"
+//#define	printkr(fmt, ...) DM9051_DEBUGKR((fmt, ##__VA_ARGS__))
+//#define	printkr(fmt, ...) TASK_DM9051_DEBUGK((fmt, ##__VA_ARGS__))
+//#define	printk(fmt, ...) TASK_DM9051_DEBUGK((fmt, ##__VA_ARGS__
+#else
+//#include "debug/dbg_def.h"
+#define printkey printf
 #endif
 
 #define	DM_ETH_IRQHandler	EXINT9_5_UserFunction	//EXINT9_5_IRQHandler
@@ -95,12 +102,14 @@ void DM_ETH_Output(uint8_t *bff, uint16_t len)
 //}
 uint8_t *DM_ETH_Ip_Configuration(const uint8_t *ip)
 {
-	printf("config ip %d.%d.%d.%d\r\n", ip[0], ip[1], ip[2], ip[3]); //first-line.
+	//printkr("compiler\r\n"); //
+	printkey("config ip %d.%d.%d.%d\r\n", ip[0], ip[1], ip[2], ip[3]); //first-line.
 	return identify_tcpip_ip(ip);
 }
 uint8_t *DM_ETH_Gw_Configuration(const uint8_t *ip)
 {
-	printf("config gw %d.%d.%d.%d\r\n", ip[0], ip[1], ip[2], ip[3]);
+	//printkr("compiler\r\n"); //
+	printkey("config gw %d.%d.%d.%d\r\n", ip[0], ip[1], ip[2], ip[3]);
 	return identify_tcpip_gw(ip);
 }
 uint8_t *DM_ETH_Mask_Configuration(const uint8_t *ip)

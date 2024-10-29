@@ -278,7 +278,7 @@ int env_init_setup(uint16_t *id)
 		return 0;
 	}
 
-	printf("\r\n"); // printf("DM9051 chip rev: %02x\r\n", rev);
+	printk("\r\n"); // printf("DM9051 chip rev: %02x\r\n", rev);
 	printf("DM9051 found: %04x\r\n", *id);
 	return 1;
 }
@@ -311,8 +311,8 @@ static void dm9051_show_rxbstatistic(uint8_t *htc, int n)
 		}
 #if (drv_print && PRINT_SEMA == SEMA_ON) // depend
 		j = i - 2;
-#endif
 		printf("%d ", htc[j]);
+#endif
 	}
 	printf("\r\n");
 }
@@ -379,12 +379,12 @@ uint16_t env_err_rsthdlr1(void (*callback)(char *, uint32_t), char *explain_str,
     return 0;
 }
 
-uint16_t env_err_rsthdlr2(void) //(int sz)
-{
-    //DM_UNUSED_ARG(sz);
-    env_reset_process(identified_eth_mac());
-    return 0;
-}
+//uint16_t env_err_rsthdlr2(int sz)
+//{
+//    DM_UNUSED_ARG(sz);
+//    env_reset_process(identified_eth_mac());
+//    return 0;
+//}
 
 uint16_t env_err_rsthdlr3(const char *format, ...)
 {
@@ -496,6 +496,7 @@ static uint16_t impl_dm9051_rx(uint8_t *buff)
 //	DM9051_RX_BREAK((rx_len > PBUF_POOL_BUFSIZE), return env_err_rsthdlr2(printf("_dm9051f rx_len error : %u\r\n", rx_len)));
 //#endif
 	DM9051_RX_BREAK((rx_len > PBUF_POOL_BUFSIZE), return env_err_rsthdlr("_dm9051f rx_len error : %u\r\n", rx_len));
+	
 	pad = rx_len & 1;				  // 16-bit
 	cspi_rx_read(buff, rx_len + pad); // 8/16-bit
 	return rx_len;

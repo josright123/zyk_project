@@ -29,6 +29,12 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "config/cdef.h"
+#include "config/conf_ap.h"
+#include "debug/dm9051_ap_debug.h"
+//#define printf(fmt, ...) TASK_DM9051_DEBUGF(PRINT_INFO_AP, (fmt, ##__VA_ARGS__)) //PRINT_AP or "[N] "
+//#define	printk(fmt, ...) TASK_DM9051_DEBUGK((fmt, ##__VA_ARGS__))
+
 #define NET_TASK_PRIO           		2 //FOR 'net_task'
 #include "uIP_Task.h" //.void _vuIP_Task(void *pvParameters);
 
@@ -69,10 +75,7 @@ int main(void)
   system_clock_config();
   uart_print_init(115200);
   
-  printf("\r\n");
-  printf("\r\n");
-  printf("\r\n");
-  printf("[ZYK_project/re_zyk]\r\n");
+  printkey("\r\n\r\n\r\n/ZYK_project /R2410 [uip_dm9051_r2410] %s\r\n", __DATE__);
   //tasks_dm9051_debug_init();
   
 #if 0 //[TEST]
@@ -101,12 +104,6 @@ int main(void)
   vTaskStartScheduler(); 
 #endif
 }
-
-#include "config/cdef.h"
-#include "config/conf_ap.h"
-#include "debug/dm9051_ap_debug.h"
-//#define printf(fmt, ...) TASK_DM9051_DEBUGF(PRINT_INFO_AP, (fmt, ##__VA_ARGS__)) //PRINT_AP or "[N] "
-//#define	printk(fmt, ...) TASK_DM9051_DEBUGK((fmt, ##__VA_ARGS__))
 
 //void task_periodic_polling(void)
 //{

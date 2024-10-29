@@ -13,7 +13,7 @@
 #include "config/conf.h"
 #include "config/conf_core.h"
 
-#if 0
+#if 1
 #include "debug/dm9051_eth_debug.h"
 //#define	printkr(fmt, ...) DM9051_DEBUGKR((fmt, ##__VA_ARGS__))
 //#define	printkr(fmt, ...) TASK_DM9051_DEBUGK((fmt, ##__VA_ARGS__))

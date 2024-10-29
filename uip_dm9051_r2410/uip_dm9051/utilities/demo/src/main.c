@@ -35,7 +35,7 @@
 //#define printf(fmt, ...) TASK_DM9051_DEBUGF(PRINT_INFO_AP, (fmt, ##__VA_ARGS__)) //PRINT_AP or "[N] "
 //#define	printk(fmt, ...) TASK_DM9051_DEBUGK((fmt, ##__VA_ARGS__))
 
-#if freeRTOS
+#if 0 //freeRTOS
 #warning "freeRTOS is defined"
 #else
 #warning "freeRTOS is NOT defined"
@@ -43,6 +43,11 @@
 
 #define NET_TASK_PRIO           		2 //FOR 'net_task'
 #include "uIP_Task.h" //.void _vuIP_Task(void *pvParameters);
+
+#include "main.h"
+
+void main_tick_handler(void);
+uint32_t mainTicks = 0;
 
 int Web_LED_FLASH = 1; // Default set 1 use freertos task control led, if set 0 web control
 
@@ -109,6 +114,17 @@ int main(void)
   /* start scheduler */            
   vTaskStartScheduler(); 
 #endif
+}
+
+void main_tick_handler(void)
+{
+	mainTicks++;
+	xPortSysTickHandler(); //SysTick_Handler_from_main(); ////xPortSysTickHandler(); 
+}
+
+uint32_t main_tick_count(void)
+{
+	return mainTicks;
 }
 
 //void task_periodic_polling(void)

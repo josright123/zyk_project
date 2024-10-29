@@ -27,10 +27,10 @@
 /* __SYS_H
  */
  
-#define	application_Type	uipAPP_CONF
+//#define	application_Type	uipAPP_CONF
 
-#define freeRTOS_CONF	1 //0 //1 //1 //1 //0
+//#define freeRTOS_CONF	1 //0 //1 //1 //1 //0
 
-#include "dm_eth_driver_define.h" //#include "identify/dm_eth_driver_define.h"
+//#include "dm_eth_driver_define.h" //#include "identify/dm_eth_driver_define.h"
 
 #endif //__DM9051_OPTS_H

@@ -7,9 +7,9 @@
 #ifndef __IDENTIFY_OPTS_H__
 #define	__IDENTIFY_OPTS_H__
 
-#define ap_print					1 //section
+#define ap_print					0 //section
 #define rt_print					0 //section
-#define drv_print					0 //section
+#define drv_print					1 //section
 
 #define qprint 						(ap_print | rt_print | drv_print)
 

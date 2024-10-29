@@ -382,8 +382,6 @@ void    resolv_found(char *name, u16_t *ipaddr)
 #ifdef __DHCPC_H__
 void    dhcpc_configured(const struct dhcpc_state *s)
 {
-    uip_ipaddr_t ipaddr={0,0};
-
     if (s->state == STATE_FAIL)
     {
 //		uint8_t *p;
@@ -417,17 +415,21 @@ void    dhcpc_configured(const struct dhcpc_state *s)
     }
 
     /* Display system information */
-
-    printf("Network chip: DAVICOM DM9051 \r\n");
-    printf("MAC Address: %X:%X:%X:%X:%X:%X \r\n", uip_ethaddr.addr[0], uip_ethaddr.addr[1],
-           uip_ethaddr.addr[2], uip_ethaddr.addr[3], uip_ethaddr.addr[4], uip_ethaddr.addr[5]);
-    uip_gethostaddr(ipaddr);
-    printf("Host IP Address: %d.%d.%d.%d \r\n", uip_ipaddr1(ipaddr), uip_ipaddr2(ipaddr), uip_ipaddr3(ipaddr), uip_ipaddr4(ipaddr));
-    uip_getnetmask(ipaddr);
-    printf("Network Mask: %d.%d.%d.%d \r\n", uip_ipaddr1(ipaddr), uip_ipaddr2(ipaddr), uip_ipaddr3(ipaddr), uip_ipaddr4(ipaddr));
-    uip_getdraddr(ipaddr);
-    printf("Gateway IP Address: %d.%d.%d.%d \r\n", uip_ipaddr1(ipaddr), uip_ipaddr2(ipaddr), uip_ipaddr3(ipaddr), uip_ipaddr4(ipaddr));
-    printf("---------------------------------------------\r\n");
+		#if ap_print
+		do {
+			uip_ipaddr_t ipaddr={0,0};
+			printf("Network chip: DAVICOM DM9051 \r\n");
+			printf("MAC Address: %X:%X:%X:%X:%X:%X \r\n", uip_ethaddr.addr[0], uip_ethaddr.addr[1],
+						 uip_ethaddr.addr[2], uip_ethaddr.addr[3], uip_ethaddr.addr[4], uip_ethaddr.addr[5]);
+			uip_gethostaddr(ipaddr);
+			printf("Host IP Address: %d.%d.%d.%d \r\n", uip_ipaddr1(ipaddr), uip_ipaddr2(ipaddr), uip_ipaddr3(ipaddr), uip_ipaddr4(ipaddr));
+			uip_getnetmask(ipaddr);
+			printf("Network Mask: %d.%d.%d.%d \r\n", uip_ipaddr1(ipaddr), uip_ipaddr2(ipaddr), uip_ipaddr3(ipaddr), uip_ipaddr4(ipaddr));
+			uip_getdraddr(ipaddr);
+			printf("Gateway IP Address: %d.%d.%d.%d \r\n", uip_ipaddr1(ipaddr), uip_ipaddr2(ipaddr), uip_ipaddr3(ipaddr), uip_ipaddr4(ipaddr));
+			printf("---------------------------------------------\r\n");
+		} while(0);
+		#endif
 }
 #endif /* __DHCPC_H__ */
 

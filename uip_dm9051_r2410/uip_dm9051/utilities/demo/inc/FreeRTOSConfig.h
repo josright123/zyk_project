@@ -171,7 +171,8 @@ header file. */
 standard names. */
 #define vPortSVCHandler SVC_Handler
 #define xPortPendSVHandler PendSV_Handler
-#define xPortSysTickHandler SysTick_Handler
+void xPortSysTickHandler( void );
+//#define xPortSysTickHandler SysTick_Handler
 
 #ifdef __cplusplus
     }

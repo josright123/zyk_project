@@ -406,13 +406,13 @@ void cspi_write_mem(uint8_t *buf, uint16_t len)
  *  - lwip
  *  - uip
  */
-#if 0
+#if 0 //freeRTOS
+//(1)in case freertos
+#define sys_now xTaskGetTickCount
+#elif 1
 //(0)[in case mcu ticks]
 #include "main.h"
 #define	sys_now	main_tick_count
-#elif freeRTOS
-//(1)in case freertos
-#define sys_now xTaskGetTickCount
 #else
 //(2)[in case of lwip]
 // #include "lwip/sys.h"

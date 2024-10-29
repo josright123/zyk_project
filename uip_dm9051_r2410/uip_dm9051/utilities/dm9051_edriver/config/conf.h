@@ -17,6 +17,6 @@
 //#include "dbg_opts.h"
 
 /* all common, such define the 'freeRTOS' */
-#include "dm_eth_opts.h" //
+#include "dm9051opts.h" //"dm_eth_opts.h" //
 
 #endif //__DM_CONF_H__

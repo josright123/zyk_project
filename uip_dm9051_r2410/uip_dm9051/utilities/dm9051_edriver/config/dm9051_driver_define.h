@@ -4,7 +4,6 @@
 #ifndef __DM9051_LW_DRIVER_DEF_H
 #define __DM9051_LW_DRIVER_DEF_H
 #include "../config/dm9051opts.h"
-//#include "dm9051_lw_usr_default.h" //for intelligent editor to recognize designed macro define!
 
 //[0]
 enum sema_tag_t {

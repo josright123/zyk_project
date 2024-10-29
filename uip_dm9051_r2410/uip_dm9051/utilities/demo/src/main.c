@@ -35,6 +35,12 @@
 //#define printf(fmt, ...) TASK_DM9051_DEBUGF(PRINT_INFO_AP, (fmt, ##__VA_ARGS__)) //PRINT_AP or "[N] "
 //#define	printk(fmt, ...) TASK_DM9051_DEBUGK((fmt, ##__VA_ARGS__))
 
+#if freeRTOS
+#warning "freeRTOS is defined"
+#else
+#warning "freeRTOS is NOT defined"
+#endif
+
 #define NET_TASK_PRIO           		2 //FOR 'net_task'
 #include "uIP_Task.h" //.void _vuIP_Task(void *pvParameters);
 

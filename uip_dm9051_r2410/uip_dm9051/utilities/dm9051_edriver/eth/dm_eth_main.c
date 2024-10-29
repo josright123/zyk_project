@@ -23,6 +23,12 @@
 #define printkey printf
 #endif
 
+#if freeRTOS
+#warning "freeRTOS is defined"
+#else
+#warning "freeRTOS is NOT defined"
+#endif
+
 #define	DM_ETH_IRQHandler	EXINT9_5_UserFunction	//EXINT9_5_IRQHandler
 
 // Configuration flags

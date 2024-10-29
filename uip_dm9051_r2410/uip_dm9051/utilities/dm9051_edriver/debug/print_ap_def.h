@@ -1,6 +1,5 @@
 #ifndef __ETH_PRINT_OPTS_H
 #define __ETH_PRINT_OPTS_H
-#include "../config/dm_eth_opts.h"
 
 //#if freeRTOS
 //#define	PRINT_SEMA	SEMA_OFF //SEMA_ON	//ON to print with sema, OFF without sema.

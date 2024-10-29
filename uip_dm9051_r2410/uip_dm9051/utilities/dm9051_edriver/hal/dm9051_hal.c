@@ -412,10 +412,10 @@ void cspi_write_mem(uint8_t *buf, uint16_t len)
 #define	sys_now	main_tick_count
 #elif freeRTOS
 //(1)in case freertos
-// #include "lwip/sys.h"
 #define sys_now xTaskGetTickCount
 #else
 //(2)[in case of lwip]
+// #include "lwip/sys.h"
 //(3)[in case of uip]
 #define sys_now sys_now	   // to check lwip
 #include "clock.h"

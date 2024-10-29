@@ -56,7 +56,6 @@
 #include "config/cdef.h"
 #include "config/conf_ap.h"
 #include "debug/dm9051_ap_debug.h"
-//#define printf(fmt, ...) TASK_DM9051_DEBUGF(PRINT_INFO_AP, (fmt, ##__VA_ARGS__)) //PRINT_AP or "[N] "
 
 //[version_1]
 #define	DM9051_init									DM_ETH_Init

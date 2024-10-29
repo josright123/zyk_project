@@ -30,15 +30,14 @@
 #include "task.h"
 
 #include "config/cdef.h"
+#include "config/conf_core.h"
 #include "config/conf_ap.h"
 #include "debug/dm9051_ap_debug.h"
-//#define printf(fmt, ...) TASK_DM9051_DEBUGF(PRINT_INFO_AP, (fmt, ##__VA_ARGS__)) //PRINT_AP or "[N] "
-//#define	printk(fmt, ...) TASK_DM9051_DEBUGK((fmt, ##__VA_ARGS__))
 
-#if 0 //freeRTOS
-#warning "freeRTOS is defined"
+#if freeRTOS
+#error "freeRTOS is CHECKED defined, WRONG CONDITION."
 #else
-#warning "freeRTOS is NOT defined"
+#warning "freeRTOS is EXACTLY NOT NEED defined"
 #endif
 
 #define NET_TASK_PRIO           		2 //FOR 'net_task'
@@ -47,7 +46,6 @@
 #include "main.h"
 
 void main_tick_handler(void);
-uint32_t mainTicks = 0;
 
 int Web_LED_FLASH = 1; // Default set 1 use freertos task control led, if set 0 web control
 
@@ -116,15 +114,18 @@ int main(void)
 #endif
 }
 
+//uint32_t mainTicks = 0;
+
+//uint32_t main_tick_count(void)
+//{
+//	return mainTicks;
+//}
+
 void main_tick_handler(void)
 {
-	mainTicks++;
+	//mainTicks++;
+	dm9051_tick_handler();
 	xPortSysTickHandler(); //SysTick_Handler_from_main(); ////xPortSysTickHandler(); 
-}
-
-uint32_t main_tick_count(void)
-{
-	return mainTicks;
 }
 
 //void task_periodic_polling(void)

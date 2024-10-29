@@ -18,6 +18,6 @@
 
 #define main_tick_handler SysTick_Handler //JJ0 (in "main.c")
 
-uint32_t main_tick_count(void); //JJ0 (normal extern)
+//uint32_t main_tick_count(void); //JJ0 (normal extern)
 
 #endif /* __MAIN_H */

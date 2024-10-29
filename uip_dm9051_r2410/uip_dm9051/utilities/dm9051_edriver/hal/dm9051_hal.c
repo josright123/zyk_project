@@ -398,40 +398,16 @@ void cspi_write_mem(uint8_t *buf, uint16_t len)
 	dm9051if_cs_hi();
 }
 
-/* dm9051_Hw_common delay funcrions
- * Select ether [0] or [1], or otherwise coding user's sys_now().
- * Need a tick counter in the system
- *  - mcu ticks
- *  - freertos
- *  - lwip
- *  - uip
- */
-#if 0 //freeRTOS
-//(1)in case freertos
-#define sys_now xTaskGetTickCount
-#elif 1
-//(0)[in case mcu ticks]
-#include "main.h"
-#define	sys_now	main_tick_count
-#else
-//(2)[in case of lwip]
-// #include "lwip/sys.h"
-//(3)[in case of uip]
-#define sys_now sys_now	   // to check lwip
-#include "clock.h"
-#define sys_now clock_time // or check uip
-#endif
-
 void dm_delay_us(uint32_t nus)
 {
-	uint32_t start = sys_now();
-	while ((sys_now() - start) < ((nus + 999) / 1000))
+	uint32_t start = dm_sys_now();
+	while ((dm_sys_now() - start) < ((nus + 999) / 1000))
 		;
 }
 
 void dm_delay_ms(uint16_t nms)
 {
-	uint32_t start = sys_now();
-	while ((sys_now() - start) < nms)
+	uint32_t start = dm_sys_now();
+	while ((dm_sys_now() - start) < nms)
 		;
 }

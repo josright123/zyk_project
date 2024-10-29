@@ -6,8 +6,6 @@
 #else
 	//#include "config/conf_ap.h"
 	#include "debug/dm9051_ap_debug.h"
-	//#define printf(fmt, ...) TASK_DM9051_DEBUGF(PRINT_INFO_APIN, (fmt, ##__VA_ARGS__)) //PRINT_AP or "[NET] "
-	//#define printk(fmt, ...) TASK_DM9051_DEBUGK((fmt, ##__VA_ARGS__))
 #endif
 
 #define DM_TYPE 1

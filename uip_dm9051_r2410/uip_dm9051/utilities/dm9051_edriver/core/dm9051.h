@@ -201,6 +201,7 @@ extern "C"
 #define IMR_PRM (1 << 0)
 
   //[API]uip
+  void dm9051_tick_handler(void);
   const uint8_t *dm9051_init(const uint8_t *adr);
   uint16_t dm9051_rx(uint8_t *buff);
   void dm9051_tx(uint8_t *buf, uint16_t len);
@@ -311,6 +312,28 @@ extern "C"
 #define identified_tcpip_ip() GET_FIELD(final_ip)
 #define identified_tcpip_gw() GET_FIELD(final_gw)
 #define identified_tcpip_mask() GET_FIELD(final_mask)
+
+extern uint32_t dm9051Ticks;
+#define	dm_sys_now() dm9051Ticks
+  
+/* dm9051_Hw_common delay funcrions
+ * Select ether [0] or [1], or otherwise coding user's dm_sys_now().
+ * Need a tick counter in the system
+ *  - freertos
+ *  - mcu ticks
+ *  - lwip
+ *  - uip
+ */
+//#if 0 //freeRTOS
+////(1)in case freertos
+////(0)[in case mcu ticks]
+//#define dm_sys_now xTaskGetTickCount
+//#define	dm_sys_now	main_tick_count
+////(2)[in case of lwip]
+////(3)[in case of uip]
+//#define dm_sys_now sys_now	   // to check lwip
+//#define dm_sys_now clock_time // or check uip
+//#endif
 
 #ifdef __cplusplus
 }

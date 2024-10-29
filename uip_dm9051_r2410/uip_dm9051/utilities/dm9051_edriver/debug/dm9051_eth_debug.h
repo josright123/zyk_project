@@ -1,7 +1,7 @@
 #ifndef __DM9051_ETH_DEBUG_H
 #define __DM9051_ETH_DEBUG_H
 
-#include "print_eth_def.h"
+//#include "print_eth_def.h"
 #include "dbg_opts.h"
 #include "dbg_def.h"
 

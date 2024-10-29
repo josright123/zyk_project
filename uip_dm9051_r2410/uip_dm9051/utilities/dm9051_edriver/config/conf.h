@@ -16,7 +16,7 @@
 /* all common */
 //#include "dbg_opts.h"
 
-/* all common, such define the 'freeRTOS' */
-#include "dm9051opts.h" //"dm_eth_opts.h" //
+/* all common */
+#include "dm9051opts.h" //"temp" //
 
 #endif //__DM_CONF_H__

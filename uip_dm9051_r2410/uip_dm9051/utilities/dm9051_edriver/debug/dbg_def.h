@@ -4,6 +4,19 @@
 #include <stdio.h>
 #include "debug/dbg_opts.h"
 
+//ap
+#define	PRINT_SEMA	SEMA_OFF
+#define PRINT_INFO_AP	"[iAP] "
+#define PRINT_INFO_APIN	"[APIN] "
+
+//rt
+#define	PRINT_SEMA_RT	SEMA_ON	//ON to print with sema, OFF without sema.
+#define PRINT_INFO_RT	"[iRT]  "
+
+//drv
+#define PRINT_INFO	"[DRV] "
+#define	PRINT_INFO_IRQ	"[IRQ] "
+
 // Debug levels
 typedef enum {
     DM9051_ETH_DEBUG_LEVEL_ERROR = 0,

@@ -53,6 +53,8 @@ static const uint8_t *cspi_dm_start1(const uint8_t *adr);
 static void cspi_set_par(const uint8_t *macadd);
 static void cspi_rx_mode(void);
 
+uint32_t dm9051Ticks = 0;
+
 uint16_t dm9051_rx(uint8_t *buff)
 {
 	uint16_t rx_len;
@@ -66,10 +68,16 @@ void dm9051_tx(uint8_t *buf, uint16_t len)
 	cspi_tx_req();
 }
 
+void dm9051_tick_handler(void)
+{
+	dm9051Ticks++;
+}
+
 const uint8_t *dm9051_init(const uint8_t *adr)
 {
 	const uint8_t *mac = impl_dm9051_init(adr);
 
+	printf("[tickcount %lu] %s successfully\r\n\r\n", dm_sys_now(), __func__);
 #ifdef DM9051_DRIVER_INTERRUPT
 	printf("[interrupt] %s successfully\r\n\r\n", __func__);
 #else

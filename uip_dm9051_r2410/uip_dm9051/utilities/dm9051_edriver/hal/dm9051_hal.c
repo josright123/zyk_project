@@ -16,6 +16,7 @@
 #define	dm9051_hal_irqline HAL_IRQLine
 
 void dm9051_hal_init(void);
+void dm9051_hal_tick(void);
 
 #if defined(_DLW_AT32F437xx)
 /* ------------------------------- AT32F437 configuration ----------------------------------------- */
@@ -396,6 +397,18 @@ void cspi_write_mem(uint8_t *buf, uint16_t len)
 	dm9051if_cs_lo();
 	spi_mem_write(buf, len);
 	dm9051if_cs_hi();
+}
+
+uint32_t dm9051HalTicks = 0;
+
+uint32_t dm9051_hal_tick_count(void)
+{
+	return dm9051HalTicks;
+}
+
+void dm9051_hal_tick(void)
+{
+	dm9051HalTicks++;
 }
 
 void dm_delay_us(uint32_t nus)

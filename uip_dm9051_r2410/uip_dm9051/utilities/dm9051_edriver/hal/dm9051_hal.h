@@ -40,10 +40,12 @@
   //
 
 #define dm9051_hal_init dm9051_boards_initialize
+#define dm9051_hal_tick dm9051_boards_heartbeat_tick
 
 /* Hw_common funcrions
  */
 void dm9051_hal_init(void);
+void dm9051_hal_tick(void);
 void dm_delay_us(uint32_t nus);
 void dm_delay_ms(uint16_t nms);
 
@@ -122,5 +124,26 @@ void cspi_read_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode);
 uint8_t cspi_read_mem2x(void);
 void cspi_read_mem(uint8_t *buf, uint16_t len);
 void cspi_write_mem(uint8_t *buf, uint16_t len);
+
+#define	dm_sys_now dm9051_hal_tick_count
+	uint32_t dm9051_hal_tick_count(void);
+/* dm9051_Hw_common delay funcrions
+ * Select ether [0] or [1], or otherwise coding user's dm_sys_now().
+ * Need a tick counter in the system
+ *  - freertos
+ *  - mcu ticks
+ *  - lwip
+ *  - uip
+ */
+//#if 0 //freeRTOS
+////(1)in case freertos
+////(0)[in case mcu ticks]
+//#define dm_sys_now xTaskGetTickCount
+//#define	dm_sys_now	main_tick_count
+////(2)[in case of lwip]
+////(3)[in case of uip]
+//#define dm_sys_now sys_now	   // to check lwip
+//#define dm_sys_now clock_time // or check uip
+//#endif
   
 #endif //__DM9051_HAL_MCU_H

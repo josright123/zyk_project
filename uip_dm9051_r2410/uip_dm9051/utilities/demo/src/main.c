@@ -124,7 +124,7 @@ int main(void)
 void main_tick_handler(void)
 {
 	//mainTicks++;
-	dm9051_tick_handler();
+	dm9051_boards_heartbeat_tick(); //dm9051_tick_handler();
 	xPortSysTickHandler(); //SysTick_Handler_from_main(); ////xPortSysTickHandler(); 
 }
 

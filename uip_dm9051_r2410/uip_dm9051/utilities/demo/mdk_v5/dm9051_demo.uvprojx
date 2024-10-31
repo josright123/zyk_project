@@ -758,6 +758,9 @@
             </File>
           </Files>
         </Group>
+        <Group>
+          <GroupName>dm_gpio_utils</GroupName>
+        </Group>
       </Groups>
     </Target>
   </Targets>

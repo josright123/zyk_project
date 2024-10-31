@@ -99,12 +99,11 @@ PUTCHAR_PROTOTYPE
   return ch;
 }
 
-void fputc_dbg(uint16_t ch)
-{
-  while(usart_flag_get(PRINT_UART, USART_TDBE_FLAG) == RESET);
-  usart_data_transmit(PRINT_UART, ch);
-  //return ch;
-}
+//void fputc_dbg(uint16_t ch)
+//{
+//  while(usart_flag_get(PRINT_UART, USART_TDBE_FLAG) == RESET);
+//  usart_data_transmit(PRINT_UART, ch);
+//}
 
 /**
   * @brief  initialize uart

@@ -3,6 +3,7 @@
 #ifndef __DM_DEF_H__
 #define	__DM_DEF_H__
 #include <stdint.h>
+#include <stdio.h>
 
 /* domain */
 #define MAC_ADDR_LENGTH                  		(6)
@@ -27,20 +28,75 @@
     CS_EACH = 0,
     CS_LONG,
   } csmode_t;
+  
+	enum sema_tag_t {
+		SEMA_OFF = 0,
+		SEMA_ON,
+	};
 
-//#define PRINTK_OFF	0
-//#define PRINTK_ON		1
-  typedef enum
-  {
-    PRINTK_OFF = 0,
-    PRINTK_ON,
-  } typedef_name_t;
+//[1.1]
+typedef enum
+{
+  DM_FALSE = 0,
+  DM_TRUE = !DM_FALSE,
+} enable_t;
+
+#define DM_UNUSED_ARG(x) (void)x
 
 /* domain */
 #define	uipAPP_CONF	1
 #define	lwipAPP_CONF	2
   
 /* eth_main */
+//hdlr
 //#define	DM_ETH_IRQHandler	EXINT9_5_UserFunction	//EXINT9_5_IRQHandler
+
+/* dbg_def */
+//ap
+#define	PRINT_SEMA	SEMA_OFF
+#define PRINT_INFO_AP	"[iAP] "
+#define PRINT_INFO_APIN	"[APIN] "
+
+//rt
+#define	PRINT_SEMA_RT	SEMA_ON	//ON to print with sema, OFF without sema.
+#define PRINT_INFO_RT	"[iRT]  "
+
+//drv
+#define PRINT_INFO	"[DRV] "
+#define	PRINT_INFO_IRQ	"[IRQ] "
+
+// Debug levels
+typedef enum {
+    DM9051_ETH_DEBUG_LEVEL_ERROR = 0,
+    DM9051_ETH_DEBUG_LEVEL_DEBUG,
+    DM9051_ETH_DEBUG_LEVEL_WARN,
+    DM9051_ETH_DEBUG_LEVEL_INFO,
+} dm9051_eth_debug_level_t;
+
+/* Implementation of the debug handler
+ */
+
+#define LOG_LEVEL DM9051_ETH_DEBUG_LEVEL_DEBUG
+
+#define dm9051_eth_debug_handler(level, message) do { \
+	if (level >= LOG_LEVEL) { \
+		printf("[%s] %s", level_str_impl(level), message);	 \
+    } \
+} while(0)
+
+/* Implementation the essential-printf
+ *  - printkey is essential print. while
+ *  - printf, printk are optional print, 
+ *    check to dm9051_ap_debug.h/dm9051_eth_debug.h (and dm9051_rt_debug.h)
+ */
+
+#define	printkey(fmt, ...) \
+	do { \
+		char debug_msg[256]; \
+		char *p = debug_msg; \
+		snprintf(debug_msg, sizeof(debug_msg), fmt, ##__VA_ARGS__); \
+		while(*p) \
+			putchar(*p++); /*fputc_dbg(*p++);*/ \
+	} while(0)
 	
 #endif //__DM_DEF_H__

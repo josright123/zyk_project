@@ -10,15 +10,9 @@
  * and potentially performance.
  * Last updated: 2024-09-05
  */
-#include "control/conf.h"
+//#include "control/conf.h"
 #include "control/drv/conf_core.h"
 #include "control/drv/dm9051_eth_debug.h"
-
-//#if freeRTOS
-//#warning "freeRTOS is defined"
-//#else
-//#warning "freeRTOS is NOT defined"
-//#endif
 
 #define	DM_ETH_IRQHandler	EXINT9_5_UserFunction	//EXINT9_5_IRQHandler
 
@@ -26,10 +20,7 @@
 // #define DM_ETH_USE_INTERRUPTS 1
 // #define DM_ETH_DEBUG_MODE 0
 
-// Interrupt event flag
-// #if defined(DM9051_DRIVER_INTERRUPT)
 volatile int flgSemaphore_r = 0;
-// #endif
 
 int DM_ETH_GetInterruptEvent(void)
 {
@@ -99,13 +90,11 @@ void DM_ETH_Output(uint8_t *bff, uint16_t len)
 //}
 uint8_t *DM_ETH_Ip_Configuration(const uint8_t *ip)
 {
-	//printkr("compiler\r\n"); //
 	printkey("config ip %d.%d.%d.%d\r\n", ip[0], ip[1], ip[2], ip[3]); //first-line.
 	return identify_tcpip_ip(ip);
 }
 uint8_t *DM_ETH_Gw_Configuration(const uint8_t *ip)
 {
-	//printkr("compiler\r\n"); //
 	printkey("config gw %d.%d.%d.%d\r\n", ip[0], ip[1], ip[2], ip[3]);
 	return identify_tcpip_gw(ip);
 }

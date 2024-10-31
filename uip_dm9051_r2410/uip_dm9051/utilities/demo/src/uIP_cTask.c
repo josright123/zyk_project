@@ -53,7 +53,7 @@
 #include "task.h"
 #include "queue.h"
 
-#include "control/cdef.h"
+//#include "control/cdef.h"
 #include "control/ap/conf_ap.h"
 #include "control/ap/dm9051_ap_debug.h"
 

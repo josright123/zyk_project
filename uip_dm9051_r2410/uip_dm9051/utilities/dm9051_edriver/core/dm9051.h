@@ -201,7 +201,6 @@ extern "C"
 #define IMR_PRM (1 << 0)
 
   //[API]uip
-  //void dm9051_tick_handler(void);
   const uint8_t *dm9051_init(const uint8_t *adr);
   uint16_t dm9051_rx(uint8_t *buff);
   void dm9051_tx(uint8_t *buf, uint16_t len);

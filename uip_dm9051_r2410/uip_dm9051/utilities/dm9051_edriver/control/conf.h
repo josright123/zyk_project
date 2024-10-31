@@ -14,9 +14,9 @@
 #include "utils/dm_identify_types_define.h"
 
 /* all common */
-//#include "dbg_opts.h"
+#include "dm9051opts.h" //"temp"
 
 /* all common */
-#include "dm9051opts.h" //"temp" //
+//#include "dbg_opts.h"
 
 #endif //__DM_CONF_H__

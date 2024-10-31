@@ -9,7 +9,7 @@
  *	for debugging purposes.
  **************************************************************************
  */
-#include "control/conf.h"
+//#include "control/conf.h"
 #include "control/drv/conf_core.h"
 #include "control/drv/dm9051_eth_debug.h"
 

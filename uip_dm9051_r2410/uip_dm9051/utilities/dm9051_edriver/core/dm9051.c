@@ -33,12 +33,12 @@
  * Date: 20230411
  * Date: 20230428 (V3)
  */
-#include <stdio.h> /* formats */
+#include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-#include <stdlib.h> /* strtol() */
+#include <stdlib.h>
 
-#include "control/conf.h"
+//#include "control/conf.h"
 #include "control/drv/conf_core.h"
 #include "control/drv/dm9051_eth_debug.h"
 
@@ -52,18 +52,6 @@ static void cspi_core_reset(void);
 static const uint8_t *cspi_dm_start1(const uint8_t *adr);
 static void cspi_set_par(const uint8_t *macadd);
 static void cspi_rx_mode(void);
-
-//uint32_t dm9051Ticks = 0;
-
-//void dm9051_tick_handler(void)
-//{
-//	dm9051Ticks++;
-//}
-
-//uint32_t dm9051_tick_count(void)
-//{
-//	return dm9051Ticks;
-//}
 
 const uint8_t *dm9051_init(const uint8_t *adr)
 {
@@ -115,7 +103,7 @@ uint16_t cspi_phy_read(uint16_t uReg)
 	while (cspi_read_reg(DM9051_EPCR) & 0x1)
 	{
 		dm_delay_us(1);
-		if (++w >= 500) // 5
+		if (++w >= 500)
 			break;
 	} // Wait complete
 
@@ -138,7 +126,7 @@ void cspi_phy_write(uint16_t reg, uint16_t value)
 	while (cspi_read_reg(DM9051_EPCR) & 0x1)
 	{
 		dm_delay_us(1);
-		if (++w >= 500) // 5
+		if (++w >= 500)
 			break;
 	} // Wait complete
 
@@ -170,9 +158,9 @@ void cspi_read_regs_info(uint8_t *stat)
 	uint16_t cs;
 	uint32_t pbm;
 
-	pbm = cspi_phy_read(PHY_STATUS_REG); // pbm = dm9051_read_bmsr();
-	pbm |= cspi_read_chip_id() << 16;	 // dm9051_read_chip_id() << 16;
-	cs = cspi_read_control_status();	 // dm9051_read_control_status();
+	pbm = cspi_phy_read(PHY_STATUS_REG);
+	pbm |= cspi_read_chip_id() << 16;
+	cs = cspi_read_control_status();
 
 	stat[0] = cs & 0xff;
 	stat[1] = (cs >> 8) & 0xff;
@@ -181,24 +169,6 @@ void cspi_read_regs_info(uint8_t *stat)
 	stat[4] = (pbm >> 8) & 0xff;
 	stat[5] = (pbm) & 0xff;
 }
-
-// void cspi_vid_pid_revisions(uint8_t *ids, uint8_t *rev_ad)
-//{
-//	cspi_read_regs(DM9051_VIDL, ids, 5, CS_EACH);
-//	cspi_read_regs(0x5C, rev_ad, 1, CS_EACH);
-// }
-
-// #if (POLL_ON == POLL_ON_RXPADIFF)
-// uint16_t cspi_diff_rxpa(void)
-//{
-//	static uint16_t /*rwpa_wts,*/ s_mdra_rds = 0;
-//	uint16_t rwpa_wtp, mdra_rdp;
-//	cspi_read_rx_pointers(&rwpa_wtp, &mdra_rdp);
-//	if (!s_mdra_rds)
-//		s_mdra_rds = mdra_rdp;
-//	return wrpadiff(s_mdra_rds, mdra_rdp);
-// }
-// #endif
 
 // ---------------------- cspi -------------------------------------------------------------
 
@@ -212,7 +182,7 @@ void cspi_phycore_on(uint16_t nms)
 
 void cspi_ncr_reset(uint16_t nms)
 {
-	cspi_write_reg(DM9051_NCR, DM9051_NCR_RESET); // iow(NCR_RST);
+	cspi_write_reg(DM9051_NCR, DM9051_NCR_RESET);
 	dm_delay_ms(nms); // dm9051_delay_in_core_process(nms, "_core_reset<>"); //dm_delay_ms(250); //CH-Est-Extra
 }
 
@@ -220,9 +190,9 @@ void cspi_soft_default(void)
 {
 	uint8_t val = MBNDRY_WORD;					   // 16-bit
 	cspi_write_reg(DM9051_MBNDRY, val);			   /* MemBound */
-	cspi_write_reg(DM9051_PPCR, PPCR_PAUSE_COUNT); // iow(PPCR_SETTING);
+	cspi_write_reg(DM9051_PPCR, PPCR_PAUSE_COUNT);
 	cspi_write_reg(DM9051_LMCR, LMCR_MODE1);
-	cspi_write_reg(DM9051_INTR, INTR_ACTIVE_LOW); // interrupt active low
+	cspi_write_reg(DM9051_INTR, INTR_ACTIVE_LOW);
 	identify_irq_stat(ISTAT_LOW_ACTIVE);
 	trace_irq_stat(ISTAT_LOW_ACTIVE);
 }
@@ -246,8 +216,7 @@ void cspi_set_recv(void)
 
 	identify_irq_stat(ISTAT_DM_RCR);
 	trace_irq_stat(ISTAT_DM_RCR);
-	cspi_write_reg(DM9051_RCR, RCR_DEFAULT | RCR_RXEN); // dm9051_fifo_RX_enable();
-														// trace_dm9051_set_recv();
+	cspi_write_reg(DM9051_RCR, RCR_DEFAULT | RCR_RXEN);
 }
 
 void cspi_rx_head(uint8_t *receivedata)
@@ -292,8 +261,9 @@ int env_init_setup(uint16_t *id)
 		return 0;
 	}
 
-	printk("\r\n"); // printf("DM9051 chip rev: %02x\r\n", rev);
+	printk("\r\n");
 	printf("DM9051 found: %04x\r\n", *id);
+	// printf("DM9051 chip rev: %02x\r\n", rev);
 	return 1;
 }
 
@@ -377,8 +347,8 @@ void err_callback(char *explain_str, uint32_t err_code) {
 
 uint16_t env_err_rsthdlr(char *err_explain_str, uint32_t valuecode)
 {
-	//printf(err_explain_str, valuecode);
 	char bff[180];
+	//printf(err_explain_str, valuecode);
 	sprintf(bff, err_explain_str, valuecode);
 	printf("%s", bff);
 	
@@ -420,32 +390,6 @@ uint16_t env_err_rsthdlr3(const char *format, ...)
 	return 0;
 }
 
-#if 0
-uint16_t proc_err_rsthdlr3(char *message)
-{
-	printf(message);
-	
-    env_reset_process(identified_eth_mac());
-    return 0;
-}
-
-void netdev_printk(const char *level, const struct net_device *dev,
-		   const char *format, ...)
-{
-	struct va_format vaf;
-	va_list args;
-
-	va_start(args, format);
-
-	vaf.fmt = format;
-	vaf.va = &args;
-
-	__netdev_printk(level, dev, &vaf);
-
-	va_end(args);
-}
-#endif
-
 // Debug functionality
 #if DM_ETH_DEBUG_MODE
 void debug_diff_rx_pointers(int state, uint16_t rd_now) {
@@ -481,8 +425,6 @@ void debug_diff_rx_pointers(int state, uint16_t rd_now) {
 #endif
 }
 #endif
-
-// ---------------------- xx -------------------------------------------------------------
 
 // ---------------------- xx -------------------------------------------------------------
 
@@ -537,16 +479,6 @@ static const uint8_t *impl_dm9051_init(const uint8_t *adr)
 
 	// Perform reset process
 	return env_reset_process(mac);
-//	//[Testing]
-//	#if 0
-//	env_err_rsthdlr("env_err_rsthdlr to reset_process(mac): %d\r\n", 25);
-//	env_err_rsthdlr1(err_callback, "env_err_rsthdlr1 to reset_process(mac): %d\r\n", 25);
-//	//#if drv_print
-//	//#endif
-//	//	env_err_rsthdlr2(printf("env_err_rsthdlr2 to reset_process(mac): %d\r\n", 25));
-//	env_err_rsthdlr3("env_err_rsthdlr3 to reset_process(mac): %d\r\n", 25);
-//	return mac;
-//	#endif
 }
 
 static void cspi_core_reset(void)
@@ -559,7 +491,7 @@ static void cspi_core_reset(void)
 static const uint8_t *cspi_dm_start1(const uint8_t *adr)
 {
 	#ifdef DM9051_DRIVER_INTERRUPT
-	cint_enable_mcu_irq(); // impl_enable_mcu_irq();
+	cint_enable_mcu_irq();
 	#endif
 	cspi_set_par(adr);
 	cspi_rx_mode();

@@ -1,4 +1,4 @@
-/* dbg_opts.h / (identify_opts.h)
+/* dbg_opts.h
  * 
  * Top config
  * Middle settings

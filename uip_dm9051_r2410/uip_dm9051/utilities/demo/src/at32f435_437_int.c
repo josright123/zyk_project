@@ -147,15 +147,11 @@ void DebugMon_Handler(void)
 #if 0
 //void EMAC_IRQHandler(void)
 //{
-//#undef printf
-//#define printf(fmt, ...) TASK_DM9051_DEBUGF(TASK_SEMAPHORE_ETHERNETIF_ON, SEMA_OFF, "[INT]", (fmt, ##__VA_ARGS__))
 ////  while(emac_received_packet_size_get() != 0)
 ////  {
-//	printf("---------------- EMAC_IRQHandler()->lwip_pkt_handle() ----------------\r\n");
-//    lwip_pkt_handle();
+//		printf("---------------- EMAC_IRQHandler()->lwip_pkt_handle() ----------------\r\n");
+//    	lwip_pkt_handle();
 ////  }
-//#undef printf
-//#define printf(fmt, ...) DM9051_DEBUGF(DM9051_TRACE_DEBUG_OFF, (fmt, ##__VA_ARGS__))
 //}
 #endif
 

@@ -1,12 +1,18 @@
+/*
+ * eth or ap
+ */
+
 #if 0
-	#include "control/conf.h"
-	//#include "control/drv/conf_core.h"
+	#include "control/conf.h" //#include "control/drv/conf_core.h"
 	#include "control/drv/dm9051_eth_debug.h"
 #else
-	#include "control/conf.h"
-	//#include "control/ap/conf_ap.h"
+	#include "control/conf.h" //#include "control/ap/conf_ap.h"
 	#include "control/ap/dm9051_ap_debug.h"
 #endif
+
+/*
+ * global
+ */
 
 #define DM_TYPE 1
 #include "dm_identify_types_define.h"
@@ -52,7 +58,6 @@ const struct eth_node_t node_candidate[1] = {
 	   */
 };
 
-//---------------------------------------
 /*
  * dbg_def info-function
  */
@@ -76,7 +81,6 @@ unsigned long dispc_int_active = 0; //, dispc_int_active_saved = 0;
 void inc_interrupt_count(void)
 {
 	dispc_int_active++;
-	// at32_led_toggle(LED2);
 }
 
 unsigned long get_interrupt_count(void)
@@ -111,11 +115,11 @@ static int room_printf_space_init(char *lineroom, size_t tlen)
 
 	char textspace[16];
 	int n = sprintf(textspace, "rxlen %4d", tlen);
-#if 1
+
 	offset = room_printf_space(lineroom, offset, n);
 	offset += sprintf(lineroom + offset, " %s", textspace);
 	printf("%s\r\n", lineroom);
-#endif
+
 	return n;
 }
 
@@ -123,14 +127,13 @@ static int room_printf_rxlen_head(char *lineroom, size_t tlen, int nspc)
 {
 	if (!nspc)
 		nspc = room_printf_space_init(lineroom, tlen);
-#if 1
+
 	room_printf_space(lineroom, 0, nspc);
 	return nspc;
-#endif
 }
 
 static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
-							 size_t tlen, int rowsize, const void *buf, int seg_start, size_t len, /*int useflg*/ int cast_lf) //, int must, int dgroup
+							 size_t tlen, int rowsize, const void *buf, int seg_start, size_t len, int cast_lf)
 {
 	char lineroombuff[180];
 	int print_linefeed_flag;
@@ -139,18 +142,14 @@ static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 	int nspace = 0;
 
 	(void)head_space;
-	//(void) tlen;
 
 	si = seg_start;
 	se = seg_start + len;
 	for (i = si; i < se; i += rowsize)
 	{
-		// unsigned
 		char linebuf[(12 * 3) + (3 * 16) + 1 + 32]; // here!
 
-		//.nspace = printf_rxlen_head(tlen, nspace);
 		nspace = room_printf_rxlen_head(lineroombuff, tlen, nspace);
-
 		linelen = kkmin(remaining, rowsize);
 		remaining -= rowsize;
 		do
@@ -169,16 +168,10 @@ static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 			}
 		} while (0);
 
-#if 0
-		hs = head_space;
-		while(hs--)
-#endif
-		//printf(" ");
 		nspace += sprintf(lineroombuff+nspace, " ");
 
 		if (prefix_str)
 		{
-			//printf("(%s) %.3x %s", prefix_str, i, linebuf);
 			nspace += sprintf(lineroombuff+nspace, "(%s) %.3x %s", prefix_str, i, linebuf);
 			while (titledn)
 			{
@@ -188,20 +181,18 @@ static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 		}
 		else
 		{
-			//printf("(dm9 xfer) %.3x %s", i, linebuf);
 			nspace += sprintf(lineroombuff+nspace, "(dm9 xfer) %.3x %s", i, linebuf);
 		}
 
 		print_linefeed_flag = 0;
 		if ((i + rowsize) < se)
-			print_linefeed_flag = 1; //printf("\r\n");
+			print_linefeed_flag = 1;
 		else
 		{
 			if (cast_lf)
-				print_linefeed_flag = 1; //printf("\r\n");
+				print_linefeed_flag = 1;
 #if 0
 				if (IS_UDP) {
-					//ptr
 #if 0
 					size_t ulen = tlen; // larger for with 4-bytes CRC
 					ulen = UIP_LLH_LEN;
@@ -237,7 +228,6 @@ static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 				}
 #endif
 		}
-		
 		if (print_linefeed_flag)
 			printf("%s\r\n", lineroombuff);
 		else

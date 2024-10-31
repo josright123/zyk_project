@@ -29,7 +29,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "control/cdef.h"
+//#include "control/cdef.h"
 #include "control/drv/conf_core.h"
 #include "control/ap/conf_ap.h"
 #include "control/ap/dm9051_ap_debug.h"
@@ -124,8 +124,8 @@ int main(void)
 void main_tick_handler(void)
 {
 	//mainTicks++;
-	dm9051_boards_heartbeat_tick(); //dm9051_tick_handler();
-	xPortSysTickHandler(); //SysTick_Handler_from_main(); ////xPortSysTickHandler(); 
+	dm9051_boards_heartbeat_tick();
+	xPortSysTickHandler(); //SysTick_Handler_from_main(); //xPortSysTickHandler(); 
 }
 
 //void task_periodic_polling(void)

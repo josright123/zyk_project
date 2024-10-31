@@ -26,7 +26,7 @@ uint8_t *DM_ETH_Mask_Configured(void);
 void DM_Eth_ReadRegsInfo(uint8_t *stat);
 int DM_Eth_Regs_Info_Linkup(uint8_t *stat);
 //void DM_Eth_Input_HexDumpReset(uint8_t *stat);
-extern int flgSemaphore_r;
+extern volatile int flgSemaphore_r;
 
 #if 0
 //#if 0

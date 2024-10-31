@@ -5,12 +5,6 @@
 #define __DM9051_LW_DRIVER_DEF_H
 #include "control/dm9051opts.h"
 
-//[0]
-enum sema_tag_t {
-	SEMA_OFF = 0,
-	SEMA_ON,
-};
-
 //[1]
 #ifdef DRV_INTR_MODE
 #define	DM9051_DRIVER_INTERRUPT
@@ -26,15 +20,6 @@ enum sema_tag_t {
 #else
 #define INTERRUPT_HANDLER_SUPPLIMENT_RECV				1 //application fixed to 1.
 #endif
-
-//[1.1]
-typedef enum
-{
-  DM_FALSE = 0,
-  DM_TRUE = !DM_FALSE,
-} enable_t;
-
-#define DM_UNUSED_ARG(x) (void)x
 
 //#define DM9051_HEXDUMP_RESET(expression, handler) do { if ((expression)) { \
 //	(handler);}} while(0)

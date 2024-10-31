@@ -84,7 +84,13 @@ int main(void)
   system_clock_config();
   uart_print_init(115200);
   
+#if 1
+  cqpio_write(diag_gpio_port(), diag_gpio_pin(), diag_gpio_lo());
+#endif
   printkey("\r\n\r\n\r\n/ZYK_project /R2410 [uip_dm9051_r2410] %s\r\n", __DATE__);
+#if 1
+  cqpio_write(diag_gpio_port(), diag_gpio_pin(), diag_gpio_hi());
+#endif
   //tasks_dm9051_debug_init();
   
 #if 0 //[TEST]

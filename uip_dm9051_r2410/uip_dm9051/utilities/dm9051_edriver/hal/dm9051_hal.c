@@ -20,6 +20,7 @@ void dm9051_hal_tick(void);
 
 #if defined(_DLW_AT32F437xx)
 /* ------------------------------- AT32F437 configuration ----------------------------------------- */
+// GPIO Configuration Structure
 struct gpio_mux_t
 {
 	gpio_type *port;
@@ -73,14 +74,27 @@ static /*const*/ struct interrupt_config_t spi_cintr[1] = {
 		EXINT9_5_IRQn,
 	}};
 
+const struct gpio_config_t gpio_out[1] = {
+		{GPIOA, GPIO_PINS_15, (gpio_pins_source_type)0, (gpio_mux_sel_type)0, CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_OUTPUT},
+};
+const struct gpio_config_t gpio_in[1] = {
+		{GPIOC, GPIO_PINS_7, (gpio_pins_source_type)0, (gpio_mux_sel_type)0, CRM_GPIOC_PERIPH_CLOCK, GPIO_MODE_INPUT},
+};
+
 #define spi_number() spi_cset[0].spi
 #define cs_gpio_port() spi_cset[0].cs.port // #define pin_cs() spi_cset[0].cs
 #define cs_gpio_pin() spi_cset[0].cs.pin
 #define nvic_irqn() spi_cintr[0].irqn
 #define nvic_prio() spi_cintr[0].priority_group
 
+//#define diag_gpio_port() gpio_out[0].port //calling use
+//#define diag_gpio_pin() gpio_out[0].pin //calling use
+//#define diag_gpio_lo() RESET //calling use
+//#define diag_gpio_hi() SET //calling use
+
 static void spi_config_init(const struct spi_config_t *config);
 static void interrupt_config_init(const struct interrupt_config_t *config);
+static void gpio_config_init(void); //(const struct gpio_xxx_t *config, int n);
 
 void dm9051_hal_init(void) //for AT32F437
 {
@@ -91,31 +105,15 @@ void dm9051_hal_init(void) //for AT32F437
 	/* intr_add();
 	 */
 	interrupt_config_init(spi_cintr);
+	
+	/* gpio_add();
+	 */
+	gpio_config_init(); //(gpio_cset, sizeof(gpio_cset)/sizeof(struct gpio_xxx_t));
 }
 
 uint32_t dm9051_hal_irqline(void)
 {
 	return spi_cintr[0].line;
-}
-
-static void configure_cspi(const struct spi_config_t *ss)
-{
-	spi_init_type spi_init_struct;
-
-	crm_periph_clock_enable(ss->clock, TRUE);
-	spi_default_para_init(&spi_init_struct);
-	spi_init_struct.transmission_mode = SPI_TRANSMIT_FULL_DUPLEX;
-	spi_init_struct.master_slave_mode = SPI_MODE_MASTER;
-	spi_init_struct.mclk_freq_division = SPI_MCLK_DIV_8;
-	// spi_init_struct.first_bit_transmission = SPI_FIRST_BIT_LSB;
-	spi_init_struct.first_bit_transmission = SPI_FIRST_BIT_MSB;
-	spi_init_struct.frame_bit_num = SPI_FRAME_8BIT;
-	spi_init_struct.clock_polarity = SPI_CLOCK_POLARITY_LOW;
-	// spi_init_struct.clock_phase = SPI_CLOCK_PHASE_2EDGE;
-	spi_init_struct.clock_phase = SPI_CLOCK_PHASE_1EDGE;
-	spi_init_struct.cs_mode_selection = SPI_CS_SOFTWARE_MODE;
-	spi_init(ss->spi, &spi_init_struct);
-	spi_enable(ss->spi, TRUE);
 }
 
 static void configure_cpin(const struct gpio_mux_t *ps, gpio_pull_type gppull)
@@ -136,6 +134,46 @@ static void configure_cpin(const struct gpio_mux_t *ps, gpio_pull_type gppull)
 	if (ps->mode == GPIO_MODE_MUX)
 		gpio_pin_mux_config(ps->port, ps->source, ps->mux);
 	#endif
+}
+
+static void configure_cgpio(const struct gpio_config_t *ps, gpio_pull_type gppull)
+{
+	gpio_init_type gpio_init_struct;
+
+	/* enable the gpio clock
+	 */
+	crm_periph_clock_enable(ps->clock, TRUE);
+	gpio_default_para_init(&gpio_init_struct);
+	gpio_init_struct.gpio_out_type = GPIO_OUTPUT_PUSH_PULL;
+	gpio_init_struct.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
+	gpio_init_struct.gpio_mode = ps->mode;
+	gpio_init_struct.gpio_pull = gppull; // GPIO_PULL_DOWN; GPIO_PULL_UP; //GPIO_PULL_NONE;
+	gpio_init_struct.gpio_pins = ps->pin;
+	gpio_init(ps->port, &gpio_init_struct);
+	#if defined(_DLW_AT32F437xx)
+	if (ps->mode == GPIO_MODE_MUX)
+		gpio_pin_mux_config(ps->port, ps->source, ps->mux);
+	#endif
+}
+
+static void configure_cspi(const struct spi_config_t *ss)
+{
+	spi_init_type spi_init_struct;
+
+	crm_periph_clock_enable(ss->clock, TRUE);
+	spi_default_para_init(&spi_init_struct);
+	spi_init_struct.transmission_mode = SPI_TRANSMIT_FULL_DUPLEX;
+	spi_init_struct.master_slave_mode = SPI_MODE_MASTER;
+	spi_init_struct.mclk_freq_division = SPI_MCLK_DIV_8;
+	// spi_init_struct.first_bit_transmission = SPI_FIRST_BIT_LSB;
+	spi_init_struct.first_bit_transmission = SPI_FIRST_BIT_MSB;
+	spi_init_struct.frame_bit_num = SPI_FRAME_8BIT;
+	spi_init_struct.clock_polarity = SPI_CLOCK_POLARITY_LOW;
+	// spi_init_struct.clock_phase = SPI_CLOCK_PHASE_2EDGE;
+	spi_init_struct.clock_phase = SPI_CLOCK_PHASE_1EDGE;
+	spi_init_struct.cs_mode_selection = SPI_CS_SOFTWARE_MODE;
+	spi_init(ss->spi, &spi_init_struct);
+	spi_enable(ss->spi, TRUE);
 }
 
 // #if 1
@@ -197,6 +235,15 @@ static void interrupt_config_init(const struct interrupt_config_t *config)
 	#endif
 }
 
+static void gpio_config_init(void) //(const struct gpio_xxx_t *config, int n)
+{
+//	int i;
+//	for (i = 0; i < n; i++) {
+//	}
+	configure_cgpio(gpio_out, GPIO_PULL_NONE); //configure_cpin()
+	configure_cgpio(gpio_in, GPIO_PULL_UP); //configure_cpin()
+}
+
 //[hw]
 //void cint_disable_mcu_irq_AT(void);
 //void cint_enable_mcu_irq_AT(void);
@@ -240,6 +287,38 @@ uint8_t AT_spi_exc_data(uint8_t byte)
 	while (spi_i2s_flag_get(spi_number(), SPI_I2S_RDBF_FLAG) == RESET)
 		;
 	return (uint8_t)spi_i2s_data_receive(spi_number());
+}
+
+void AT_gpio_cs_lo(void)
+{
+	cqpio_write(diag_gpio_port(), diag_gpio_pin(), diag_gpio_lo());
+}
+void AT_gpio_cs_hi(void)
+{
+	cqpio_write(diag_gpio_port(), diag_gpio_pin(), diag_gpio_hi());
+}
+
+void AT_gpio_out(gpio_type *gpioport, uint16_t gpiopin, flag_status level)
+{
+	if (!level)
+		gpio_bits_reset(gpioport, gpiopin);
+	else
+		gpio_bits_set(gpioport, gpiopin);
+}
+
+flag_status AT_gpio_in(gpio_type *gpioport, uint16_t gpiopin)
+{
+	return gpio_input_data_bit_read(gpioport, gpiopin);
+}
+
+void cqpio_write(gpio_type *port, uint16_t pin, flag_status lev)
+{
+	dm9051if_gpio_write(port, pin, lev);
+}
+
+flag_status cqpio_read(gpio_type *port, uint16_t pin)
+{
+	return dm9051if_gpio_read(port, pin);
 }
 
 // ---------------------- data_impl -------------------------------------------------------------

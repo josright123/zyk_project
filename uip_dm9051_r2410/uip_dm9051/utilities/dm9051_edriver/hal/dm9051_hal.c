@@ -9,9 +9,9 @@
  *	for debugging purposes.
  **************************************************************************
  */
-#include "config/conf.h"
-#include "config/conf_core.h"
-#include "debug/dm9051_eth_debug.h"
+#include "control/conf.h"
+#include "control/drv/conf_core.h"
+#include "control/drv/dm9051_eth_debug.h"
 
 #define	dm9051_hal_irqline HAL_IRQLine
 

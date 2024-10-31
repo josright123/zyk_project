@@ -1,11 +1,11 @@
-#include "config/conf.h"
-
 #if 0
-	//#include "config/conf_core.h"
-	#include "debug/dm9051_eth_debug.h"
+	#include "control/conf.h"
+	//#include "control/drv/conf_core.h"
+	#include "control/drv/dm9051_eth_debug.h"
 #else
-	//#include "config/conf_ap.h"
-	#include "debug/dm9051_ap_debug.h"
+	#include "control/conf.h"
+	//#include "control/ap/conf_ap.h"
+	#include "control/ap/dm9051_ap_debug.h"
 #endif
 
 #define DM_TYPE 1

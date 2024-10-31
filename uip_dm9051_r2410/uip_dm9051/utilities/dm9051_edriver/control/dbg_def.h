@@ -2,7 +2,7 @@
 #define __DM9051_DEBUG_H
 
 #include <stdio.h>
-#include "debug/dbg_opts.h"
+#include "control/dbg_opts.h"
 
 //ap
 #define	PRINT_SEMA	SEMA_OFF

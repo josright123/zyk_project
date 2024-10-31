@@ -38,9 +38,9 @@
 #include <string.h>
 #include <stdlib.h> /* strtol() */
 
-#include "config/conf.h"
-#include "config/conf_core.h"
-#include "debug/dm9051_eth_debug.h"
+#include "control/conf.h"
+#include "control/drv/conf_core.h"
+#include "control/drv/dm9051_eth_debug.h"
 
 // Constants and Definitions
 #define PBUF_POOL_BUFSIZE (1514 + 4) //.2000	//.2000(tested)

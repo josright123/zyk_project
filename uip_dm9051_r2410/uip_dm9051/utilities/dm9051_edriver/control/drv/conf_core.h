@@ -7,7 +7,7 @@
 //#include "cdef.h"
 
 /* domain & common */
-#include "conf.h"
+#include "control/conf.h"
 
 /* core ident api */
 #include "utils/dm_identify_api.h"

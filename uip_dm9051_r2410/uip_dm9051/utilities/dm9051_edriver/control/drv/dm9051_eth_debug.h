@@ -2,8 +2,8 @@
 #define __DM9051_ETH_DEBUG_H
 
 //#include "print_eth_def.h"
-#include "dbg_opts.h"
-#include "dbg_def.h"
+#include "control/dbg_opts.h"
+#include "control/dbg_def.h"
 
 //#if !qprint //total
 //	#define TASK_DM9051_DEBUGF(headstr, message)

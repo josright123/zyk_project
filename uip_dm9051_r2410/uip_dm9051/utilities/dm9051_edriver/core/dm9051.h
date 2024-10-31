@@ -1,7 +1,7 @@
 /* define to prevent recursive inclusion -------------------------------------*/
 #ifndef __DM9051_H
 #define __DM9051_H
-#include "config/dm9051opts.h"
+#include "control/dm9051opts.h"
 //#include "dm9051_hal.h"
 
 #ifdef __cplusplus

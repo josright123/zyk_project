@@ -1,6 +1,6 @@
 #ifndef __DM_IDEN_API_H__
 #define __DM_IDEN_API_H__
-#include "../config/dm9051opts.h"
+#include "control/dm9051opts.h"
 
 void inc_interrupt_count(void); //inc_task_tryint(void);
 unsigned long get_interrupt_count(void);

@@ -29,10 +29,10 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "config/cdef.h"
-#include "config/conf_core.h"
-#include "config/conf_ap.h"
-#include "debug/dm9051_ap_debug.h"
+#include "control/cdef.h"
+#include "control/drv/conf_core.h"
+#include "control/ap/conf_ap.h"
+#include "control/ap/dm9051_ap_debug.h"
 
 #if freeRTOS
 #error "freeRTOS is CHECKED defined, WRONG CONDITION."

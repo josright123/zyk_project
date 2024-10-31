@@ -3,8 +3,8 @@
 #define __DM9051_AP_DEBUG_H
 
 //#include "print_ap_def.h"
-#include "dbg_opts.h"
-#include "dbg_def.h"
+#include "control/dbg_opts.h"
+#include "control/dbg_def.h"
 
 #if ap_print
 #define printf(fmt, ...) do { \

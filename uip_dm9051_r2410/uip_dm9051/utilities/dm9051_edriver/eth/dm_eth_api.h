@@ -1,6 +1,6 @@
 #ifndef __DM_ETH_H__
 #define __DM_ETH_H__
-#include "../config/dm9051opts.h"
+#include "control/dm9051opts.h"
 
 #if ETHERNET_INTERRUPT_MODE
 int DM_ETH_GetInterruptEvent(void);

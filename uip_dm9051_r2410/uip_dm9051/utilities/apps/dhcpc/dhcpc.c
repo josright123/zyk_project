@@ -40,9 +40,9 @@
 #include "pt.h"
 #include "dhcpc.h"
 
-#include "config/cdef.h"
-#include "config/conf_ap.h"
-#include "debug/dm9051_ap_debug.h"
+#include "control/cdef.h"
+#include "control/ap/conf_ap.h"
+#include "control/ap/dm9051_ap_debug.h"
 
 #if defined PORT_APP_MAPPER
     bool dhcpc_running = 0;

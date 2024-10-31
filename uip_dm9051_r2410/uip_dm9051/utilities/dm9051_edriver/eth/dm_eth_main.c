@@ -10,18 +10,9 @@
  * and potentially performance.
  * Last updated: 2024-09-05
  */
-#include "config/conf.h"
-#include "config/conf_core.h"
-
-#if 1
-#include "debug/dm9051_eth_debug.h"
-//#define	printkr(fmt, ...) DM9051_DEBUGKR((fmt, ##__VA_ARGS__))
-//#define	printkr(fmt, ...) TASK_DM9051_DEBUGK((fmt, ##__VA_ARGS__))
-//#define	printk(fmt, ...) TASK_DM9051_DEBUGK((fmt, ##__VA_ARGS__
-#else
-//#include "debug/dbg_def.h"
-#define printkey printf
-#endif
+#include "control/conf.h"
+#include "control/drv/conf_core.h"
+#include "control/drv/dm9051_eth_debug.h"
 
 //#if freeRTOS
 //#warning "freeRTOS is defined"

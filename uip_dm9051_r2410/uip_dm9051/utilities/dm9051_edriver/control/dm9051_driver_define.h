@@ -3,7 +3,7 @@
  */
 #ifndef __DM9051_LW_DRIVER_DEF_H
 #define __DM9051_LW_DRIVER_DEF_H
-#include "../config/dm9051opts.h"
+#include "control/dm9051opts.h"
 
 //[0]
 enum sema_tag_t {

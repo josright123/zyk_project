@@ -42,15 +42,6 @@ struct spi_config_t
 struct interrupt_config_t
 {
 	struct gpio_mux_t gpio;
-	//struct
-	//{
-	//} scfg;
-	//struct
-	//{
-	//} exti;
-	//struct
-	//{
-	//} nvic;
 	crm_periph_clock_type scfgclock;
 	crm_periph_clock_type clock;
 	scfg_port_source_type port_source;
@@ -206,12 +197,6 @@ static void interrupt_config_init(const struct interrupt_config_t *config)
 	#endif
 }
 
-/* IRQ handler support */
-//int cint_exint9_5_handler_AT(void)
-//{
-//}
-
-// ---------------------- hw_impl -------------------------------------------------------------
 //[hw]
 //void cint_disable_mcu_irq_AT(void);
 //void cint_enable_mcu_irq_AT(void);
@@ -219,6 +204,7 @@ static void interrupt_config_init(const struct interrupt_config_t *config)
 //void AT_spi_cs_lo(void);
 //void AT_spi_cs_hi(void);
 //uint8_t AT_spi_exc_data(uint8_t byte);
+// ---------------------- hw_impl -------------------------------------------------------------
 
 // ... AT32F437xx specific interrupt enable/disable functions ...
 
@@ -302,27 +288,6 @@ void AT_spi_mem_write(uint8_t *buf, uint16_t len)
 }
 #endif //_DLW_AT32F437xx
 
-//#if defined(_DLW_AT32F437xx)
-//void AT_spi_datas_read(uint8_t reg, uint8_t *buf, uint16_t len)
-//{
-//	int i;
-//	for (i = 0; i < len; i++, reg++)
-//	{
-//		dm9051_spi_command_write(reg | OPC_REG_R);
-//		buf[i] = dm9051_spi_dummy_read();
-//	}
-//}
-//void AT_spi_datas_write(uint8_t reg, uint8_t *buf, uint16_t len)
-//{
-//	int i;
-//	for (i = 0; i < len; i++, reg++)
-//	{
-//		dm9051_spi_command_write(reg | OPC_REG_W);
-//		dm9051_spi_command_write(buf[i]);
-//	}
-//}
-//#endif
-
 /* dm9051_Hw_common implementation
  * source code.
  */
@@ -363,7 +328,6 @@ void cspi_read_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode)
 //void cspi_write_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode)
 //{
 //	int i;
-
 //	if (csmode == CS_LONG)
 //	{
 //		dm9051if_cs_lo();

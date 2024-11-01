@@ -29,15 +29,17 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "gpio_hal.h"
+
 //#include "control/cdef.h"
 #include "control/drv/conf_core.h"
 #include "control/ap/conf_ap.h"
 #include "control/ap/dm9051_ap_debug.h"
 
 #if freeRTOS
-#error "freeRTOS is CHECKED defined, WRONG CONDITION."
+#error "freeRTOS check defined, WRONG CONDITION!"
 #else
-#warning "freeRTOS is EXACTLY NOT NEED defined"
+#warning "freeRTOS is exactly NOT NEED defined"
 #endif
 
 #define NET_TASK_PRIO           		2 //FOR 'net_task'
@@ -84,28 +86,14 @@ int main(void)
   system_clock_config();
   uart_print_init(115200);
   
-#if 1
-  cqpio_write(diag_gpio_port(), diag_gpio_pin(), diag_gpio_lo());
-#endif
+	#if 1
+	//gpio_boards_initialize();
+  //gpio_boards_write(diag_gpio_port(), diag_gpio_pin(), diag_gpio_lo());
+	#endif
   printkey("\r\n\r\n\r\n/ZYK_project /R2410 [uip_dm9051_r2410] %s\r\n", __DATE__);
-#if 1
-  cqpio_write(diag_gpio_port(), diag_gpio_pin(), diag_gpio_hi());
-#endif
-  //tasks_dm9051_debug_init();
-  
-#if 0 //[TEST]
-//  vuIP_Task(NULL);
-//  do {
-//	const uint8_t *mac;
-//		//mac = test_init();
-//		//mac = test_init(NULL);
-//		//mac = test_init1(NULL);
-//		//mac = dm9051_init1(NULL);
-//		//mac = _dm9051_init(NULL);
-//		
-//		printf("mac %x\r\n", mac[0]);
-//  } while(0);
-#else
+	#if 1
+  //gpio_boards_write(diag_gpio_port(), diag_gpio_pin(), diag_gpio_hi());
+	#endif
 
   /* enter critical */
   taskENTER_CRITICAL(); 
@@ -117,7 +105,6 @@ int main(void)
               
   /* start scheduler */            
   vTaskStartScheduler(); 
-#endif
 }
 
 //uint32_t mainTicks = 0;

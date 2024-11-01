@@ -10,7 +10,6 @@
  * and potentially performance.
  * Last updated: 2024-09-05
  */
-//#include "control/conf.h"
 #include "control/drv/conf_core.h"
 #include "control/drv/dm9051_eth_debug.h"
 

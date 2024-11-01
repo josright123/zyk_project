@@ -9,9 +9,9 @@
  *	for debugging purposes.
  **************************************************************************
  */
-//#include "control/conf.h"
 #include "control/drv/conf_core.h"
 #include "control/drv/dm9051_eth_debug.h"
+#include "gpio_hal.h"
 
 #define	dm9051_hal_irqline HAL_IRQLine
 
@@ -20,7 +20,6 @@ void dm9051_hal_tick(void);
 
 #if defined(_DLW_AT32F437xx)
 /* ------------------------------- AT32F437 configuration ----------------------------------------- */
-// GPIO Configuration Structure
 struct gpio_mux_t
 {
 	gpio_type *port;
@@ -36,13 +35,13 @@ struct spi_config_t
 {
 	spi_type *spi;
 	crm_periph_clock_type clock;
-	struct gpio_mux_t sck, miso, mosi, cs;
+	struct gpio_mux_t sck, miso, mosi; /* cs */
 };
 
 // Interrupt Configuration Structure
 struct interrupt_config_t
 {
-	struct gpio_mux_t gpio;
+	/*struct gpio_mux_t gpio; */
 	crm_periph_clock_type scfgclock;
 	crm_periph_clock_type clock;
 	scfg_port_source_type port_source;
@@ -59,12 +58,10 @@ static const struct spi_config_t spi_cset[1] = {
 		{GPIOA, GPIO_PINS_5, GPIO_PINS_SOURCE5, GPIO_MUX_5, CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_MUX},
 		{GPIOA, GPIO_PINS_6, GPIO_PINS_SOURCE6, GPIO_MUX_5, CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_MUX},
 		{GPIOA, GPIO_PINS_7, GPIO_PINS_SOURCE7, GPIO_MUX_5, CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_MUX},
-		{GPIOA, GPIO_PINS_15, (gpio_pins_source_type)0, (gpio_mux_sel_type)0, CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_OUTPUT},
 	}};
 
-static /*const*/ struct interrupt_config_t spi_cintr[1] = {
+static const struct interrupt_config_t intr_cset[1] = {
 	{
-		{GPIOC, GPIO_PINS_7, (gpio_pins_source_type)0, (gpio_mux_sel_type)0, CRM_GPIOC_PERIPH_CLOCK, GPIO_MODE_INPUT},
 		CRM_SCFG_PERIPH_CLOCK,
 		CRM_GPIOC_PERIPH_CLOCK,
 		SCFG_PORT_SOURCE_GPIOC,
@@ -74,86 +71,34 @@ static /*const*/ struct interrupt_config_t spi_cintr[1] = {
 		EXINT9_5_IRQn,
 	}};
 
-const struct gpio_config_t gpio_out[1] = {
-		{GPIOA, GPIO_PINS_15, (gpio_pins_source_type)0, (gpio_mux_sel_type)0, CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_OUTPUT},
-};
-const struct gpio_config_t gpio_in[1] = {
-		{GPIOC, GPIO_PINS_7, (gpio_pins_source_type)0, (gpio_mux_sel_type)0, CRM_GPIOC_PERIPH_CLOCK, GPIO_MODE_INPUT},
-};
-
+#define spi_set() &spi_cset[0]
 #define spi_number() spi_cset[0].spi
-#define cs_gpio_port() spi_cset[0].cs.port // #define pin_cs() spi_cset[0].cs
-#define cs_gpio_pin() spi_cset[0].cs.pin
-#define nvic_irqn() spi_cintr[0].irqn
-#define nvic_prio() spi_cintr[0].priority_group
-
-//#define diag_gpio_port() gpio_out[0].port //calling use
-//#define diag_gpio_pin() gpio_out[0].pin //calling use
-//#define diag_gpio_lo() RESET //calling use
-//#define diag_gpio_hi() SET //calling use
+#define intr_set() &intr_cset[0]
+#define irq_line() intr_cset[0].line
+#define nvic_irqn() intr_cset[0].irqn
+#define nvic_prio() intr_cset[0].priority_group
 
 static void spi_config_init(const struct spi_config_t *config);
 static void interrupt_config_init(const struct interrupt_config_t *config);
-static void gpio_config_init(void); //(const struct gpio_xxx_t *config, int n);
 
 void dm9051_hal_init(void) //for AT32F437
 {
+	/* purpose: seperating cs_gpio_add, and intr_gpio_add
+	 */
+	dm9051if_gpios_init(); //internal vs gpio_boards_initialize()
+	
 	/* spi_add();
 	 */
-	spi_config_init(spi_cset);
+	spi_config_init(spi_set());
 
 	/* intr_add();
 	 */
-	interrupt_config_init(spi_cintr);
-	
-	/* gpio_add();
-	 */
-	gpio_config_init(); //(gpio_cset, sizeof(gpio_cset)/sizeof(struct gpio_xxx_t));
+	interrupt_config_init(intr_set());
 }
 
 uint32_t dm9051_hal_irqline(void)
 {
-	return spi_cintr[0].line;
-}
-
-static void configure_cpin(const struct gpio_mux_t *ps, gpio_pull_type gppull)
-{
-	gpio_init_type gpio_init_struct;
-
-	/* enable the gpio clock
-	 */
-	crm_periph_clock_enable(ps->clock, TRUE);
-	gpio_default_para_init(&gpio_init_struct);
-	gpio_init_struct.gpio_out_type = GPIO_OUTPUT_PUSH_PULL;
-	gpio_init_struct.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
-	gpio_init_struct.gpio_mode = ps->mode;
-	gpio_init_struct.gpio_pull = gppull; // GPIO_PULL_DOWN; GPIO_PULL_UP; //GPIO_PULL_NONE;
-	gpio_init_struct.gpio_pins = ps->pin;
-	gpio_init(ps->port, &gpio_init_struct);
-	#if defined(_DLW_AT32F437xx)
-	if (ps->mode == GPIO_MODE_MUX)
-		gpio_pin_mux_config(ps->port, ps->source, ps->mux);
-	#endif
-}
-
-static void configure_cgpio(const struct gpio_config_t *ps, gpio_pull_type gppull)
-{
-	gpio_init_type gpio_init_struct;
-
-	/* enable the gpio clock
-	 */
-	crm_periph_clock_enable(ps->clock, TRUE);
-	gpio_default_para_init(&gpio_init_struct);
-	gpio_init_struct.gpio_out_type = GPIO_OUTPUT_PUSH_PULL;
-	gpio_init_struct.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
-	gpio_init_struct.gpio_mode = ps->mode;
-	gpio_init_struct.gpio_pull = gppull; // GPIO_PULL_DOWN; GPIO_PULL_UP; //GPIO_PULL_NONE;
-	gpio_init_struct.gpio_pins = ps->pin;
-	gpio_init(ps->port, &gpio_init_struct);
-	#if defined(_DLW_AT32F437xx)
-	if (ps->mode == GPIO_MODE_MUX)
-		gpio_pin_mux_config(ps->port, ps->source, ps->mux);
-	#endif
+	return irq_line();
 }
 
 static void configure_cspi(const struct spi_config_t *ss)
@@ -176,22 +121,30 @@ static void configure_cspi(const struct spi_config_t *ss)
 	spi_enable(ss->spi, TRUE);
 }
 
-// #if 1
-//	=configure_xirq_pin(&spi_intr[0].gpio, GPIO_PULL_UP);
-//	=configure_xirq_body(&spi_intr[0], EXINT_TRIGGER_FALLING_EDGE);
-static void configure_cirq(const struct interrupt_config_t *cf, gpio_pull_type gppull,
-						   exint_polarity_config_type polarity)
+static void configure_cpin(const struct gpio_mux_t *ps, gpio_pull_type gppull)
 {
-	exint_init_type exint_init_struct;
+	gpio_init_type gpio_init_struct;
 
 	/* enable the gpio clock
 	 */
+	crm_periph_clock_enable(ps->clock, TRUE);
+	gpio_default_para_init(&gpio_init_struct);
+	gpio_init_struct.gpio_out_type = GPIO_OUTPUT_PUSH_PULL;
+	gpio_init_struct.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
+	gpio_init_struct.gpio_mode = ps->mode;
+	gpio_init_struct.gpio_pull = gppull; // GPIO_PULL_DOWN; GPIO_PULL_UP; //GPIO_PULL_NONE;
+	gpio_init_struct.gpio_pins = ps->pin;
+	gpio_init(ps->port, &gpio_init_struct);
+	#if defined(_DLW_AT32F437xx)
+	if (ps->mode == GPIO_MODE_MUX)
+		gpio_pin_mux_config(ps->port, ps->source, ps->mux);
+	#endif
+}
 
-	// [Not all devices essential]
-	configure_cpin(&cf->gpio, gppull);
-
-	// [Not all devices essential]
-	// log_intr_qpio_pin_config();
+static void configure_cirq(const struct interrupt_config_t *cf,
+						   exint_polarity_config_type polarity)
+{
+	exint_init_type exint_init_struct;
 
 	/* config irq
 	 */
@@ -215,7 +168,6 @@ static void configure_cirq(const struct interrupt_config_t *cf, gpio_pull_type g
 	identify_irq_stat(ISTAT_LOW_TRIGGER);
 	trace_irq_stat(ISTAT_LOW_TRIGGER);
 }
-// #endif
 
 // Static function prototypes
 static void spi_config_init(const struct spi_config_t *config)
@@ -224,32 +176,20 @@ static void spi_config_init(const struct spi_config_t *config)
 	configure_cpin(&config->sck, GPIO_PULL_NONE);
 	configure_cpin(&config->miso, GPIO_PULL_NONE);
 	configure_cpin(&config->mosi, GPIO_PULL_NONE);
-	configure_cpin(&config->cs, GPIO_PULL_NONE);
 }
 
 // Static function prototypes
 static void interrupt_config_init(const struct interrupt_config_t *config)
 {
 	#ifdef DM9051_DRIVER_INTERRUPT
-	configure_cirq(config, GPIO_PULL_UP, EXINT_TRIGGER_FALLING_EDGE);
+	configure_cirq(config, EXINT_TRIGGER_FALLING_EDGE);
 	#endif
-}
-
-static void gpio_config_init(void) //(const struct gpio_xxx_t *config, int n)
-{
-//	int i;
-//	for (i = 0; i < n; i++) {
-//	}
-	configure_cgpio(gpio_out, GPIO_PULL_NONE); //configure_cpin()
-	configure_cgpio(gpio_in, GPIO_PULL_UP); //configure_cpin()
 }
 
 //[hw]
 //void cint_disable_mcu_irq_AT(void);
 //void cint_enable_mcu_irq_AT(void);
 //int cint_exint9_5_handler_AT(void);
-//void AT_spi_cs_lo(void);
-//void AT_spi_cs_hi(void);
 //uint8_t AT_spi_exc_data(uint8_t byte);
 // ---------------------- hw_impl -------------------------------------------------------------
 
@@ -270,15 +210,6 @@ void cint_enable_mcu_irq_AT(void)
 	nvic_irq_enable(nvic_irqn(), 1, 0);
 }
 
-void AT_spi_cs_lo(void)
-{
-	gpio_bits_reset(cs_gpio_port(), cs_gpio_pin());
-}
-void AT_spi_cs_hi(void)
-{
-	gpio_bits_set(cs_gpio_port(), cs_gpio_pin());
-}
-
 uint8_t AT_spi_exc_data(uint8_t byte)
 {
 	while (spi_i2s_flag_get(spi_number(), SPI_I2S_TDBE_FLAG) == RESET)
@@ -287,38 +218,6 @@ uint8_t AT_spi_exc_data(uint8_t byte)
 	while (spi_i2s_flag_get(spi_number(), SPI_I2S_RDBF_FLAG) == RESET)
 		;
 	return (uint8_t)spi_i2s_data_receive(spi_number());
-}
-
-void AT_gpio_cs_lo(void)
-{
-	cqpio_write(diag_gpio_port(), diag_gpio_pin(), diag_gpio_lo());
-}
-void AT_gpio_cs_hi(void)
-{
-	cqpio_write(diag_gpio_port(), diag_gpio_pin(), diag_gpio_hi());
-}
-
-void AT_gpio_out(gpio_type *gpioport, uint16_t gpiopin, flag_status level)
-{
-	if (!level)
-		gpio_bits_reset(gpioport, gpiopin);
-	else
-		gpio_bits_set(gpioport, gpiopin);
-}
-
-flag_status AT_gpio_in(gpio_type *gpioport, uint16_t gpiopin)
-{
-	return gpio_input_data_bit_read(gpioport, gpiopin);
-}
-
-void cqpio_write(gpio_type *port, uint16_t pin, flag_status lev)
-{
-	dm9051if_gpio_write(port, pin, lev);
-}
-
-flag_status cqpio_read(gpio_type *port, uint16_t pin)
-{
-	return dm9051if_gpio_read(port, pin);
 }
 
 // ---------------------- data_impl -------------------------------------------------------------

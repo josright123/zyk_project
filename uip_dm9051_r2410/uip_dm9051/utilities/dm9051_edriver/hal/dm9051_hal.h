@@ -1,9 +1,10 @@
 #ifndef __DM9051_HAL_MCU_H
 #define __DM9051_HAL_MCU_H
 
-// #define _DLW_AT32F415xx
-// #define _DLW_AT32F437xx
-// #define _DLW_M051xx
+// option: _DLW_AT32F415xx
+// option: _DLW_AT32F437xx
+// option: _DLW_M051xx
+#ifndef _DLW_AT32F437xx
 #define _DLW_AT32F437xx
 
 #if defined(_DLW_M051xx)
@@ -34,17 +35,7 @@
 		ex: _AT32F407xx,USE_STDPERIPH_DRIVER,AT_START_F407_V1 \r\n \
 		ex: _AT32F437xx,USE_STDPERIPH_DRIVER,AT_START_F437_V1 \r\n \ "
 #endif
-
-// GPIO Configuration Structure
-struct gpio_config_t
-{
-	gpio_type *port;
-	uint16_t pin;
-	gpio_pins_source_type source;
-	gpio_mux_sel_type mux;
-	crm_periph_clock_type clock;
-	gpio_mode_type mode;
-};
+#endif //_DLW_AT32F437xx
 
   //
   // #include "dm9051_hal_api.h"
@@ -73,29 +64,13 @@ void dm_delay_ms(uint16_t nms);
 //#define cint_exint9_5_handler_AT cint_exint9_5_handler
 #define cint_disable_mcu_irq_AT  cint_disable_mcu_irq
 #define cint_enable_mcu_irq_AT cint_enable_mcu_irq
-
-//#define AT_spi_cs_lo dm9051if_cs_lo
-//#define AT_spi_cs_hi dm9051if_cs_hi
-#define AT_gpio_cs_lo dm9051if_cs_lo
-#define AT_gpio_cs_hi dm9051if_cs_hi
-
 #define	AT_spi_exc_data	dm9051if_exc_data //AT_spi_exc_data
 #define dm9051_spi_command_write dm9051if_exc_data //AT_spi_exc_data
 #define dm9051_spi_dummy_read() dm9051if_exc_data(0) //AT_spi_exc_data(0)
 void cint_disable_mcu_irq_AT(void);
 void cint_enable_mcu_irq_AT(void);
 int cint_exint9_5_handler_AT(void);
-void AT_spi_cs_lo(void);
-void AT_spi_cs_hi(void);
 uint8_t AT_spi_exc_data(uint8_t byte);
-
-#define AT_gpio_out dm9051if_gpio_write //using call
-#define AT_gpio_in dm9051if_gpio_read //using call
-
-void AT_gpio_cs_lo(void);
-void AT_gpio_cs_hi(void);
-void AT_gpio_out(gpio_type *gpioport, uint16_t gpiopin, flag_status level);
-flag_status AT_gpio_in(gpio_type *gpioport, uint16_t gpiopin);
 #endif
 
 #if defined(_DLW_M051xx)
@@ -147,24 +122,6 @@ void cspi_read_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode);
 uint8_t cspi_read_mem2x(void);
 void cspi_read_mem(uint8_t *buf, uint16_t len);
 void cspi_write_mem(uint8_t *buf, uint16_t len);
-
-/* Calling example:
- *   cqpio_write(diag_gpio_port(), diag_gpio_pin(), diag_gpio_lo());
- *   cqpio_write(diag_gpio_port(), diag_gpio_pin(), diag_gpio_hi());
- *   cqpio_read(in_gpio_port(), in_gpio_pin());
- */
-#define diag_gpio_port() gpio_out[0].port //calling use
-#define diag_gpio_pin() gpio_out[0].pin //calling use
-#define diag_gpio_lo() RESET //calling use
-#define diag_gpio_hi() SET //calling use
-#define in_gpio_port() gpio_in[0].port //calling use
-#define in_gpio_pin() gpio_in[0].pin //calling use
-
-extern const struct gpio_config_t gpio_out[1];
-extern const struct gpio_config_t gpio_in[1];
-
-void cqpio_write(gpio_type *port, uint16_t pin, flag_status lev);
-flag_status cqpio_read(gpio_type *port, uint16_t pin);
 
 #define	dm_sys_now dm9051_hal_tick_count
 	uint32_t dm9051_hal_tick_count(void);

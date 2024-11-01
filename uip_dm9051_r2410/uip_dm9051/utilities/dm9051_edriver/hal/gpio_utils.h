@@ -1,5 +1,5 @@
-#ifndef __DMGPIO_HAL_MCU_H
-#define __DMGPIO_HAL_MCU_H
+#ifndef __DMGPIO_UTILS_MCU_H
+#define __DMGPIO_UTILS_MCU_H
 
 #define gpio_hal_init dm9051if_gpios_init
 void gpio_hal_init(void);
@@ -46,12 +46,14 @@ void gpio_hal_cs_hi(void);
 
 /* export funcrions
  */
-//#define gpio_hal_diag_lo gpio_boards_diag_lo //_dm9051if_cs_lo
-//#define gpio_hal_diag_hi gpio_boards_diag_hi //_dm9051if_cs_hi
+//#define gpio_hal_init gpio_boards_initialize
+//#define gpio_hal_diag_lo gpio_boards_diag_lo
+//#define gpio_hal_diag_hi gpio_boards_diag_hi
 //#define gpio_hal_inpt_get gpio_boards_inpt_get
 /* Hw_implement funcrions
  */
+//void gpio_hal_init(void);
 //void gpio_hal_diag_lo(void);
 //void gpio_hal_diag_hi(void);
 //flag_status gpio_hal_inpt_get(void);
-#endif //__DMGPIO_HAL_MCU_H
+#endif //__DMGPIO_UTILS_MCU_H

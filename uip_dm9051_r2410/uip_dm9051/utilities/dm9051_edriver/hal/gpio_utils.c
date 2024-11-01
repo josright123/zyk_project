@@ -1,6 +1,6 @@
 /**
  **************************************************************************
- * @file gpio_hal.c
+ * @file gpio_utils.c
  **************************************************************************
  */
 #include "gpio_utils.h"
@@ -33,15 +33,6 @@ const struct gpio_define_t gpio_set[1] = {{
 #define ecs() (gpio_set[0].diag)
 #define eint() (gpio_set[0].inpt)
 
-void gpio_hal_cs_lo(void)
-{
-	gpio_bits_reset(ecs().port, ecs().pin); //(gpio_type *gpioport, uint16_t gpiopin, flag_status level);
-}
-void gpio_hal_cs_hi(void)
-{
-	gpio_bits_set(ecs().port, ecs().pin); //(gpio_type *gpioport, uint16_t gpiopin, flag_status level);
-}
-
 /* Static function, as is configure_cpin()
  */
 static void configure_cgpio(const struct gpio_config_t *ps, gpio_pull_type gppull) {
@@ -63,10 +54,25 @@ static void configure_cgpio(const struct gpio_config_t *ps, gpio_pull_type gppul
 	#endif
 }
 
+//void gpio_hal_init(void)
+//{
+//	configure_cgpio(&ecs(), GPIO_PULL_NONE);
+//	configure_cgpio(&eint(), GPIO_PULL_UP); //for interrupt configure, Not all devices essential]
+//}
+
 void gpio_hal_init(void)
 {
 	configure_cgpio(&ecs(), GPIO_PULL_NONE);
 	configure_cgpio(&eint(), GPIO_PULL_UP); //for interrupt configure, Not all devices essential]
+}
+
+void gpio_hal_cs_lo(void)
+{
+	gpio_bits_reset(ecs().port, ecs().pin);
+}
+void gpio_hal_cs_hi(void)
+{
+	gpio_bits_set(ecs().port, ecs().pin);
 }
 
 //void gpio_hal_diag_lo(void)

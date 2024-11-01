@@ -713,17 +713,15 @@
               <FileType>1</FileType>
               <FilePath>..\..\dm9051_edriver\utils\dm_identify_impl.c</FilePath>
             </File>
+            <File>
+              <FileName>gpio_utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\dm9051_edriver\hal\gpio_utils.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
           <GroupName>gpio_utils</GroupName>
-          <Files>
-            <File>
-              <FileName>gpio_hal.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\gpio_utils\hal\gpio_hal.c</FilePath>
-            </File>
-          </Files>
         </Group>
         <Group>
           <GroupName>httpd</GroupName>

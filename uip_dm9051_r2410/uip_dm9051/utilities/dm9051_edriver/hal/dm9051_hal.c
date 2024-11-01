@@ -11,7 +11,7 @@
  */
 #include "control/drv/conf_core.h"
 #include "control/drv/dm9051_eth_debug.h"
-#include "gpio_hal.h"
+#include "gpio_utils.h"
 
 #define	dm9051_hal_irqline HAL_IRQLine
 

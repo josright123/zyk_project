@@ -289,13 +289,7 @@ static PT_THREAD(handle_dhcp(void))
 #endif
 
 #if 0
-	printf("sys %s mode\r\n",
-		#ifdef DM9051_DRIVER_INTERRUPT
-		"interrupt"
-		#else
-		"polling" .................nmbnmbnmb..........
-		#endif
-		);
+	printf("sys %s mode\r\n", RX_MODE_STR);
 #endif
 
     //printf("handle_dhcp...\r\n");

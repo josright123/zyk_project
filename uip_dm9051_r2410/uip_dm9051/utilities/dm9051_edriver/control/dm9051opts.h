@@ -18,10 +18,7 @@
 
 /* __USR_H
  */
- 
-#define ETHERNET_INTERRUPT_MODE 1 // Please keep define to 1, INT or POLLING by _data.h
-#define DM_ETH_DEBUG_MODE 1
 
-#include "dm9051_driver_define.h"
+#include "dm9051opts_define.h"
 
 #endif //__DM9051_OPTS_H

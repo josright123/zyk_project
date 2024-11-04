@@ -34,6 +34,9 @@ void dm9051_hal_tick(void);
 
 #if defined(_DLW_AT32F437xx)
 
+void dm_delay_us(uint32_t nus);
+void dm_delay_ms(uint16_t nms);
+
 // SPI Configuration Structure
 struct spi_config_t
 {
@@ -179,7 +182,7 @@ static void spi_config_init(const struct spi_config_t *config)
 // Static function prototypes
 static void interrupt_config_init(const struct interrupt_config_t *config)
 {
-	#ifdef DM9051_DRIVER_INTERRUPT
+	#ifdef ETHERNET_INTERRUPT_MODE
 	configure_cirq(config, EXINT_TRIGGER_FALLING_EDGE);
 	#endif
 }
@@ -309,6 +312,47 @@ void cspi_write_regs(uint8_t reg, const uint8_t *buf, uint16_t len)
 		cspi_write_reg(reg, buf[i]);
 }
 
+uint16_t cspi_phy_read(uint16_t uReg)
+{
+	int w = 0;
+	uint16_t uData;
+
+	cspi_write_reg(DM9051_EPAR, DM9051_PHY | uReg);
+	cspi_write_reg(DM9051_EPCR, 0xc);
+	dm_delay_us(1);
+	while (cspi_read_reg(DM9051_EPCR) & 0x1)
+	{
+		dm_delay_us(1);
+		if (++w >= 500)
+			break;
+	} // Wait complete
+
+	cspi_write_reg(DM9051_EPCR, 0x0);
+	uData = (cspi_read_reg(DM9051_EPDRH) << 8) | cspi_read_reg(DM9051_EPDRL);
+
+	return uData;
+}
+
+void cspi_phy_write(uint16_t reg, uint16_t value)
+{
+	int w = 0;
+
+	cspi_write_reg(DM9051_EPAR, DM9051_PHY | reg);
+	cspi_write_reg(DM9051_EPDRL, (value & 0xff));
+	cspi_write_reg(DM9051_EPDRH, ((value >> 8) & 0xff));
+	/* Issue phyxcer write command */
+	cspi_write_reg(DM9051_EPCR, 0xa);
+	dm_delay_us(1);
+	while (cspi_read_reg(DM9051_EPCR) & 0x1)
+	{
+		dm_delay_us(1);
+		if (++w >= 500)
+			break;
+	} // Wait complete
+
+	cspi_write_reg(DM9051_EPCR, 0x0);
+}
+
 uint8_t cspi_read_rxb(void)
 {
 	uint8_t rxb;
@@ -317,6 +361,12 @@ uint8_t cspi_read_rxb(void)
 	dm9051if_cs_hi();
 	return rxb;
 }
+void cspi_tx_req(void)
+{
+	cspi_write_reg(DM9051_TCR, TCR_TXREQ); /* Cleared after TX complete */
+	DM9051_TX_DELAY((cspi_read_reg(DM9051_TCR) & TCR_TXREQ), dm_delay_us(5));
+}
+
 void cspi_read_mem(uint8_t *buf, uint16_t len)
 {
 	dm9051if_cs_lo();

@@ -52,11 +52,13 @@ uint8_t cspi_read_reg(uint8_t reg);
 void cspi_write_reg(uint8_t reg, uint8_t val);
 void cspi_read_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode);
 void cspi_write_regs(uint8_t reg, const uint8_t *buf, uint16_t len);
+uint16_t cspi_phy_read(uint16_t uReg); //[uint16_t eeprom_read(uint16_t uWord);]
+void cspi_phy_write(uint16_t reg, uint16_t value); //[function "phy_write" was available but could never referenced.]
 uint8_t cspi_read_rxb(void);
+void cspi_tx_req(void);
 void cspi_read_mem(uint8_t *buf, uint16_t len);
 void cspi_write_mem(uint8_t *buf, uint16_t len);
 
-void dm_delay_us(uint32_t nus);
 void dm_delay_ms(uint16_t nms);
 
 // Constants and Definitions
@@ -67,8 +69,7 @@ static uint16_t impl_dm9051_rx(uint8_t *buff);
 static const uint8_t *impl_dm9051_init(const uint8_t *adr);
 static void cspi_core_reset(void);
 static const uint8_t *cspi_dm_start1(const uint8_t *adr);
-static void cspi_set_par(const uint8_t *macadd);
-static void cspi_rx_mode(void);
+static void cspi_set_par(const uint8_t *adr);
 
 const uint8_t *dm9051_init(const uint8_t *adr)
 {
@@ -76,11 +77,7 @@ const uint8_t *dm9051_init(const uint8_t *adr)
 
 	printf("[heartbeat %lu] heartbeat %s\r\n", dm_sys_now(),
 		dm_sys_now() ? "OK" : "No Good fail");
-#ifdef DM9051_DRIVER_INTERRUPT
-	printf("[interrupt] %s successfully\r\n\r\n", __func__);
-#else
-	printf("[polling] %s successfully\r\n\r\n", __func__);
-#endif
+	printf("[%s] config OK\r\n\r\n", RX_MODE_STR);
 	return mac;
 }
 
@@ -107,47 +104,6 @@ uint16_t cspi_isr_enab(void) // read and/then write
 	isrs = cspi_read_reg(DM9051_ISR);
 	cspi_write_reg(DM9051_ISR, (uint8_t)isrs);
 	return isrs | (0xff << 8);
-}
-
-uint16_t cspi_phy_read(uint16_t uReg)
-{
-	int w = 0;
-	uint16_t uData;
-
-	cspi_write_reg(DM9051_EPAR, DM9051_PHY | uReg);
-	cspi_write_reg(DM9051_EPCR, 0xc);
-	dm_delay_us(1);
-	while (cspi_read_reg(DM9051_EPCR) & 0x1)
-	{
-		dm_delay_us(1);
-		if (++w >= 500)
-			break;
-	} // Wait complete
-
-	cspi_write_reg(DM9051_EPCR, 0x0);
-	uData = (cspi_read_reg(DM9051_EPDRH) << 8) | cspi_read_reg(DM9051_EPDRL);
-
-	return uData;
-}
-
-void cspi_phy_write(uint16_t reg, uint16_t value)
-{
-	int w = 0;
-
-	cspi_write_reg(DM9051_EPAR, DM9051_PHY | reg);
-	cspi_write_reg(DM9051_EPDRL, (value & 0xff));
-	cspi_write_reg(DM9051_EPDRH, ((value >> 8) & 0xff));
-	/* Issue phyxcer write command */
-	cspi_write_reg(DM9051_EPCR, 0xa);
-	dm_delay_us(1);
-	while (cspi_read_reg(DM9051_EPCR) & 0x1)
-	{
-		dm_delay_us(1);
-		if (++w >= 500)
-			break;
-	} // Wait complete
-
-	cspi_write_reg(DM9051_EPCR, 0x0);
 }
 
 uint16_t cspi_read_chip_id(void)
@@ -214,6 +170,11 @@ void cspi_soft_default(void)
 	trace_irq_stat(ISTAT_LOW_ACTIVE);
 }
 
+static void cspi_set_par(const uint8_t *adr)
+{
+	cspi_write_regs(DM9051_PAR, adr, 6);
+}
+
 void cspi_set_mar(void)
 {
 	int i;
@@ -255,12 +216,6 @@ void cspi_tx_write(uint8_t *buf, uint16_t len)
 	cspi_write_reg(DM9051_TXPLH, (len >> 8) & 0xff);
 	pad = len & 1;					// 16-bit
 	cspi_write_mem(buf, len + pad); // 8/16-bit
-}
-
-void cspi_tx_req(void)
-{
-	cspi_write_reg(DM9051_TCR, TCR_TXREQ); /* Cleared after TX complete */
-	DM9051_TX_DELAY((cspi_read_reg(DM9051_TCR) & TCR_TXREQ), dm_delay_us(5));
 }
 
 // ---------------------- env -------------------------------------------------------------
@@ -407,42 +362,6 @@ uint16_t env_err_rsthdlr3(const char *format, ...)
 	return 0;
 }
 
-// Debug functionality
-#if DM_ETH_DEBUG_MODE
-void debug_diff_rx_pointers(int state, uint16_t rd_now) {
-#if drv_print
-	static int drp_fifoTurn_n = 0;
-	static uint16_t drp_premdra_rd = 0x4000;
-	static uint16_t drp_mdra_rd;
-	uint16_t compos_totaldiff, diff;
-
-	if (drp_premdra_rd == 0x4000)
-		drp_mdra_rd = rd_now; //~return;
-#endif
-
-#if drv_print
-	if (state)
-		drp_fifoTurn_n++;
-	if (rd_now < drp_premdra_rd && (drp_premdra_rd != 0x4000)) {
-		/*uint16_t*/ compos_totaldiff = (rd_now >= drp_mdra_rd) ? 0x3400 : 0;
-		/*uint16_t*/ diff = wrpadiff(drp_mdra_rd, rd_now);
-		printf("(INT %lu) mdra s %02x%02x e %02x%02x dif %x (nrx %d) .eth\r\n",
-			get_interrupt_count(),
-			drp_mdra_rd >> 8, drp_mdra_rd & 0xff,
-			rd_now >> 8, rd_now & 0xff,
-			diff + compos_totaldiff,
-			drp_fifoTurn_n);
-#endif
-
-#if drv_print
-		drp_fifoTurn_n = 0;
-		drp_mdra_rd = rd_now; //~return;
-	}
-	drp_premdra_rd = rd_now;
-#endif
-}
-#endif
-
 // ---------------------- xx -------------------------------------------------------------
 
 static uint16_t impl_dm9051_rx(uint8_t *buff)
@@ -451,9 +370,8 @@ static uint16_t impl_dm9051_rx(uint8_t *buff)
 	uint8_t ReceiveData[4];
 	uint16_t rx_len, pad = 0; // 8-bit
 
-	#if 0
-	DM9051_RX_BREAK(!link_flag(), return evaluate_link());
-	#endif
+	/* DM9051_RX_BREAK(!link_flag(), return evaluate_link()); */
+
 	rxbyte = cspi_read_rxb();
 	DM9051_RX_BREAK((rxbyte != 0x01 && rxbyte != 0),
 					return env_evaluate_rxb(rxbyte));
@@ -464,10 +382,6 @@ static uint16_t impl_dm9051_rx(uint8_t *buff)
 	rx_len = ReceiveData[2] + (ReceiveData[3] << 8);
 	DM9051_RX_BREAK((rx_status & (0xbf & ~RSR_PLE)),
 					return env_err_rsthdlr1(err_callback, "_dm9051f rx_status error : 0x%02x\r\n", rx_status));
-//#if !drv_print
-//#else
-//	DM9051_RX_BREAK((rx_len > PBUF_POOL_BUFSIZE), return env_err_rsthdlr2(printf("_dm9051f rx_len error : %u\r\n", rx_len)));
-//#endif
 	DM9051_RX_BREAK((rx_len > PBUF_POOL_BUFSIZE), return env_err_rsthdlr("_dm9051f rx_len error : %u\r\n", rx_len));
 	
 	pad = rx_len & 1;				  // 16-bit
@@ -507,21 +421,20 @@ static void cspi_core_reset(void)
 
 static const uint8_t *cspi_dm_start1(const uint8_t *adr)
 {
-	#ifdef DM9051_DRIVER_INTERRUPT
+	#ifdef ETHERNET_INTERRUPT_MODE
 	cint_enable_mcu_irq();
 	#endif
+
 	cspi_set_par(adr);
-	cspi_rx_mode();
+	cspi_set_mar();
+	cspi_set_recv();
 	return adr;
 }
 
-static void cspi_set_par(const uint8_t *macadd)
-{
-	cspi_write_regs(DM9051_PAR, macadd, 6);
-}
-
-static void cspi_rx_mode(void)
-{
-	cspi_set_mar();
-	cspi_set_recv();
-}
+//static const uint8_t *cspi_rx_mode(const uint8_t *adr)
+//{
+//	cspi_set_par(adr);
+//	cspi_set_mar();
+//	cspi_set_recv();
+//	return adr;
+//}

@@ -2,7 +2,7 @@
  * eth or ap
  */
 
-#if 0
+#if 1
 	#include "control/conf.h" //#include "control/drv/conf_core.h"
 	#include "control/drv/dm9051_eth_debug.h"
 #else
@@ -94,6 +94,40 @@ uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e)
 {
 	return (rwpa_e >= rwpa_s) ? rwpa_e - rwpa_s : (rwpa_e + 0x4000 - 0xc00) - rwpa_s;
 }
+
+//---------------------------------------
+
+// Debug functionality
+#if DM_ETH_DEBUG_MODE
+void debug_diff_rx_pointers(int state, uint16_t rd_now) {
+#if drv_print
+	static int drp_fifoTurn_n = 0;
+	static uint16_t drp_premdra_rd = 0x4000;
+	static uint16_t drp_mdra_rd;
+	uint16_t compos_totaldiff, diff;
+
+	if (drp_premdra_rd == 0x4000)
+		drp_mdra_rd = rd_now; //~return;
+
+	if (state)
+		drp_fifoTurn_n++;
+	if (rd_now < drp_premdra_rd && (drp_premdra_rd != 0x4000)) {
+		/*uint16_t*/ compos_totaldiff = (rd_now >= drp_mdra_rd) ? 0x3400 : 0;
+		/*uint16_t*/ diff = wrpadiff(drp_mdra_rd, rd_now);
+		printf("(INT %lu) mdra s %02x%02x e %02x%02x dif %x (nrx %d) .eth\r\n",
+			get_interrupt_count(),
+			drp_mdra_rd >> 8, drp_mdra_rd & 0xff,
+			rd_now >> 8, rd_now & 0xff,
+			diff + compos_totaldiff,
+			drp_fifoTurn_n);
+
+		drp_fifoTurn_n = 0;
+		drp_mdra_rd = rd_now; //~return;
+	}
+	drp_premdra_rd = rd_now;
+#endif
+}
+#endif
 
 //---------------------------------------
 /*

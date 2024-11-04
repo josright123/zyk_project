@@ -213,104 +213,29 @@ extern "C"
   // void dm9051_probe_link(int nsr_poll);
   // void dm9051_write_rst_isr(void);
 
-#if 0
-  int link_flag(void);
-  uint16_t evaluate_link(void);
-  unsigned long get_fire_polling(void);
-#endif
-
   //[API]env.h
   int env_init_setup(uint16_t *id);
   uint16_t env_evaluate_rxb(uint8_t rxb);
   uint16_t env_err_rsthdlr(char *err_explain_str, uint32_t valuecode);
   uint16_t env_err_rsthdlr1(void (*callback)(char *, uint32_t), char *explain_str, uint32_t code);
-//  uint16_t env_err_rsthdlr2(int sz);
   uint16_t env_err_rsthdlr3(const char *format, ...); //uint16_t env_err_rsthdlr3(fmt, ...);
-
-	void debug_diff_rx_pointers(int state, uint16_t rd_now);
-
-#if 0
-  //#define _env_err_rsthdlr3(fmt, ...) proc_err_rsthdlr3(fmt, ##__VA_ARGS__)
-  #define proc_err_rsthdlr3(message) \
-	return printf(message)
-    //_env_reset_process(identified_eth_mac());
-    //return 0
-	
-  //uint16_t proc_err_rsthdlr3(char *message);
-#endif
-
-  uint16_t cspi_phy_read(uint16_t uReg);
-  void cspi_phy_write(uint16_t reg, uint16_t value); //[function "phy_write" was available but could never referenced.]
-  // uint16_t eeprom_read(uint16_t uWord);
 
   uint16_t cspi_read_chip_id(void);
   uint16_t cspi_read_control_status(void);
-
   void cspi_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd);
-  uint16_t cspi_diff_rxpa(void);
-
   void cspi_read_regs_info(uint8_t *stat);
 
   uint16_t cspi_isr_enab(void); // read and/then write
-
-  void cspi_vid_pid_revisions(uint8_t *ids, uint8_t *rev_ad);
-  void read_chip_revision(uint8_t *ids, uint8_t *rev_ad);
-  void impl_read_par(uint8_t *buff);
 
   void cspi_phycore_on(uint16_t nms);
   void cspi_ncr_reset(uint16_t nms);
   void cspi_soft_default(void);
 
-  // void _cspi_core_reset(void);
-  // const uint8_t *cspi_dm_start1(const uint8_t *adr);
-  // void cspi_set_par(const uint8_t *macadd);
   void cspi_set_mar(void);
   void cspi_set_recv(void);
-  // void cspi_rx_mode(void); // ethernetif.c (of _lwip_set_mac_address())
   void cspi_rx_head(uint8_t *receivedata);
   void cspi_rx_read(uint8_t *buff, uint16_t rx_len);
   void cspi_tx_write(uint8_t *buf, uint16_t len);
-  void cspi_tx_req(void);
-
-  /*
-   * HCC: Hard Core Candidate (hcc)
-   */
-
-  extern const struct eth_node_t node_candidate[1];
-
-/* APIs.identify
- */
-#define candidate_eth_mac() &node_candidate[0].mac_addresse[0]    //[pin_code]
-#define candidate_eth_ip() &node_candidate[0].local_ipaddr[0]     //[pin_code]
-#define candidate_eth_gw() &node_candidate[0].local_gwaddr[0]     //[pin_code]
-#define candidate_eth_mask() &node_candidate[0].local_maskaddr[0] //[pin_code]
-// const uint8_t *identify_eth_mac(const uint8_t *macadr);
-// uint8_t *identify_tcpip_ip(uint8_t *ip4adr);
-// uint8_t *identify_tcpip_gw(uint8_t *ip4adr);
-// uint8_t *identify_tcpip_mask(uint8_t *ip4adr);
-// void trace_identify_eth_mac(void);
-#define identify_eth_mac(macadr) SET_FIELD(final_mac, macadr ? macadr : candidate_eth_mac())
-#define identify_tcpip_ip(ip4adr) SET_FIELD(final_ip, ip4adr ? ip4adr : candidate_eth_ip())
-#define identify_tcpip_gw(ip4adr) SET_FIELD(final_gw, ip4adr ? ip4adr : candidate_eth_gw())
-#define identify_tcpip_mask(ip4adr) SET_FIELD(final_mask, ip4adr ? ip4adr : candidate_eth_mask())
-#define trace_identify_eth_mac()                            \
-  do                                                        \
-  {                                                         \
-    const uint8_t *mac = GET_FIELD(final_mac);              \
-    printf("mac address %02x%02x%02x%02x%02x%02x\r\n",      \
-           mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]); \
-  } while (0)
-
-/* APIs.identified
- */
-// const uint8_t *identified_eth_mac(void);
-// uint8_t *identified_tcpip_ip(void);
-// uint8_t *identified_tcpip_gw(void);
-// uint8_t *identified_tcpip_mask(void);
-#define identified_eth_mac() GET_FIELD(final_mac)
-#define identified_tcpip_ip() GET_FIELD(final_ip)
-#define identified_tcpip_gw() GET_FIELD(final_gw)
-#define identified_tcpip_mask() GET_FIELD(final_mask)
 
 #ifdef __cplusplus
 }

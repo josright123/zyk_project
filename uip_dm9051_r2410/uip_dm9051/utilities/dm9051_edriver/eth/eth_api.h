@@ -2,7 +2,7 @@
 #define __DM_ETH_H__
 #include "control/dm9051opts.h"
 
-#if ETHERNET_INTERRUPT_MODE
+#ifdef ETHERNET_INTERRUPT_MODE
 int DM_ETH_GetInterruptEvent(void);
 //void DM_ETH_SetInterruptEvent(void);
 void DM_ETH_ToRst_ISR(void);
@@ -35,7 +35,7 @@ extern volatile int flgSemaphore_r;
 //	struct pbuf *DM_ETH_Input(void);
 //	err_t DM_ETH_Output(struct netif *netif, struct pbuf *p);
 //	
-//	#if ETHERNET_INTERRUPT_MODE
+//	#ifdef ETHERNET_INTERRUPT_MODE
 //	int DM_ETH_InterruptHdlr_Supplement(void);
 //	#endif
 //	void DM_ETH_SHOW_CONSECUTIVE_Packets(void);

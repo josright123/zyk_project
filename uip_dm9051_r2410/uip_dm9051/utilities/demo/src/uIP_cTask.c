@@ -106,7 +106,7 @@ static void uip_update_ip_config(const uint8_t *ip, const uint8_t *gw, const uin
 	uip_setnetmask(maskn);
 }
 
-#if defined(DM9051_DRIVER_INTERRUPT)
+#if defined(ETHERNET_INTERRUPT_MODE)
 
 int fifoTurn_n = 0;
 uint16_t isrSemaphore_src;
@@ -155,7 +155,7 @@ int input_intr(void)
 }
 #endif
 
-#if defined(DM9051_DRIVER_POLL)
+#if defined(ETHERNET_POLLING_MODE)
 .......... old version_0...
 uint16_t DM_ETH_RXHandler_Poll(void)
 {
@@ -224,7 +224,7 @@ void vuIP_Task(void *pvParameters)
 
     while (1)
     {
-	#if defined(DM9051_DRIVER_INTERRUPT)
+	#if defined(ETHERNET_INTERRUPT_MODE)
 	//[version_1]
 	/* Interrupt */
 		if (tapdev_get_ievent()) {

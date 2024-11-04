@@ -98,5 +98,26 @@ typedef enum {
 		while(*p) \
 			putchar(*p++); /*fputc_dbg(*p++);*/ \
 	} while(0)
+
+//#define DM9051_HEXDUMP_RESET(expression, handler) do { if ((expression)) { \
+//	(handler);}} while(0)
+
+#define DM9051_RX_BREAK(expression, handler) \
+  do                                         \
+  {                                          \
+    if ((expression))                        \
+    {                                        \
+      handler;                               \
+    }                                        \
+  } while (0)
+
+#define DM9051_TX_DELAY(expression, handler) \
+	do                                       \
+	{                                        \
+		if ((expression))                    \
+		{                                    \
+			handler;                         \
+		}                                    \
+	} while (0)
 	
 #endif //__DM_DEF_H__

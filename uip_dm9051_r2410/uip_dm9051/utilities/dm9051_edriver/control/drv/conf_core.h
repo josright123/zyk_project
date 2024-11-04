@@ -6,7 +6,7 @@
 /* domain & common */
 #include "control/conf.h"
 
-#include "utils/dm_api.h"
+#include "dm/dm_api.h"
 #include "eth/eth_api.h"
 
 /* drv api */

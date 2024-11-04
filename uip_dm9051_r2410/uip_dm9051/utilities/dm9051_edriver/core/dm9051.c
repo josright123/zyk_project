@@ -518,9 +518,6 @@ static const uint8_t *cspi_dm_start1(const uint8_t *adr)
 static void cspi_set_par(const uint8_t *macadd)
 {
 	cspi_write_regs(DM9051_PAR, macadd, 6);
-//	int i;
-//	for (i = 0; i < 6; i++)
-//		cspi_write_reg(DM9051_PAR + i, macadd[i]);
 }
 
 static void cspi_rx_mode(void)

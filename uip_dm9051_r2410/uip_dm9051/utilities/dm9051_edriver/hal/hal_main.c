@@ -1,6 +1,6 @@
 /**
  **************************************************************************
- * @file     dm9051_hal.c
+ * @file     hal_maim.c (dm9051_hal.c)
  * The use of structures for SPI and interrupt configurations allows
  *	for easy modification if needed.
  * There are separate functions for SPI initialization (spi_add) and
@@ -11,7 +11,21 @@
  */
 #include "control/drv/conf_core.h"
 #include "control/drv/dm9051_eth_debug.h"
-#include "gpio_utils.h"
+
+#define cint_enable_mcu_irq_AT cint_enable_mcu_irq
+
+
+#define	AT_spi_exc_data	dm9051if_exc_data //AT_spi_exc_data
+uint8_t AT_spi_exc_data(uint8_t byte);
+
+#define dm9051_spi_command_write dm9051if_exc_data //AT_spi_exc_data
+#define dm9051_spi_dummy_read() dm9051if_exc_data(0) //AT_spi_exc_data(0)
+
+#define AT_spi_data_read spi_data_read
+#define AT_spi_data_write spi_data_write
+#define AT_spi_mem2x_read spi_mem2x_read
+#define AT_spi_mem_read  spi_mem_read
+#define AT_spi_mem_write  spi_mem_write
 
 #define	dm9051_hal_irqline HAL_IRQLine
 
@@ -19,23 +33,14 @@ void dm9051_hal_init(void);
 void dm9051_hal_tick(void);
 
 #if defined(_DLW_AT32F437xx)
-/* ------------------------------- AT32F437 configuration ----------------------------------------- */
-struct gpio_mux_t
-{
-	gpio_type *port;
-	uint16_t pin;
-	gpio_pins_source_type source;
-	gpio_mux_sel_type mux;
-	crm_periph_clock_type clock;
-	gpio_mode_type mode;
-};
 
 // SPI Configuration Structure
 struct spi_config_t
 {
 	spi_type *spi;
 	crm_periph_clock_type clock;
-	struct gpio_mux_t sck, miso, mosi; /* cs */
+	struct gpio_mux_t sck, miso, mosi; 
+	/* cs */
 };
 
 // Interrupt Configuration Structure
@@ -55,9 +60,9 @@ static const struct spi_config_t spi_cset[1] = {
 	{
 		SPI1,
 		CRM_SPI1_PERIPH_CLOCK,
-		{GPIOA, GPIO_PINS_5, GPIO_PINS_SOURCE5, GPIO_MUX_5, CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_MUX},
-		{GPIOA, GPIO_PINS_6, GPIO_PINS_SOURCE6, GPIO_MUX_5, CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_MUX},
-		{GPIOA, GPIO_PINS_7, GPIO_PINS_SOURCE7, GPIO_MUX_5, CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_MUX},
+		{{GPIOA, GPIO_PINS_5, GPIO_PULL_NONE, CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_MUX}, GPIO_PINS_SOURCE5, GPIO_MUX_5},
+		{{GPIOA, GPIO_PINS_6, GPIO_PULL_NONE, CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_MUX}, GPIO_PINS_SOURCE6, GPIO_MUX_5},
+		{{GPIOA, GPIO_PINS_7, GPIO_PULL_NONE, CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_MUX}, GPIO_PINS_SOURCE7, GPIO_MUX_5},
 	}};
 
 static const struct interrupt_config_t intr_cset[1] = {
@@ -71,8 +76,21 @@ static const struct interrupt_config_t intr_cset[1] = {
 		EXINT9_5_IRQn,
 	}};
 
+// GPIO Data
+struct gpio_config_t
+cs = {
+		GPIOA, GPIO_PINS_15, GPIO_PULL_NONE, CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_OUTPUT,
+},
+intr = {
+		GPIOC, GPIO_PINS_7, GPIO_PULL_UP, CRM_GPIOC_PERIPH_CLOCK, GPIO_MODE_INPUT,
+};
+
+#define dm9051if_cs_lo() dm9051if_gpio_lo(&cs)
+#define dm9051if_cs_hi() dm9051if_gpio_hi(&cs) //gpio_hal_stdpin_hi(&cs)
+
 #define spi_set() &spi_cset[0]
 #define spi_number() spi_cset[0].spi
+	
 #define intr_set() &intr_cset[0]
 #define irq_line() intr_cset[0].line
 #define nvic_irqn() intr_cset[0].irqn
@@ -81,19 +99,17 @@ static const struct interrupt_config_t intr_cset[1] = {
 static void spi_config_init(const struct spi_config_t *config);
 static void interrupt_config_init(const struct interrupt_config_t *config);
 
-void dm9051_hal_init(void) //for AT32F437
-{
+void dm9051_hal_init(void)
+{	
+	/* purpose: spi_add, and intr_add
+	 */
 	/* purpose: seperating cs_gpio_add, and intr_gpio_add
 	 */
-	dm9051if_gpios_init(); //internal vs gpio_boards_initialize()
-	
-	/* spi_add();
-	 */
 	spi_config_init(spi_set());
-
-	/* intr_add();
-	 */
+	dm9051if_gpio_config(&cs);
+	
 	interrupt_config_init(intr_set());
+	dm9051if_gpio_config(&intr);
 }
 
 uint32_t dm9051_hal_irqline(void)
@@ -121,26 +137,6 @@ static void configure_cspi(const struct spi_config_t *ss)
 	spi_enable(ss->spi, TRUE);
 }
 
-static void configure_cpin(const struct gpio_mux_t *ps, gpio_pull_type gppull)
-{
-	gpio_init_type gpio_init_struct;
-
-	/* enable the gpio clock
-	 */
-	crm_periph_clock_enable(ps->clock, TRUE);
-	gpio_default_para_init(&gpio_init_struct);
-	gpio_init_struct.gpio_out_type = GPIO_OUTPUT_PUSH_PULL;
-	gpio_init_struct.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
-	gpio_init_struct.gpio_mode = ps->mode;
-	gpio_init_struct.gpio_pull = gppull; // GPIO_PULL_DOWN; GPIO_PULL_UP; //GPIO_PULL_NONE;
-	gpio_init_struct.gpio_pins = ps->pin;
-	gpio_init(ps->port, &gpio_init_struct);
-	#if defined(_DLW_AT32F437xx)
-	if (ps->mode == GPIO_MODE_MUX)
-		gpio_pin_mux_config(ps->port, ps->source, ps->mux);
-	#endif
-}
-
 static void configure_cirq(const struct interrupt_config_t *cf,
 						   exint_polarity_config_type polarity)
 {
@@ -148,7 +144,6 @@ static void configure_cirq(const struct interrupt_config_t *cf,
 
 	/* config irq
 	 */
-
 	crm_periph_clock_enable(cf->scfgclock, TRUE);
 	crm_periph_clock_enable(cf->clock, TRUE);
 
@@ -170,12 +165,15 @@ static void configure_cirq(const struct interrupt_config_t *cf,
 }
 
 // Static function prototypes
+//#define esck() (config->sck)
+//#define emiso() (config->miso)
+//#define emosi() (config->mosi)
 static void spi_config_init(const struct spi_config_t *config)
 {
 	configure_cspi(config);
-	configure_cpin(&config->sck, GPIO_PULL_NONE);
-	configure_cpin(&config->miso, GPIO_PULL_NONE);
-	configure_cpin(&config->mosi, GPIO_PULL_NONE);
+	dm9051if_spi_pin_config(&config->sck);
+	dm9051if_spi_pin_config(&config->miso);
+	dm9051if_spi_pin_config(&config->mosi);
 }
 
 // Static function prototypes
@@ -186,15 +184,8 @@ static void interrupt_config_init(const struct interrupt_config_t *config)
 	#endif
 }
 
-//[hw]
-//void cint_disable_mcu_irq_AT(void);
-//void cint_enable_mcu_irq_AT(void);
-//int cint_exint9_5_handler_AT(void);
-//uint8_t AT_spi_exc_data(uint8_t byte);
 // ---------------------- hw_impl -------------------------------------------------------------
-
-// ... AT32F437xx specific interrupt enable/disable functions ...
-
+//[hw]
 void cint_disable_mcu_irq_AT(void)
 {
 	deidentify_irq_stat(ISTAT_IRQ_ENAB);
@@ -221,8 +212,7 @@ uint8_t AT_spi_exc_data(uint8_t byte)
 }
 
 // ---------------------- data_impl -------------------------------------------------------------
-//[impl]
-//[AT cspi_io]
+//[io]
 #define DM9051_MRCMDX (0x70) // Read_Mem2X
 #define DM9051_MRCMD (0x72)	 // Read_Mem
 #define DM9051_MWCMD (0x78)	 // Write_Mem
@@ -288,7 +278,6 @@ void cspi_write_reg(uint8_t reg, uint8_t val)
 void cspi_read_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode)
 {
 	int i;
-
 	if (csmode == CS_LONG)
 	{
 		dm9051if_cs_lo();
@@ -303,9 +292,6 @@ void cspi_read_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode)
 	}
 }
 
-//void cspi_write_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode)
-//{
-//	int i;
 //	if (csmode == CS_LONG)
 //	{
 //		dm9051if_cs_lo();
@@ -315,12 +301,15 @@ void cspi_read_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode)
 //	}
 //	else
 //	{ // CS_EACH
-//		for (i = 0; i < len; i++, reg++)
-//			cspi_write_reg(reg, buf[i]);
 //	}
-//}
+void cspi_write_regs(uint8_t reg, const uint8_t *buf, uint16_t len)
+{
+	int i;
+	for (i = 0; i < len; i++, reg++)
+		cspi_write_reg(reg, buf[i]);
+}
 
-uint8_t cspi_read_mem2x(void)
+uint8_t cspi_read_rxb(void)
 {
 	uint8_t rxb;
 	dm9051if_cs_lo();

@@ -1,4 +1,0 @@
-gpio_utils/
-Also name as dm_gpio_edriver/
-Also name as gpio_utils/
-Also name as dm_gpio_utils/

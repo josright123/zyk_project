@@ -29,8 +29,6 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "gpio_hal.h"
-
 //#include "control/cdef.h"
 #include "control/drv/conf_core.h"
 #include "control/ap/conf_ap.h"
@@ -87,6 +85,7 @@ int main(void)
   uart_print_init(115200);
   
 	#if 1
+	//#include "gpio_hal.h"
 	//gpio_boards_initialize();
   //gpio_boards_write(diag_gpio_port(), diag_gpio_pin(), diag_gpio_lo());
 	#endif

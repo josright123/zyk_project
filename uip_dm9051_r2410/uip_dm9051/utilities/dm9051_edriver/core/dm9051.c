@@ -41,6 +41,24 @@
 #include "control/drv/conf_core.h"
 #include "control/drv/dm9051_eth_debug.h"
 
+#define cint_disable_mcu_irq_AT  cint_disable_mcu_irq
+#define cint_enable_mcu_irq_AT cint_enable_mcu_irq
+
+	//void cint_disable_mcu_irq_AT(void);
+	void cint_enable_mcu_irq_AT(void);
+
+// dm9051_Hw_common implementation source code
+uint8_t cspi_read_reg(uint8_t reg);
+void cspi_write_reg(uint8_t reg, uint8_t val);
+void cspi_read_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode);
+void cspi_write_regs(uint8_t reg, const uint8_t *buf, uint16_t len);
+uint8_t cspi_read_rxb(void);
+void cspi_read_mem(uint8_t *buf, uint16_t len);
+void cspi_write_mem(uint8_t *buf, uint16_t len);
+
+void dm_delay_us(uint32_t nus);
+void dm_delay_ms(uint16_t nms);
+
 // Constants and Definitions
 #define PBUF_POOL_BUFSIZE (1514 + 4) //.2000	//.2000(tested)
 
@@ -499,9 +517,10 @@ static const uint8_t *cspi_dm_start1(const uint8_t *adr)
 
 static void cspi_set_par(const uint8_t *macadd)
 {
-	int i;
-	for (i = 0; i < 6; i++)
-		cspi_write_reg(DM9051_PAR + i, macadd[i]);
+	cspi_write_regs(DM9051_PAR, macadd, 6);
+//	int i;
+//	for (i = 0; i < 6; i++)
+//		cspi_write_reg(DM9051_PAR + i, macadd[i]);
 }
 
 static void cspi_rx_mode(void)

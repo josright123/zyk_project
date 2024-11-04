@@ -6,7 +6,7 @@
 /* domain */
 #include "control/conf.h"
 
-#include "utils/dm_identify_api.h"
-#include "eth/dm_eth_api.h"
+#include "utils/dm_api.h"
+#include "eth/eth_api.h"
 
 #endif //__DM_CONF_AP_H__

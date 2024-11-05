@@ -1,151 +1,183 @@
 /**
  **************************************************************************
- * @file     dm_eth_main.c
- * @version  v1.0.1
- * @date     2024-06-24
- * @brief    DM9051 Ethernet driver main file (or referred to be as eth.c)
+ * @file      eth_main.c
+ * @version   v1.0.1
+ * @date      2024-06-24
+ * @brief     DM9051 Ethernet Driver Implementation
+ * 
+ * @details   This module implements the main functionality for the DM9051
+ *           Ethernet controller, providing initialization, packet handling,
+ *           and interrupt management.
+ *           
+ * @features  - Interrupt-driven packet processing
+ *           - Configuration interface for IP settings
+ *           - Debug support for packet analysis
+ *           - Link status monitoring
+ * 
+ * @note      Last updated: 2024-09-05
  **************************************************************************
- *
- * To restructure and improve the file to enhance readability, maintainability,
- * and potentially performance.
- * Last updated: 2024-09-05
  */
+
 #include "control/drv/conf_core.h"
 #include "control/drv/dm9051_eth_debug.h"
 
-#define	DM_ETH_IRQHandler	EXINT9_5_UserFunction	//EXINT9_5_IRQHandler
+/* Interrupt handler mapping */
+#define DM_ETH_IRQHandler EXINT9_5_UserFunction
 
-// Configuration flags
-// #define DM_ETH_USE_INTERRUPTS 1
-// #define DM_ETH_DEBUG_MODE 0
-
+/* Global state variables */
 volatile int flgSemaphore_r = 0;
 
+/**
+ * @brief  Retrieves pending interrupt events
+ * @return 1 if event pending, 0 otherwise
+ */
 int DM_ETH_GetInterruptEvent(void)
 {
-#if 0
-	return DM_ETH_RTOS_TAKE_SEMA();
-#endif
-#if 0
-	//[Very bad, that stop the furhter interrupt cycle.]
-		int event = flgSemaphore_r;
-		flgSemaphore_r = 0;
-		return event;
-#endif
-	//[Very good, check if it stop the furhter interrupt cycle or NOT (experiment OK).]
-		if (flgSemaphore_r) {
-			flgSemaphore_r = 0;
-			return 1;
-		}
-		return 0;
+  if (flgSemaphore_r) {
+    flgSemaphore_r = 0;
+    return 1;
+  }
+  return 0;
 }
 
-/* DM_ETH_InterruptHdlr
+/**
+ * @brief  Interrupt service routine for Ethernet events
+ * @note   Handles packet reception and updates interrupt statistics
  */
 void DM_ETH_IRQHandler(void)
 {
-	//identify_irq_stat(ISTAT_IRQ_NOW);
-	//trace_irq_stat(ISTAT_IRQ_NOW);
-	//if (cint_exint9_5_handler())
-	//{
-		flgSemaphore_r = 1;
-		//DM_ETH_RTOS_GIVE_SEMA();
-		inc_interrupt_count();
-		identify_irq_stat(ISTAT_IRQ_NOW2);
-		trace_irq_stat(ISTAT_IRQ_NOW2);
-	//}
-	deidentify_irq_stat(ISTAT_IRQ_NOW2);
+  flgSemaphore_r = 1;
+  inc_interrupt_count();
+  identify_irq_stat(ISTAT_IRQ_NOW2);
+  trace_irq_stat(ISTAT_IRQ_NOW2);
+  deidentify_irq_stat(ISTAT_IRQ_NOW2);
 }
 
-// Reset functionality
+/**
+ * @brief  Prepares ISR for reset operation
+ */
 void DM_ETH_ToRst_ISR(void)
 {
-	cspi_isr_enab();
-	identify_irq_stat(ISTAT_IRQ_NOW2END);
+  cspi_isr_enab();
+  identify_irq_stat(ISTAT_IRQ_NOW2END);
 }
 
+/**
+ * @brief  Initializes the Ethernet interface
+ * @param  adr: MAC address pointer
+ * @return Pointer to configured MAC address
+ */
 const uint8_t *DM_ETH_Init(const uint8_t *adr)
 {
-	dm9051_boards_initialize();
-	return dm9051_init(adr);
+  dm9051_boards_initialize();
+  return dm9051_init(adr);
 }
 
+/**
+ * @brief  Handles packet reception
+ * @param  bff: Buffer for received packet
+ * @return Length of received packet
+ */
 uint16_t DM_ETH_Input(uint8_t *bff)
 {
-	uint16_t len = dm9051_rx(bff);
-	dm_eth_input_hexdump(bff, len);
-	return len;
+  uint16_t len = dm9051_rx(bff);
+  dm_eth_input_hexdump(bff, len);
+  return len;
 }
 
+/**
+ * @brief  Handles packet transmission
+ * @param  bff: Buffer containing packet to send
+ * @param  len: Length of packet
+ */
 void DM_ETH_Output(uint8_t *bff, uint16_t len)
 {
-	dm9051_tx(bff, len);
+  dm9051_tx(bff, len);
 }
 
-//void DM_ETH_IpConfiguration(uint8_t *ip, uint8_t *gw, uint8_t *mask){
-//	identify_tcpip_ip(ip);
-//	identify_tcpip_gw(gw);
-//	identify_tcpip_mask(mask);
-//}
+/**
+ * @brief  Network configuration functions
+ */
 uint8_t *DM_ETH_Ip_Configuration(const uint8_t *ip)
 {
-	printkey("config ip %d.%d.%d.%d\r\n", ip[0], ip[1], ip[2], ip[3]); //first-line.
-	return identify_tcpip_ip(ip);
+  printkey("config ip %d.%d.%d.%d\r\n", ip[0], ip[1], ip[2], ip[3]);
+  return identify_tcpip_ip(ip);
 }
+
 uint8_t *DM_ETH_Gw_Configuration(const uint8_t *ip)
 {
-	printkey("config gw %d.%d.%d.%d\r\n", ip[0], ip[1], ip[2], ip[3]);
-	return identify_tcpip_gw(ip);
+  printkey("config gw %d.%d.%d.%d\r\n", ip[0], ip[1], ip[2], ip[3]);
+  return identify_tcpip_gw(ip);
 }
+
 uint8_t *DM_ETH_Mask_Configuration(const uint8_t *ip)
 {
-	return identify_tcpip_mask(ip);
+  return identify_tcpip_mask(ip);
 }
 
-uint8_t *DM_ETH_Ip_Configured(void) {
-	return identified_tcpip_ip();
+/**
+ * @brief  Network configuration retrieval functions
+ */
+uint8_t *DM_ETH_Ip_Configured(void)
+{
+  return identified_tcpip_ip();
 }
 
-uint8_t *DM_ETH_Gw_Configured(void) {
-	return identified_tcpip_gw();
+uint8_t *DM_ETH_Gw_Configured(void)
+{
+  return identified_tcpip_gw();
 }
 
-uint8_t *DM_ETH_Mask_Configured(void) {
-	return identified_tcpip_mask();
+uint8_t *DM_ETH_Mask_Configured(void)
+{
+  return identified_tcpip_mask();
 }
 
 #if DM_ETH_DEBUG_MODE
+/**
+ * @brief  Debug function for RX pointer calculation
+ */
 uint16_t DM_ETH_ToCalc_rx_pointers(int state, const uint16_t *mdra_rd_org, uint16_t *mdra_rd_now)
 {
-	static uint16_t dummy_rwpa;
-	cspi_read_rx_pointers(&dummy_rwpa, mdra_rd_now);
-	debug_diff_rx_pointers(state, *mdra_rd_now);
-	return (state == 0) ? 0 : wrpadiff(*mdra_rd_org, *mdra_rd_now);
+  static uint16_t dummy_rwpa;
+  cspi_read_rx_pointers(&dummy_rwpa, mdra_rd_now);
+  debug_diff_rx_pointers(state, *mdra_rd_now);
+  return (state == 0) ? 0 : wrpadiff(*mdra_rd_org, *mdra_rd_now);
 }
 #endif
 
+/**
+ * @brief  Resets the hex dump state for input processing
+ */
 static void DM_Eth_Input_HexDumpReset(uint8_t *stat)
 {
 #if DM_ETH_DEBUG_MODE
-	dm_eth_input_hexdump_reset();
+  dm_eth_input_hexdump_reset();
 #endif
 }
 
-//DM_Eth_StatusLink
-int DM_Eth_Regs_Info_Linkup(uint8_t *stat) {
-	#if LINK_STATE_SOURCE == DM9051_CHECK_MAC
-	  return stat[1] & 0x40 ? 1 : 0; //'nsr'
-	#endif
-	#if LINK_STATE_SOURCE == DM9051_CHECK_PHY
-	  return stat[5] & 0x04 ? 1 : 0; //'bmsr'
-	#endif
+/**
+ * @brief  Checks if link is up based on configured source
+ * @param  stat: Status register values
+ * @return 1 if link is up, 0 otherwise
+ */
+int DM_Eth_Regs_Info_Linkup(uint8_t *stat)
+{
+#if LINK_STATE_SOURCE == DM9051_CHECK_MAC
+  return stat[1] & 0x40 ? 1 : 0;  /* NSR register */
+#endif
+#if LINK_STATE_SOURCE == DM9051_CHECK_PHY
+  return stat[5] & 0x04 ? 1 : 0;  /* BMSR register */
+#endif
 }
 
+/**
+ * @brief  Reads and processes register information
+ * @param  stat: Buffer for register values
+ */
 void DM_Eth_ReadRegsInfo(uint8_t *stat)
 {
-	/* cid/bmsr/ncr_nsr
-	 */
-	cspi_read_regs_info(stat);
-	if (!DM_Eth_Regs_Info_Linkup(stat))
-		DM_Eth_Input_HexDumpReset(stat);
+  cspi_read_regs_info(stat);
+  if (!DM_Eth_Regs_Info_Linkup(stat))
+    DM_Eth_Input_HexDumpReset(stat);
 }

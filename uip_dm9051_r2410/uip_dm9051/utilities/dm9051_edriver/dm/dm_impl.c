@@ -1,296 +1,233 @@
-/*
- * eth or ap
+/**
+ * DM9051 Implementation
+ * 
+ * This file contains debug and utility functions for the DM9051 Ethernet controller
  */
 
+/* Configuration Selection */
 #if 1
-	#include "control/conf.h" //#include "control/drv/conf_core.h"
-	#include "control/drv/dm9051_eth_debug.h"
+#include "control/conf.h"
+#include "control/drv/dm9051_eth_debug.h"
 #else
-	#include "control/conf.h" //#include "control/ap/conf_ap.h"
-	#include "control/ap/dm9051_ap_debug.h"
+#include "control/conf.h"
+#include "control/ap/dm9051_ap_debug.h"
 #endif
 
-/*
- * global
- */
+/* Configuration Constants */
+#define MAX_NODE_CANDIDATES    6
+#define RX_BUFFER_START       0xC00
+#define RX_BUFFER_END         0x4000
+#define MAX_HEX_LINE_BUF      180
+#define MAX_HEX_SEGMENT       32
+#define DEFAULT_MDRA_RD       0x4000
+#define TOTAL_DIFF_OFFSET     0x3400
 
+/* Debug Configuration */
+#define MAX_RX_LOG_ENTRIES    1
+#define MIN_HEADER_LENGTH     14
+#define MIN(a, b)             ((a < b) ? a : b)
+#define LIMIT_LEN(n, nTP)     ((n <= nTP) ? n : nTP)
+
+/* Type Definitions */
 #define DM_TYPE 1
 #include "dm_types_define.h"
-
 #define DM_TYPE 2
 #include "dm_types_define.h"
 
-/*
- * candidate
- */
-
+/* Network Configuration */
 const struct eth_node_t node_candidate[1] = {
 	{
 		{0, 0x60, 0x6e, 0x00, 0x00, 0x17},
 		{192, 168, 6, 17},
 		{192, 168, 6, 1},
 		{255, 255, 255, 0},
-	}, /*
-	   { \
-		   {0, 0x60, 0x6e, 0x00, 0x01, 0x26,}, \
-		   {192, 168, 6,  26}, \
-		   {192, 168, 6,   1}, \
-		   {255, 255, 255, 0}, \
-	   }, \
-	   { \
-		   {0, 0x60, 0x6e, 0x00, 0x01, 0x25,}, \
-		   {192, 168, 6,  25}, \
-		   {192, 168, 6,   1}, \
-		   {255, 255, 255, 0}, \
-	   }, \
-	   { \
-		   {0, 0x60, 0x6e, 0x00, 0x01, 0xfe,}, \
-		   {192, 168, 6,  66}, \
-		   {192, 168, 6,   1}, \
-		   {255, 255, 255, 0}, \
-	   }, \
-	   { \
-		   {0, 0x60, 0x6e, 0x00, 0x01, 0xff,}, \
-		   {192, 168, 6,  67}, \
-		   {192, 168, 6,   1}, \
-		   {255, 255, 255, 0}, \
-	   }, \
+	}, 
+	/*
+	{
+	 {0, 0x60, 0x6e, 0x00, 0x01, 0x25,},
+	 {192, 168, 6,  25},
+	 {192, 168, 6,   1},
+	 {255, 255, 255, 0},
+	},
 	   */
+	// ... other nodes can be uncommented and added here
 };
 
-/*
- * dbg_def info-function
- */
+/* Debug Level Implementation */
 const char *level_str_impl(dm9051_eth_debug_level_t level)
 {
-	const char *level_str;
-	switch (level) {
-		case DM9051_ETH_DEBUG_LEVEL_ERROR: level_str = "ERROR"; break;
-		case DM9051_ETH_DEBUG_LEVEL_WARN:  level_str = "WARN";  break;
-		case DM9051_ETH_DEBUG_LEVEL_INFO:  level_str = "INFO";  break;
-		case DM9051_ETH_DEBUG_LEVEL_DEBUG: level_str = "DEBUG"; break;
-		default:                           level_str = "UNKNOWN";
-	} \
-	return level_str;
+    static const char* const LEVEL_STRINGS[] = {
+        "ERROR", //[DM9051_ETH_DEBUG_LEVEL_ERROR] = 
+        "DEBUG", //[DM9051_ETH_DEBUG_LEVEL_DEBUG] = 
+        "WARN", //[DM9051_ETH_DEBUG_LEVEL_WARN]  = 
+        "INFO", //[DM9051_ETH_DEBUG_LEVEL_INFO]  = 
+    };
+
+    return (level < sizeof(LEVEL_STRINGS)/sizeof(LEVEL_STRINGS[0]) && 
+            LEVEL_STRINGS[level]) ? LEVEL_STRINGS[level] : "UNKNOWN";
 }
 
-//---------------------------------------
-
-unsigned long dispc_int_active = 0; //, dispc_int_active_saved = 0;
+/* Interrupt Tracking */
+static volatile unsigned long dispc_int_active = 0;
 
 void inc_interrupt_count(void)
 {
-	dispc_int_active++;
+    dispc_int_active++;
 }
 
 unsigned long get_interrupt_count(void)
 {
-	return dispc_int_active;
+    return dispc_int_active;
 }
 
-//---------------------------------------
-
+/* Buffer Management */
 uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e)
 {
-	return (rwpa_e >= rwpa_s) ? rwpa_e - rwpa_s : (rwpa_e + 0x4000 - 0xc00) - rwpa_s;
+    return (rwpa_e >= rwpa_s) ? 
+           rwpa_e - rwpa_s : 
+           (rwpa_e + RX_BUFFER_END - RX_BUFFER_START) - rwpa_s;
 }
 
-//---------------------------------------
-
-// Debug functionality
+/* Debug Pointer Tracking */
 #if DM_ETH_DEBUG_MODE
-void debug_diff_rx_pointers(int state, uint16_t rd_now) {
-#if drv_print
-	static int drp_fifoTurn_n = 0;
-	static uint16_t drp_premdra_rd = 0x4000;
-	static uint16_t drp_mdra_rd;
-	uint16_t compos_totaldiff, diff;
+static int fifo_fifoTurn_n = 0;
+static uint16_t fifo_premdra_rd = DEFAULT_MDRA_RD;
+static uint16_t fifo_mdra_rd;
 
-	if (drp_premdra_rd == 0x4000)
-		drp_mdra_rd = rd_now; //~return;
+void debug_diff_rx_pointers(int state, uint16_t rd_now)
+{
+#if drv_print
+	if (fifo_premdra_rd == DEFAULT_MDRA_RD)
+		fifo_mdra_rd = rd_now;
 
 	if (state)
-		drp_fifoTurn_n++;
-	if (rd_now < drp_premdra_rd && (drp_premdra_rd != 0x4000)) {
-		/*uint16_t*/ compos_totaldiff = (rd_now >= drp_mdra_rd) ? 0x3400 : 0;
-		/*uint16_t*/ diff = wrpadiff(drp_mdra_rd, rd_now);
-		printf("(INT %lu) mdra s %02x%02x e %02x%02x dif %x (nrx %d) .eth\r\n",
-			get_interrupt_count(),
-			drp_mdra_rd >> 8, drp_mdra_rd & 0xff,
-			rd_now >> 8, rd_now & 0xff,
-			diff + compos_totaldiff,
-			drp_fifoTurn_n);
+		fifo_fifoTurn_n++;
 
-		drp_fifoTurn_n = 0;
-		drp_mdra_rd = rd_now; //~return;
+	if (rd_now < fifo_premdra_rd && (fifo_premdra_rd != DEFAULT_MDRA_RD))
+	{
+		uint16_t compos_totaldiff = (rd_now >= fifo_mdra_rd) ? TOTAL_DIFF_OFFSET : 0;
+		uint16_t diff = wrpadiff(fifo_mdra_rd, rd_now);
+
+		printf("(INT %lu) mdra s %02x%02x e %02x%02x dif %x (nrx %d) .eth\r\n",
+			   get_interrupt_count(),
+			   fifo_mdra_rd >> 8, fifo_mdra_rd & 0xff,
+			   rd_now >> 8, rd_now & 0xff,
+			   diff + compos_totaldiff,
+			   fifo_fifoTurn_n);
+
+		fifo_fifoTurn_n = 0;
+		fifo_mdra_rd = rd_now;
 	}
-	drp_premdra_rd = rd_now;
+	fifo_premdra_rd = rd_now;
 #endif
 }
 #endif
 
-//---------------------------------------
-/*
- * cboard_print_hex
- */
-
-#define kkmin(a, b) (a < b) ? a : b
-
+/* Hex Dump Implementation */
 static int room_printf_space(char *lineroom, int offset, int n)
 {
-	while (n--)
-		offset += sprintf(lineroom + offset, "%c", ' ');
-	return offset;
+    while (n--)
+        offset += sprintf(lineroom + offset, "%c", ' ');
+    return offset;
 }
 
 static int room_printf_space_init(char *lineroom, size_t tlen)
 {
-	int offset = 0;
+    int offset = 0;
+    char textspace[16];
+    int n = sprintf(textspace, "rxlen %4d", tlen);
 
-	char textspace[16];
-	int n = sprintf(textspace, "rxlen %4d", tlen);
+    offset = room_printf_space(lineroom, offset, n);
+    offset += sprintf(lineroom + offset, " %s", textspace);
+    printf("%s\r\n", lineroom);
 
-	offset = room_printf_space(lineroom, offset, n);
-	offset += sprintf(lineroom + offset, " %s", textspace);
-	printf("%s\r\n", lineroom);
-
-	return n;
+    return n;
 }
 
 static int room_printf_rxlen_head(char *lineroom, size_t tlen, int nspc)
 {
-	if (!nspc)
-		nspc = room_printf_space_init(lineroom, tlen);
+    if (!nspc)
+        nspc = room_printf_space_init(lineroom, tlen);
 
-	room_printf_space(lineroom, 0, nspc);
-	return nspc;
+    room_printf_space(lineroom, 0, nspc);
+    return nspc;
 }
 
 static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
-							 size_t tlen, int rowsize, const void *buf, int seg_start, size_t len, int cast_lf)
+                           size_t tlen, int rowsize, const void *buf, 
+                           int seg_start, size_t len, int cast_lf)
 {
-	char lineroombuff[180];
-	int print_linefeed_flag;
-	int si, se, titlec = 0;
-	int i, linelen, remaining = len; // hs, const eth_class_t *ec = &eclass[10];
-	int nspace = 0;
+    char lineroombuff[MAX_HEX_LINE_BUF];
+    int print_linefeed_flag;
+    int si = seg_start;
+    int se = seg_start + len;
+    int titlec = 0;
+    int nspace = 0;
+		int i;
 
-	(void)head_space;
+    (void)head_space;
 
-	si = seg_start;
-	se = seg_start + len;
-	for (i = si; i < se; i += rowsize)
-	{
-		char linebuf[(12 * 3) + (3 * 16) + 1 + 32]; // here!
+    for (i = si; i < se; i += rowsize)
+    {
+        char linebuf[(12 * 3) + (3 * 16) + 1 + 32];
+        int remaining = len - (i - si);
+        int linelen = MIN(remaining, rowsize);
+        const uint8_t *ptr = buf;
+        int nb = 0;
+        int j;
 
-		nspace = room_printf_rxlen_head(lineroombuff, tlen, nspace);
-		linelen = kkmin(remaining, rowsize);
-		remaining -= rowsize;
-		do
-		{
-			const uint8_t *ptr = buf;
-			int j;
-			int nb = 0;
-			for (j = 0; j < linelen && (size_t)nb < sizeof(linebuf); j++)
-			{
-				if (j && !(j % 8))
-					nb += snprintf(linebuf + nb, sizeof(linebuf) - nb, " ");
-				if (((rowsize >> 1) != 8) && !(j % (rowsize >> 1)))
-					nb += snprintf(linebuf + nb, sizeof(linebuf) - nb, " ");
+        nspace = room_printf_rxlen_head(lineroombuff, tlen, nspace);
+        
+        /* Format hex values */
+        for (j = 0; j < linelen && (size_t)nb < sizeof(linebuf); j++)
+        {
+            if (j && !(j % 8))
+                nb += snprintf(linebuf + nb, sizeof(linebuf) - nb, " ");
+            if (((rowsize >> 1) != 8) && !(j % (rowsize >> 1)))
+                nb += snprintf(linebuf + nb, sizeof(linebuf) - nb, " ");
 
-				nb += snprintf(linebuf + nb, sizeof(linebuf) - nb, "%02x ", *(ptr + i + j));
-			}
-		} while (0);
+            nb += snprintf(linebuf + nb, sizeof(linebuf) - nb, "%02x ", *(ptr + i + j));
+        }
 
-		nspace += sprintf(lineroombuff+nspace, " ");
+        /* Format output line */
+        nspace += sprintf(lineroombuff + nspace, " ");
+        if (prefix_str) {
+            nspace += sprintf(lineroombuff + nspace, "(%s) %.3x %s", prefix_str, i, linebuf);
+            while (titledn) {
+                titledn--;
+                prefix_str[titlec++] = ' ';
+            }
+        } else {
+            nspace += sprintf(lineroombuff + nspace, "(dm9 xfer) %.3x %s", i, linebuf);
+        }
 
-		if (prefix_str)
-		{
-			nspace += sprintf(lineroombuff+nspace, "(%s) %.3x %s", prefix_str, i, linebuf);
-			while (titledn)
-			{
-				titledn--;
-				prefix_str[titlec++] = ' ';
-			}
-		}
-		else
-		{
-			nspace += sprintf(lineroombuff+nspace, "(dm9 xfer) %.3x %s", i, linebuf);
-		}
-
-		print_linefeed_flag = 0;
-		if ((i + rowsize) < se)
-			print_linefeed_flag = 1;
-		else
-		{
-			if (cast_lf)
-				print_linefeed_flag = 1;
-#if 0
-				if (IS_UDP) {
-#if 0
-					size_t ulen = tlen; // larger for with 4-bytes CRC
-					ulen = UIP_LLH_LEN;
-					ulen += HTONS(UDPBUF->udplen) - 8;
-					ulen += sizeof(struct uip_udpip_hdr); // correct for without 4-bytes CRC (htons)
-
-					if (cast_lf)
-						printf("\r\n");
-
-					printf(" ..SrcIP %d.%d.%d.%d", (IPBUF->srcipaddr[0] >> 0) & 0xff, (IPBUF->srcipaddr[0] >> 8),
-						(IPBUF->srcipaddr[1] >> 0) & 0xff, (IPBUF->srcipaddr[1] >> 8));
-					printf("  DestIP %d.%d.%d.%d", (IPBUF->destipaddr[0] >> 0) & 0xff, (IPBUF->destipaddr[0] >> 8),
-						(IPBUF->destipaddr[1] >> 0) & 0xff, (IPBUF->destipaddr[1] >> 8));
-					printf("  Len %d", ulen);
-					printf("  (%5d -> %d Len %d)", UDPBUF->srcport, UDPBUF->destport, HTONS(UDPBUF->udplen) - 8);
-					printf("\r\n");
-#endif
-				}
-				if (IS_TCP) {
-					size_t ulen = tlen; // larger for with 4-bytes CRC
-					printf(" ..SrcIP %d.%d.%d.%d", (IPBUF->srcipaddr[0] >> 0) & 0xff, (IPBUF->srcipaddr[0] >> 8),
-						(IPBUF->srcipaddr[1] >> 0) & 0xff, (IPBUF->srcipaddr[1] >> 8));
-					printf("  DestIP %d.%d.%d.%d", (IPBUF->destipaddr[0] >> 0) & 0xff, (IPBUF->destipaddr[0] >> 8),
-						(IPBUF->destipaddr[1] >> 0) & 0xff, (IPBUF->destipaddr[1] >> 8));
-					printf("  Len %d", ulen);
-					
-					if (TCPBUF->flags == 0x18)
-						printf("  (%5d -> %d) flags %02x (PSH, ACK)", HTONS(TCPBUF->srcport), HTONS(TCPBUF->destport), TCPBUF->flags);
-					else
-						printf("  (%5d -> %d) flags %02x", HTONS(TCPBUF->srcport), HTONS(TCPBUF->destport), TCPBUF->flags);
-					
-					printf("\r\n");
-				}
-#endif
-		}
-		if (print_linefeed_flag)
-			printf("%s\r\n", lineroombuff);
-		else
-			printf("%s", lineroombuff);
-	}
+        /* Handle line endings */
+        print_linefeed_flag = ((i + rowsize) < se) || cast_lf;
+        printf("%s%s", lineroombuff, print_linefeed_flag ? "\r\n" : "");
+    }
 }
 
-/* print log
- */
-
+/* Debug Logging Interface */
 #if DM_ETH_DEBUG_MODE
-int link_log_reset_allow_num = 0;
-const int rx_modle_log_reset_allow_num = 1; //3;
-#define limit_len(n, nTP) ((n <= nTP) ? n : nTP)
+static int link_log_reset_allow_num = 0;
+static const int rx_modle_log_reset_allow_num = MAX_RX_LOG_ENTRIES;
 
-void dm_eth_input_hexdump_reset(void) {
-	if (link_log_reset_allow_num) //Jos like protect from always write-it.
+void dm_eth_input_hexdump_reset(void)
+{
+	// Jos like protect from always write-it.
+	if (link_log_reset_allow_num) {
 		link_log_reset_allow_num = 0;
+	}
 }
 
 void dm_eth_input_hexdump(const void *buf, size_t len)
 {
-	int titledn = 0;
-	if (link_log_reset_allow_num < rx_modle_log_reset_allow_num)
-	{
-		link_log_reset_allow_num++;
-		sprint_hex_dump0(2, titledn, "dm9 head   <<rx", len, 32, buf, 0, 
-			limit_len(len, 14) /*limit_len(len, 66)*/,
-			DM_TRUE);
-	}
+    if (link_log_reset_allow_num >= rx_modle_log_reset_allow_num) {
+        return;
+    }
+
+    link_log_reset_allow_num++;
+    sprint_hex_dump0(2, 0, "dm9 head   <<rx", len, MAX_HEX_SEGMENT,
+                    buf, 0, LIMIT_LEN(len, MIN_HEADER_LENGTH), DM_TRUE);
 }
 #endif

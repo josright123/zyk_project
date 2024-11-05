@@ -35,7 +35,6 @@ void dm9051_hal_tick(void);
 #if defined(_DLW_AT32F437xx)
 
 void dm_delay_us(uint32_t nus);
-void dm_delay_ms(uint16_t nms);
 
 // SPI Configuration Structure
 struct spi_config_t
@@ -43,13 +42,13 @@ struct spi_config_t
 	spi_type *spi;
 	crm_periph_clock_type clock;
 	struct gpio_mux_t sck, miso, mosi; 
-	/* cs */
+	/*struct gpio_config_t cs */
 };
 
 // Interrupt Configuration Structure
 struct interrupt_config_t
 {
-	/*struct gpio_mux_t gpio; */
+	/*struct gpio_config_t gpio; */
 	crm_periph_clock_type scfgclock;
 	crm_periph_clock_type clock;
 	scfg_port_source_type port_source;
@@ -129,11 +128,9 @@ static void configure_cspi(const struct spi_config_t *ss)
 	spi_init_struct.transmission_mode = SPI_TRANSMIT_FULL_DUPLEX;
 	spi_init_struct.master_slave_mode = SPI_MODE_MASTER;
 	spi_init_struct.mclk_freq_division = SPI_MCLK_DIV_8;
-	// spi_init_struct.first_bit_transmission = SPI_FIRST_BIT_LSB;
 	spi_init_struct.first_bit_transmission = SPI_FIRST_BIT_MSB;
 	spi_init_struct.frame_bit_num = SPI_FRAME_8BIT;
 	spi_init_struct.clock_polarity = SPI_CLOCK_POLARITY_LOW;
-	// spi_init_struct.clock_phase = SPI_CLOCK_PHASE_2EDGE;
 	spi_init_struct.clock_phase = SPI_CLOCK_PHASE_1EDGE;
 	spi_init_struct.cs_mode_selection = SPI_CS_SOFTWARE_MODE;
 	spi_init(ss->spi, &spi_init_struct);

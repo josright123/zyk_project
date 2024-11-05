@@ -1,440 +1,630 @@
-/*
- * Copyright (c) 2023-2025 Davicom Semiconductor, Inc.
- * All rights reserved.
- *
+/**
  * @file     dm9051.c
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- * 3. The name of the author may not be used to endorse or promote products
- *    derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
- * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
- * OF SUCH DAMAGE.
- *
- * This DM9051 Driver for LWIP tcp/ip stack
- * First veryification with : AT32F415
- *
- * Author: Joseph CHANG <joseph_chang@davicom.com.tw>
- * Date: 20230411
- * Date: 20230428 (V3)
+ * @brief    DM9051 Ethernet Controller Driver for LWIP TCP/IP Stack
+ * @version  V3.0
+ * @date     2023-05-28
+ * 
+ * @author   Joseph CHANG <joseph_chang@davicom.com.tw>
+ * @copyright (c) 2023-2025 Davicom Semiconductor, Inc.
+ * 
+ * @details
+ *   This driver implements the hardware abstraction layer for the DM9051
+ *   Ethernet controller, providing initialization, transmit, and receive
+ *   functionality integrated with the LWIP TCP/IP stack.
+ * 
+ *   Key Features:
+ *   - Full integration with uip and LWIP TCP/IP stack
+ *   - Support for interrupt and polling modes
+ *   - Configurable MAC address handling
+ *   - Error detection and recovery mechanisms
+ * 
+ * @note    First verification: AT32F415
  */
+
+/* Standard Library Includes */
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
 
+/* Project Specific Includes */
 #include "control/drv/conf_core.h"
 #include "control/drv/dm9051_eth_debug.h"
 
-#define cint_disable_mcu_irq_AT  cint_disable_mcu_irq
-#define cint_enable_mcu_irq_AT cint_enable_mcu_irq
+/*-----------------------------------------------------------------------------
+ * Configuration and Definitions
+ *-----------------------------------------------------------------------------*/
 
-	//void cint_disable_mcu_irq_AT(void);
-	void cint_enable_mcu_irq_AT(void);
+/* MCU Interrupt Control Macros */
+#define cint_disable_mcu_irq_AT    cint_disable_mcu_irq
+#define cint_enable_mcu_irq_AT     cint_enable_mcu_irq
 
-// dm9051_Hw_common implementation source code
-uint8_t cspi_read_reg(uint8_t reg);
-void cspi_write_reg(uint8_t reg, uint8_t val);
-void cspi_read_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode);
-void cspi_write_regs(uint8_t reg, const uint8_t *buf, uint16_t len);
-uint16_t cspi_phy_read(uint16_t uReg); //[uint16_t eeprom_read(uint16_t uWord);]
-void cspi_phy_write(uint16_t reg, uint16_t value); //[function "phy_write" was available but could never referenced.]
-uint8_t cspi_read_rxb(void);
-void cspi_tx_req(void);
-void cspi_read_mem(uint8_t *buf, uint16_t len);
-void cspi_write_mem(uint8_t *buf, uint16_t len);
+/* Buffer Size Definitions */
+#define PBUF_POOL_BUFSIZE         (1514 + 4)    /* Maximum Ethernet frame size + header */
+#define TIMES_TO_RST              10
 
-void dm_delay_ms(uint16_t nms);
+/*-----------------------------------------------------------------------------
+ * Function Prototypes
+ *-----------------------------------------------------------------------------*/
 
-// Constants and Definitions
-#define PBUF_POOL_BUFSIZE (1514 + 4) //.2000	//.2000(tested)
+/* MCU Interrupt Control */
+void      cint_enable_mcu_irq_AT(void);
 
-// Forward declarations
-static uint16_t impl_dm9051_rx(uint8_t *buff);
+/* Hardware Interface Functions */
+uint8_t   cspi_read_reg(uint8_t reg);
+void      cspi_write_reg(uint8_t reg, uint8_t val);
+void      cspi_read_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode);
+void      cspi_write_regs(uint8_t reg, const uint8_t *buf, uint16_t len);
+uint16_t  cspi_phy_read(uint16_t uReg);
+void      cspi_phy_write(uint16_t reg, uint16_t value);
+uint8_t   cspi_read_rxb(void);
+void      cspi_tx_req(void);
+void      cspi_read_mem(uint8_t *buf, uint16_t len);
+void      cspi_write_mem(uint8_t *buf, uint16_t len);
+void      dm_delay_ms(uint16_t nms);
+
+/* Internal Function Prototypes */
+static uint16_t      impl_dm9051_rx(uint8_t *buff);
 static const uint8_t *impl_dm9051_init(const uint8_t *adr);
-static void cspi_core_reset(void);
+static void          cspi_core_reset(void);
 static const uint8_t *cspi_dm_start1(const uint8_t *adr);
-static void cspi_set_par(const uint8_t *adr);
+static void          cspi_set_par(const uint8_t *adr);
 
-const uint8_t *dm9051_init(const uint8_t *adr)
-{
-	const uint8_t *mac = impl_dm9051_init(adr);
+/*-----------------------------------------------------------------------------
+ * Public Interface Functions
+ *-----------------------------------------------------------------------------*/
 
-	printf("[heartbeat %lu] heartbeat %s\r\n", dm_sys_now(),
-		dm_sys_now() ? "OK" : "No Good fail");
-	printf("[%s] config OK\r\n\r\n", RX_MODE_STR);
-	return mac;
-}
-
-uint16_t dm9051_rx(uint8_t *buff)
-{
-	uint16_t rx_len;
-	rx_len = impl_dm9051_rx(buff);
-	return rx_len;
-}
-
-void dm9051_tx(uint8_t *buf, uint16_t len)
-{
-	cspi_tx_write(buf, len);
-	cspi_tx_req();
-}
-
-// uint16_t dm9051_isr_disab(void) {
-//	return 0;
-// }
-
-uint16_t cspi_isr_enab(void) // read and/then write
-{
-	uint16_t isrs;
-	isrs = cspi_read_reg(DM9051_ISR);
-	cspi_write_reg(DM9051_ISR, (uint8_t)isrs);
-	return isrs | (0xff << 8);
-}
-
-uint16_t cspi_read_chip_id(void)
-{
-	uint8_t buff[2];
-	cspi_read_regs(DM9051_PIDL, buff, 2, CS_EACH);
-	return buff[0] | buff[1] << 8;
-}
-
-uint16_t cspi_read_control_status(void)
-{
-	uint8_t buff[2];
-	cspi_read_regs(DM9051_NCR, buff, 2, CS_EACH);
-	return buff[0] | buff[1] << 8;
-}
-
-void cspi_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd)
-{
-	*rwpa_wt = (uint16_t)cspi_read_reg(0x24) | (uint16_t)cspi_read_reg(0x25) << 8; // DM9051_RWPAL
-	*mdra_rd = (uint16_t)cspi_read_reg(0x74) | (uint16_t)cspi_read_reg(0x75) << 8; // DM9051_MRRL;
-}
-
-void cspi_read_regs_info(uint8_t *stat)
-{
-	uint16_t cs;
-	uint32_t pbm;
-
-	pbm = cspi_phy_read(PHY_STATUS_REG);
-	pbm |= cspi_read_chip_id() << 16;
-	cs = cspi_read_control_status();
-
-	stat[0] = cs & 0xff;
-	stat[1] = (cs >> 8) & 0xff;
-	stat[2] = (pbm >> 24) & 0xff;
-	stat[3] = (pbm >> 16) & 0xff;
-	stat[4] = (pbm >> 8) & 0xff;
-	stat[5] = (pbm) & 0xff;
-}
-
-// ---------------------- cspi -------------------------------------------------------------
-
-void cspi_phycore_on(uint16_t nms)
-{
-	// u8 gpcr = cspi_read_reg(DM9051_GPCR);
-	// cspi_write_reg(DM9051_GPCR, gpcr | 0x01);
-	cspi_write_reg(DM9051_GPR, 0x00); // Power on PHY
-	dm_delay_ms(nms);
-}
-
-void cspi_ncr_reset(uint16_t nms)
-{
-	cspi_write_reg(DM9051_NCR, DM9051_NCR_RESET);
-	dm_delay_ms(nms); // dm9051_delay_in_core_process(nms, "_core_reset<>"); //dm_delay_ms(250); //CH-Est-Extra
-}
-
-void cspi_soft_default(void)
-{
-	uint8_t val = MBNDRY_WORD;					   // 16-bit
-	cspi_write_reg(DM9051_MBNDRY, val);			   /* MemBound */
-	cspi_write_reg(DM9051_PPCR, PPCR_PAUSE_COUNT);
-	cspi_write_reg(DM9051_LMCR, LMCR_MODE1);
-	cspi_write_reg(DM9051_INTR, INTR_ACTIVE_LOW);
-	identify_irq_stat(ISTAT_LOW_ACTIVE);
-	trace_irq_stat(ISTAT_LOW_ACTIVE);
-}
-
-static void cspi_set_par(const uint8_t *adr)
-{
-	cspi_write_regs(DM9051_PAR, adr, 6);
-}
-
-void cspi_set_mar(void)
-{
-	int i;
-	for (i = 0; i < 8; i++)
-		cspi_write_reg(DM9051_MAR + i, (i == 7) ? 0x80 : 0x00);
-}
-
-void cspi_set_recv(void)
-{
-	#if 0
-	cspi_write_reg(DM9051_FCR, FCR_DEFAULT); //iow(FCR_FLOW_ENABLE);
-	phy_write 04, flow
-	#endif
-	identify_irq_stat(ISTAT_DM_IMR);
-	trace_irq_stat(ISTAT_DM_IMR);
-	cspi_write_reg(DM9051_IMR, IMR_PAR | IMR_PRM); // iow(IMR, IMR_PAR | IMR_PTM | IMR_PRM);
-
-	identify_irq_stat(ISTAT_DM_RCR);
-	trace_irq_stat(ISTAT_DM_RCR);
-	cspi_write_reg(DM9051_RCR, RCR_DEFAULT | RCR_RXEN);
-}
-
-void cspi_rx_head(uint8_t *receivedata)
-{
-	cspi_read_mem(receivedata, 4);
-	cspi_write_reg(DM9051_ISR, 0x80);
-}
-
-void cspi_rx_read(uint8_t *buff, uint16_t rx_len)
-{
-	cspi_read_mem(buff, rx_len);
-	cspi_write_reg(DM9051_ISR, 0x80);
-}
-
-void cspi_tx_write(uint8_t *buf, uint16_t len)
-{
-	uint16_t pad = 0; // 8-bit
-	cspi_write_reg(DM9051_TXPLL, len & 0xff);
-	cspi_write_reg(DM9051_TXPLH, (len >> 8) & 0xff);
-	pad = len & 1;					// 16-bit
-	cspi_write_mem(buf, len + pad); // 8/16-bit
-}
-
-// ---------------------- env -------------------------------------------------------------
-
-int env_init_setup(uint16_t *id)
-{
-	uint8_t rev = cspi_read_reg(0x5c);
-	*id = cspi_read_chip_id();
-	if (*id == 0x9000)
-		*id = 0x9051;
-
-	if (*id != 0x9051)
-	{
-		printf("DM9051 not found, chipid: %04x\r\n", id);
-		return 0;
-	}
-
-	printk("\r\n");
-	printf("DM9051 found: %04x\r\n", *id);
-	// printf("DM9051 chip rev: %02x\r\n", rev);
-	return 1;
-}
-
-/*
- * cboard_env_func
+/**
+ * @brief  Initialize DM9051 Ethernet controller
+ * 
+ * @param  adr   Pointer to MAC address array
+ * @return       Pointer to configured MAC address
+ * 
+ * @note   This function performs complete initialization of the DM9051 including
+ *         MAC address configuration and basic setup
  */
-#define TIMES_TO_RST 10
-
-static void dm9051_show_rxbstatistic(uint8_t *htc, int n)
+const uint8_t *dm9051_init(const uint8_t *adr) 
 {
-	int i;
-#if (drv_print && PRINT_SEMA == SEMA_ON) // depend
-	int j;
+  const uint8_t *mac;
+  
+  mac = impl_dm9051_init(adr);
+
+  printf("[heartbeat %lu] heartbeat %s\r\n", 
+         dm_sys_now(), 
+         dm_sys_now() ? "OK" : "No Good fail");
+  printf("[%s] config OK\r\n\r\n", RX_MODE_STR);
+  return mac;
+}
+
+/**
+ * @brief  Receive packet from DM9051
+ * 
+ * @param  buff  Buffer to store received packet
+ * @return       Length of received packet or 0 if no packet
+ * 
+ * @note   This function handles the complete receive process including
+ *         error checking and buffer management
+ */
+uint16_t dm9051_rx(uint8_t *buff) 
+{
+  uint16_t rx_len;
+  
+  rx_len = impl_dm9051_rx(buff);
+  return rx_len;
+}
+
+/**
+ * @brief  Transmit packet through DM9051
+ * 
+ * @param  buf   Buffer containing packet to transmit
+ * @param  len   Length of packet
+ * 
+ * @note   This function handles the complete transmit process
+ */
+void dm9051_tx(uint8_t *buf, uint16_t len) 
+{
+  cspi_tx_write(buf, len);
+  cspi_tx_req();
+}
+
+/**
+ * @brief  Enable interrupts and read/write ISR register
+ * @return Combined ISR status (upper 8 bits always 0xFF)
+ */
+uint16_t cspi_isr_enab(void) 
+{
+  uint16_t isrs;
+  
+  isrs = cspi_read_reg(DM9051_ISR);
+  cspi_write_reg(DM9051_ISR, (uint8_t)isrs);
+  
+  return isrs | (0xff << 8);
+}
+
+/**
+ * @brief  Read DM9051 chip identification
+ * @return 16-bit chip ID (PIDL | PIDH << 8)
+ */
+uint16_t cspi_read_chip_id(void) 
+{
+  uint8_t buff[2];
+  
+  cspi_read_regs(DM9051_PIDL, buff, 2, CS_EACH);
+  return buff[0] | buff[1] << 8;
+}
+
+/**
+ * @brief  Read control and status registers
+ * @return 16-bit status (NCR | NSR << 8)
+ */
+uint16_t cspi_read_control_status(void) 
+{
+  uint8_t buff[2];
+  
+  cspi_read_regs(DM9051_NCR, buff, 2, CS_EACH);
+  return buff[0] | buff[1] << 8;
+}
+
+/**
+ * @brief  Read RX write pointer and memory data read address
+ * 
+ * @param  rwpa_wt  Pointer to store write pointer
+ * @param  mdra_rd  Pointer to store read address
+ */
+void cspi_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd) 
+{
+  *rwpa_wt = (uint16_t)cspi_read_reg(0x24) |      /* DM9051_RWPAL */
+             (uint16_t)cspi_read_reg(0x25) << 8;   /* DM9051_RWPAH */
+             
+  *mdra_rd = (uint16_t)cspi_read_reg(0x74) |      /* DM9051_MRRL */
+             (uint16_t)cspi_read_reg(0x75) << 8;   /* DM9051_MRRH */
+}
+
+/**
+ * @brief  Read comprehensive register information
+ * 
+ * @param  stat  Buffer to store status information (6 bytes)
+ * 
+ * @note   Combines chip ID, control status, and PHY status
+ */
+void cspi_read_regs_info(uint8_t *stat) 
+{
+  uint16_t cs;
+  uint32_t pbm;
+
+  pbm = cspi_phy_read(PHY_STATUS_REG);
+  pbm |= cspi_read_chip_id() << 16;
+  cs = cspi_read_control_status();
+
+  stat[0] = cs & 0xff;
+  stat[1] = (cs >> 8) & 0xff;
+  stat[2] = (pbm >> 24) & 0xff;
+  stat[3] = (pbm >> 16) & 0xff;
+  stat[4] = (pbm >> 8) & 0xff;
+  stat[5] = pbm & 0xff;
+}
+
+/*-----------------------------------------------------------------------------
+ * Hardware Configuration Functions
+ *-----------------------------------------------------------------------------*/
+
+/**
+ * @brief  Power on PHY and wait for stabilization
+ * 
+ * @param  nms  Delay time in milliseconds
+ */
+void cspi_phycore_on(uint16_t nms) 
+{
+  cspi_write_reg(DM9051_GPR, 0x00);  /* Power on PHY */
+  dm_delay_ms(nms);
+}
+
+/**
+ * @brief  Perform NCR reset and wait for completion
+ * 
+ * @param  nms  Delay time in milliseconds
+ */
+void cspi_ncr_reset(uint16_t nms) 
+{
+  cspi_write_reg(DM9051_NCR, DM9051_NCR_RESET);
+  dm_delay_ms(nms);
+}
+
+/**
+ * @brief  Configure default software settings
+ */
+void cspi_soft_default(void) 
+{
+  uint8_t val = MBNDRY_WORD;  /* 16-bit */
+  
+  cspi_write_reg(DM9051_MBNDRY, val);
+  cspi_write_reg(DM9051_PPCR, PPCR_PAUSE_COUNT);
+  cspi_write_reg(DM9051_LMCR, LMCR_MODE1);
+  cspi_write_reg(DM9051_INTR, INTR_ACTIVE_LOW);
+  
+  identify_irq_stat(ISTAT_LOW_ACTIVE);
+  trace_irq_stat(ISTAT_LOW_ACTIVE);
+}
+
+/**
+ * @brief  Configure physical address registers
+ * 
+ * @param  adr  MAC address array
+ */
+static void cspi_set_par(const uint8_t *adr) 
+{
+  cspi_write_regs(DM9051_PAR, adr, 6);
+}
+
+/**
+ * @brief  Configure multicast address registers
+ */
+void cspi_set_mar(void) 
+{
+  int i;
+  
+  for (i = 0; i < 8; i++) {
+    cspi_write_reg(DM9051_MAR + i, (i == 7) ? 0x80 : 0x00);
+  }
+}
+
+/**
+ * @brief  Configure receive settings and interrupts
+ */
+void cspi_set_recv(void) 
+{
+#if 0
+  cspi_write_reg(DM9051_FCR, FCR_DEFAULT);  /* iow(FCR_FLOW_ENABLE) */
+  phy_write 04, flow
 #endif
 
-	printf("SHW rxbStatistic, 254 wrngs\r\n");
-	for (i = 0; i < (n + 2); i++)
-	{
-		if (!(i % 32) && i)
-			printf("\r\n");
-		if (!(i % 32) || !(i % 16))
-			printf("%02x:", i);
-		if (!(i % 8))
-			printf(" ");
-		if (i == 0 || i == 1)
-		{
-			printf("  ");
-			continue;
-		}
-#if (drv_print && PRINT_SEMA == SEMA_ON) // depend
-		j = i - 2;
-		printf("%d ", htc[j]);
-#endif
-	}
-	printf("\r\n");
+  /* Configure interrupt settings */
+  identify_irq_stat(ISTAT_DM_IMR);
+  trace_irq_stat(ISTAT_DM_IMR);
+  cspi_write_reg(DM9051_IMR, IMR_PAR | IMR_PRM);  /* iow(IMR, IMR_PAR | IMR_PTM | IMR_PRM) */
+
+  /* Configure receive settings */
+  identify_irq_stat(ISTAT_DM_RCR);
+  trace_irq_stat(ISTAT_DM_RCR);
+  cspi_write_reg(DM9051_RCR, RCR_DEFAULT | RCR_RXEN);
 }
 
-static uint8_t ret_fire_time(uint8_t *histc, int csize, int i, uint8_t rxb)
+/**
+ * @brief  Read receive packet header
+ * 
+ * @param  receivedata  Buffer to store header data (4 bytes)
+ */
+void cspi_rx_head(uint8_t *receivedata) 
 {
-	printf(" _dm9051f rxb %02x (times %2d)%c\r\n", rxb, histc[i], (histc[i] == 2) ? '*' : ' ');
-	if (histc[i] >= TIMES_TO_RST)
-	{
-		dm9051_show_rxbstatistic(histc, csize);
-		histc[i] = 1;
-		return TIMES_TO_RST;
-	}
-	return 0;
+  cspi_read_mem(receivedata, 4);
+  cspi_write_reg(DM9051_ISR, 0x80);
 }
 
-uint16_t env_evaluate_rxb(uint8_t rxb)
+/**
+ * @brief  Read receive packet data
+ * 
+ * @param  buff    Buffer to store packet data
+ * @param  rx_len  Length of data to read
+ */
+void cspi_rx_read(uint8_t *buff, uint16_t rx_len) 
 {
-	int i;
-	static uint8_t histc[254] = {0}; // static int rff_c = 0 ...;
-	uint8_t times = 1;
-
-	for (i = 0; i < sizeof(histc); i++)
-	{
-		if (rxb == (i + 2))
-		{
-			histc[i]++;
-			times = ret_fire_time(histc, sizeof(histc), i, rxb);
-			if (times == 0) // As: Hdlr (times : 0 or TIMES_TO_RST)
-				return 0;
-			return env_err_rsthdlr("_dm9051f rxb error accumunation times : %u\r\n", times);
-		}
-	}
-	return env_err_rsthdlr3("dm9 impossible path error times : %u\r\n", times); // As: Hdlr (times : 1)
+  cspi_read_mem(buff, rx_len);
+  cspi_write_reg(DM9051_ISR, 0x80);
 }
 
-static const uint8_t *env_reset_process(const uint8_t *macaddr)
+/**
+ * @brief  Write transmit packet data
+ * 
+ * @param  buf  Buffer containing packet data
+ * @param  len  Length of data to write
+ */
+void cspi_tx_write(uint8_t *buf, uint16_t len) 
 {
-	cspi_core_reset();
-	return cspi_dm_start1(macaddr);
+  uint16_t pad = 0;  /* 8-bit */
+  
+  /* Set packet length */
+  cspi_write_reg(DM9051_TXPLL, len & 0xff);
+  cspi_write_reg(DM9051_TXPLH, (len >> 8) & 0xff);
+  
+  /* Write packet data with padding if needed */
+  pad = len & 1;                   /* 16-bit */
+  cspi_write_mem(buf, len + pad);  /* 8/16-bit */
 }
 
-void err_callback(char *explain_str, uint32_t err_code) {
-	char bff[180];
-	sprintf(bff, explain_str, err_code);
-	printf("%s", bff);
-}
+/*-----------------------------------------------------------------------------
+ * Environment and Initialization Functions
+ *-----------------------------------------------------------------------------*/
 
-uint16_t env_err_rsthdlr(char *err_explain_str, uint32_t valuecode)
+/**
+ * @brief  Initialize and verify DM9051 device
+ * 
+ * @param  id  Pointer to store chip ID
+ * @return     1 if device found, 0 if not found
+ */
+int env_init_setup(uint16_t *id) 
 {
-	char bff[180];
-	//printf(err_explain_str, valuecode);
-	sprintf(bff, err_explain_str, valuecode);
-	printf("%s", bff);
-	
-	env_reset_process(identified_eth_mac());
-	return 0;
-}
+  uint8_t rev = cspi_read_reg(0x5c);
+  
+  /* Read and verify chip ID */
+  *id = cspi_read_chip_id();
+  if (*id == 0x9000) {
+    *id = 0x9051;
+  }
 
-uint16_t env_err_rsthdlr1(void (*callback)(char *, uint32_t), char *explain_str, uint32_t code)
-{
-    callback(explain_str, code);
-    env_reset_process(identified_eth_mac());
+  if (*id != 0x9051) {
+    printf("DM9051 not found, chipid: %04x\r\n", id);
     return 0;
+  }
+
+  printk("\r\n");
+  printf("DM9051 found: %04x\r\n", *id);
+  return 1;
 }
 
-//uint16_t env_err_rsthdlr2(int sz)
-//{
-//    DM_UNUSED_ARG(sz);
-//    env_reset_process(identified_eth_mac());
-//    return 0;
-//}
-
-uint16_t env_err_rsthdlr3(const char *format, ...)
+/**
+ * @brief  Display RX buffer statistics
+ * 
+ * @param  htc  History counter array
+ * @param  n    Size of array
+ */
+static void dm9051_show_rxbstatistic(uint8_t *htc, int n) 
 {
-	char bff[180];
-	int val;
-	va_list args;
-	va_start(args, format);
+  int i;
+#if (drv_print && PRINT_SEMA == SEMA_ON)
+  int j;
+#endif
 
-	val = va_arg(args, int);
-	sprintf(bff, format, val);
-	
-	printf("%s", bff);
-	//vaf.fmt = format;
-	//vaf.va = &args;
-	//printf("%pV\r\n", &vaf); //ops
-
-	va_end(args);
-	env_reset_process(identified_eth_mac());
-	return 0;
+  printf("SHW rxbStatistic, 254 wrngs\r\n");
+  
+  for (i = 0; i < (n + 2); i++) {
+    if (!(i % 32) && i)
+      printf("\r\n");
+    if (!(i % 32) || !(i % 16))
+      printf("%02x:", i);
+    if (!(i % 8))
+      printf(" ");
+    if (i == 0 || i == 1) {
+      printf("  ");
+      continue;
+    }
+    
+#if (drv_print && PRINT_SEMA == SEMA_ON)
+    j = i - 2;
+    printf("%d ", htc[j]);
+#endif
+  }
+  printf("\r\n");
 }
 
-// ---------------------- xx -------------------------------------------------------------
-
-static uint16_t impl_dm9051_rx(uint8_t *buff)
+/**
+ * @brief  Process RX buffer fire time
+ * 
+ * @param  histc   History counter array
+ * @param  csize   Size of array
+ * @param  i       Current index
+ * @param  rxb     RX buffer value
+ * @return         TIMES_TO_RST if reset needed, 0 otherwise
+ */
+static uint8_t ret_fire_time(uint8_t *histc, int csize, int i, uint8_t rxb) 
 {
-	uint8_t rxbyte, rx_status;
-	uint8_t ReceiveData[4];
-	uint16_t rx_len, pad = 0; // 8-bit
-
-	/* DM9051_RX_BREAK(!link_flag(), return evaluate_link()); */
-
-	rxbyte = cspi_read_rxb();
-	DM9051_RX_BREAK((rxbyte != 0x01 && rxbyte != 0),
-					return env_evaluate_rxb(rxbyte));
-	DM9051_RX_BREAK((rxbyte == 0),
-					return 0);
-	cspi_rx_head(ReceiveData);
-	rx_status = ReceiveData[1];
-	rx_len = ReceiveData[2] + (ReceiveData[3] << 8);
-	DM9051_RX_BREAK((rx_status & (0xbf & ~RSR_PLE)),
-					return env_err_rsthdlr1(err_callback, "_dm9051f rx_status error : 0x%02x\r\n", rx_status));
-	DM9051_RX_BREAK((rx_len > PBUF_POOL_BUFSIZE), return env_err_rsthdlr("_dm9051f rx_len error : %u\r\n", rx_len));
-	
-	pad = rx_len & 1;				  // 16-bit
-	cspi_rx_read(buff, rx_len + pad); // 8/16-bit
-	return rx_len;
+  printf(" _dm9051f rxb %02x (times %2d)%c\r\n", 
+         rxb, histc[i], 
+         (histc[i] == 2) ? '*' : ' ');
+         
+  if (histc[i] >= TIMES_TO_RST) {
+    dm9051_show_rxbstatistic(histc, csize);
+    histc[i] = 1;
+    return TIMES_TO_RST;
+  }
+  
+  return 0;
 }
 
-static const uint8_t *impl_dm9051_init(const uint8_t *adr)
+/**
+ * @brief  Evaluate RX buffer status and handle errors
+ * 
+ * @param  rxb  RX buffer value to evaluate
+ * @return      0 if successful, error code otherwise
+ */
+uint16_t env_evaluate_rxb(uint8_t rxb) 
 {
-	uint16_t id;
-	const uint8_t *mac = NULL;
+  int i;
+  static uint8_t histc[254] = {0};
+  uint8_t times = 1;
 
-	// Initialize and check device ID
-	if (!env_init_setup(&id))
-	{
-		printf("system stop\r\n");
-		while (1)
-			;
-	}
-
-	// Identify and set MAC address
-	mac = identify_eth_mac(adr);
-
-	// Display identified MAC address (if trace is enabled)
-	trace_identify_eth_mac();
-
-	// Perform reset process
-	return env_reset_process(mac);
+  for (i = 0; i < sizeof(histc); i++) {
+    if (rxb == (i + 2)) {
+      histc[i]++;
+      times = ret_fire_time(histc, sizeof(histc), i, rxb);
+      
+      if (times == 0)
+        return 0;
+        
+      return env_err_rsthdlr("_dm9051f rxb error accumunation times : %u\r\n", times);
+    }
+  }
+  
+  return env_err_rsthdlr3("dm9 impossible path error times : %u\r\n", times);
 }
 
-static void cspi_core_reset(void)
+/**
+ * @brief  Process device reset with MAC address restoration
+ * 
+ * @param  macaddr  MAC address to restore
+ * @return          Pointer to configured MAC address
+ */
+static const uint8_t *env_reset_process(const uint8_t *macaddr) 
 {
-	cspi_ncr_reset(2);
-	cspi_phycore_on(25);
-	cspi_soft_default();
+  cspi_core_reset();
+  return cspi_dm_start1(macaddr);
 }
 
-static const uint8_t *cspi_dm_start1(const uint8_t *adr)
+/**
+ * @brief  Error callback handler
+ * 
+ * @param  explain_str  Error description string
+ * @param  err_code     Error code
+ */
+void err_callback(char *explain_str, uint32_t err_code) 
 {
-	#ifdef ETHERNET_INTERRUPT_MODE
-	cint_enable_mcu_irq();
-	#endif
-
-	cspi_set_par(adr);
-	cspi_set_mar();
-	cspi_set_recv();
-	return adr;
+  char bff[180];
+  
+  sprintf(bff, explain_str, err_code);
+  printf("%s", bff);
 }
 
-//static const uint8_t *cspi_rx_mode(const uint8_t *adr)
-//{
-//	cspi_set_par(adr);
-//	cspi_set_mar();
-//	cspi_set_recv();
-//	return adr;
-//}
+/**
+ * @brief  Error handler with reset capability
+ * 
+ * @param  err_explain_str  Error description format string
+ * @param  valuecode        Error value
+ * @return                  0 after reset completion
+ */
+uint16_t env_err_rsthdlr(char *err_explain_str, uint32_t valuecode) 
+{
+  char bff[180];
+  
+  sprintf(bff, err_explain_str, valuecode);
+  printf("%s", bff);
+
+  env_reset_process(identified_eth_mac());
+  return 0;
+}
+
+/**
+ * @brief  Error handler with callback and reset
+ * 
+ * @param  callback      Error callback function
+ * @param  explain_str   Error description string
+ * @param  code         Error code
+ * @return              0 after reset completion
+ */
+uint16_t env_err_rsthdlr1(void (*callback)(char *, uint32_t), 
+                          char *explain_str, 
+                          uint32_t code) 
+{
+  callback(explain_str, code);
+  env_reset_process(identified_eth_mac());
+  return 0;
+}
+
+/**
+ * @brief  Variable argument error handler with reset
+ * 
+ * @param  format   Error format string
+ * @param  ...      Variable arguments
+ * @return          0 after reset completion
+ */
+uint16_t env_err_rsthdlr3(const char *format, ...) 
+{
+  char bff[180];
+  int val;
+  va_list args;
+  
+  va_start(args, format);
+  val = va_arg(args, int);
+  sprintf(bff, format, val);
+  printf("%s", bff);
+  va_end(args);
+  
+  env_reset_process(identified_eth_mac());
+  return 0;
+}
+
+/*-----------------------------------------------------------------------------
+ * Core Implementation Functions
+ *-----------------------------------------------------------------------------*/
+
+/**
+ * @brief  Core receive implementation
+ * 
+ * @param  buff  Buffer for received data
+ * @return       Length of received packet or 0 if error
+ */
+static uint16_t impl_dm9051_rx(uint8_t *buff) 
+{
+  uint8_t rxbyte, rx_status;
+  uint8_t ReceiveData[4];
+  uint16_t rx_len, pad = 0;
+
+  /* Read and validate RX byte */
+  rxbyte = cspi_read_rxb();
+  DM9051_RX_BREAK((rxbyte != 0x01 && rxbyte != 0),
+                  return env_evaluate_rxb(rxbyte));
+  DM9051_RX_BREAK((rxbyte == 0),
+                  return 0);
+  
+  /* Read packet header */
+  cspi_rx_head(ReceiveData);
+  rx_status = ReceiveData[1];
+  rx_len = ReceiveData[2] + (ReceiveData[3] << 8);
+  
+  /* Validate packet status and length */
+  DM9051_RX_BREAK((rx_status & (0xbf & ~RSR_PLE)),
+                  return env_err_rsthdlr1(err_callback, 
+                                        "_dm9051f rx_status error : 0x%02x\r\n", 
+                                        rx_status));
+  DM9051_RX_BREAK((rx_len > PBUF_POOL_BUFSIZE), 
+                  return env_err_rsthdlr("_dm9051f rx_len error : %u\r\n", 
+                                       rx_len));
+
+  /* Read packet data */
+  pad = rx_len & 1;
+  cspi_rx_read(buff, rx_len + pad);
+  return rx_len;
+}
+
+/**
+ * @brief  Core initialization implementation
+ * 
+ * @param  adr  MAC address to configure
+ * @return      Pointer to configured MAC address
+ */
+static const uint8_t *impl_dm9051_init(const uint8_t *adr) 
+{
+  uint16_t id;
+  const uint8_t *mac = NULL;
+
+  /* Initialize and verify device */
+  if (!env_init_setup(&id)) {
+    printf("system stop\r\n");
+    while (1);
+  }
+
+  /* Configure MAC address */
+  mac = identify_eth_mac(adr);
+  trace_identify_eth_mac();
+  return env_reset_process(mac);
+}
+
+/**
+ * @brief  Core reset implementation
+ */
+static void cspi_core_reset(void) 
+{
+  cspi_ncr_reset(2);
+  cspi_phycore_on(25);
+  cspi_soft_default();
+}
+
+/**
+ * @brief  Start DM9051 with MAC configuration
+ * 
+ * @param  adr  MAC address to configure
+ * @return      Pointer to configured MAC address
+ */
+static const uint8_t *cspi_dm_start1(const uint8_t *adr) 
+{
+#ifdef ETHERNET_INTERRUPT_MODE
+  cint_enable_mcu_irq();
+#endif
+
+  /* Configure MAC and multicast addresses */
+  cspi_set_par(adr);
+  cspi_set_mar();
+  
+  /* Initialize receive settings */
+  cspi_set_recv();
+  
+  return adr;
+}

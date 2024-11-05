@@ -27,7 +27,7 @@
 	While NOT include the mcu-definition in the program code, in advance, previously.
 	Add your board's board & clock header files here! Refer to above cases.
 
-	Usually, Cn find the expected included files below in main.c
+	Usually, Find the expected included files below in main.c
 */
 #error "Opps, Opts board to be define  \r\n \
 		While NOT include the mcu-definition in the program code, in advance, previously. \r\n \
@@ -54,7 +54,7 @@ struct gpio_mux_t
 	gpio_mux_sel_type mux;
 };
 
-/* gpio_utils api
+/* hal_gpio api
  */
 
 #define gpio_hal_muxpin_config dm9051if_spi_pin_config
@@ -70,26 +70,18 @@ void gpio_hal_stdpin_hi(const struct gpio_config_t *gpio);
 
 flag_status gpio_hal_stdpin_get(const struct gpio_config_t *gpio);
 
-//#define gpio_hal_init dm9051if_gpios_init
-//void gpio_hal_init(void);
-
-//#define gpio_hal_cs_config dm9051if_cs_config
-//#define gpio_hal_intr_config dm9051if_int_config
-//void gpio_hal_cs_config(void);
-//void gpio_hal_intr_config(void);
-
-//#define gpio_hal_cs_lo dm9051if_cs_lo
-//#define gpio_hal_cs_hi dm9051if_cs_hi
-//void gpio_hal_cs_lo(void);
-//void gpio_hal_cs_hi(void);
-
+void config_led3(void);
+void led3_on(void);
+void led3_off(void);
+void config_button(void);
+button_type button_is_pressed(void);
 void config_diag(void);
 void diag_lo(void);
 void diag_hi(void);
 void config_inpt(void);
 flag_status inpt_get(void);
 
-/* dm9051_hal api
+/* hal_main api
  */
 #define dm9051_hal_init dm9051_boards_initialize
 void dm9051_hal_init(void);
@@ -99,38 +91,5 @@ void dm9051_hal_tick(void);
 
 #define dm9051_hal_tick_count dm_sys_now
 uint32_t dm9051_hal_tick_count(void);
-
-#if 0
-/* dm9051_Hw_common implementation
- * source code called by dm9051.c
- */
-//uint8_t cspi_read_reg(uint8_t reg);
-//void cspi_write_reg(uint8_t reg, uint8_t val);
-//void cspi_read_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode);
-//void cspi_write_regs(uint8_t reg, const uint8_t *buf, uint16_t len, csmode_t csmode);
-//uint8_t cspi_read_rxb(void);
-//void cspi_read_mem(uint8_t *buf, uint16_t len);
-//void cspi_write_mem(uint8_t *buf, uint16_t len);
-
-//#define cint_disable_mcu_irq_AT  cint_disable_mcu_irq
-//void cint_disable_mcu_irq_AT(void);
-//#define _cint_enable_mcu_irq_AT _cint_enable_mcu_irq
-//void _cint_enable_mcu_irq_AT(void);
-
-//#define	AT_spi_exc_data	dm9051if_exc_data //AT_spi_exc_data
-//uint8_t AT_spi_exc_data(uint8_t byte);
-
-//#define dm9051_spi_command_write dm9051if_exc_data //AT_spi_exc_data
-//#define dm9051_spi_dummy_read() dm9051if_exc_data(0) //AT_spi_exc_data(0)
-
-//#define AT_spi_data_read spi_data_read
-//#define AT_spi_data_write spi_data_write
-//#define AT_spi_mem2x_read spi_mem2x_read
-//#define AT_spi_mem_read  spi_mem_read
-//#define AT_spi_mem_write  spi_mem_write
-
-//void dm_delay_us(uint32_t nus);
-//void dm_delay_ms(uint16_t nms);
-#endif //0
 
 #endif //__HAL_API_MCU_H

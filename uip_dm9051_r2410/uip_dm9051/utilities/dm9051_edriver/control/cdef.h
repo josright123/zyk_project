@@ -49,7 +49,7 @@ typedef enum
   
 /* eth_main */
 //hdlr
-//#define	DM_ETH_IRQHandler	EXINT9_5_UserFunction	//EXINT9_5_IRQHandler
+//#define	DM_ETH_IRQHandler	EXINT9_5_UserFunction	(EXINT9_5_IRQHandler)
 
 /* dbg_def */
 //ap

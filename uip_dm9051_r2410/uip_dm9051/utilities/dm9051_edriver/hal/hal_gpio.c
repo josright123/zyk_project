@@ -194,6 +194,49 @@ button_type button_is_pressed(void)
 }
 
 /**
+ * @brief  Init to Demo button control led3
+ */
+void button_toggle_led3_init(void)
+{
+	config_button();
+	config_led3();
+}
+
+/**
+ * @brief  Periodically to Demo button control led3
+ */
+void button_toggle_led3(void)
+{
+	//:led3_toggle(250) or :led3_toggle(0)
+	uint16_t nms = (button_is_pressed() == USER_BUTTON) ? 250 : 0;
+	
+	//:led3_toggle(uint16_t nms)
+	do {
+		static uint32_t state_time;
+		
+		if (nms == 0) {
+			state_time = 0;
+			led3_off();
+			return;
+		}
+		
+		if (nms == 250) {
+			if (!state_time) {
+				state_time = dm_sys_now();
+				led3_on();
+				return;
+			}
+			if ((dm_sys_now() - state_time) > (2*nms)) {
+				state_time = 0;
+			} else
+			if ((dm_sys_now() - state_time) > nms) {
+				led3_off();
+			}
+		}
+	} while(0);
+}
+
+/**
  * @brief  Diagnostic pin control functions
  */
 void config_diag(void)

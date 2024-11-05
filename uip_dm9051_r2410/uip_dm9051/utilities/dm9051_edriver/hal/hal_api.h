@@ -81,6 +81,9 @@ void diag_hi(void);
 void config_inpt(void);
 flag_status inpt_get(void);
 
+void button_toggle_led3_init(void);
+void button_toggle_led3(void);
+
 /* hal_main api
  */
 #define dm9051_hal_init dm9051_boards_initialize

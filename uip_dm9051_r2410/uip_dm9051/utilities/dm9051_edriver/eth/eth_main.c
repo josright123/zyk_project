@@ -21,24 +21,11 @@
 #include "control/drv/conf_core.h"
 #include "control/drv/dm9051_eth_debug.h"
 
+/* Global state variables */
+static volatile int flgSemaphore_r = 0;
+
 /* Interrupt handler mapping */
 #define DM_ETH_IRQHandler EXINT9_5_UserFunction
-
-/* Global state variables */
-volatile int flgSemaphore_r = 0;
-
-/**
- * @brief  Retrieves pending interrupt events
- * @return 1 if event pending, 0 otherwise
- */
-int DM_ETH_GetInterruptEvent(void)
-{
-  if (flgSemaphore_r) {
-    flgSemaphore_r = 0;
-    return 1;
-  }
-  return 0;
-}
 
 /**
  * @brief  Interrupt service routine for Ethernet events
@@ -51,6 +38,19 @@ void DM_ETH_IRQHandler(void)
   identify_irq_stat(ISTAT_IRQ_NOW2);
   trace_irq_stat(ISTAT_IRQ_NOW2);
   deidentify_irq_stat(ISTAT_IRQ_NOW2);
+}
+
+/**
+ * @brief  Retrieves pending interrupt events
+ * @return 1 if event pending, 0 otherwise
+ */
+int DM_ETH_GetInterruptEvent(void)
+{
+  if (flgSemaphore_r) {
+    flgSemaphore_r = 0;
+    return 1;
+  }
+  return 0;
 }
 
 /**
@@ -69,6 +69,7 @@ void DM_ETH_ToRst_ISR(void)
  */
 const uint8_t *DM_ETH_Init(const uint8_t *adr)
 {
+  flgSemaphore_r = 0;
   dm9051_boards_initialize();
   return dm9051_init(adr);
 }
@@ -147,16 +148,6 @@ uint16_t DM_ETH_ToCalc_rx_pointers(int state, const uint16_t *mdra_rd_org, uint1
 #endif
 
 /**
- * @brief  Resets the hex dump state for input processing
- */
-static void DM_Eth_Input_HexDumpReset(uint8_t *stat)
-{
-#if DM_ETH_DEBUG_MODE
-  dm_eth_input_hexdump_reset();
-#endif
-}
-
-/**
  * @brief  Checks if link is up based on configured source
  * @param  stat: Status register values
  * @return 1 if link is up, 0 otherwise
@@ -172,12 +163,15 @@ int DM_Eth_Regs_Info_Linkup(uint8_t *stat)
 }
 
 /**
- * @brief  Reads and processes register information
+ * @brief  Reads and processes register information (could periodic call)
  * @param  stat: Buffer for register values
  */
 void DM_Eth_ReadRegsInfo(uint8_t *stat)
 {
   cspi_read_regs_info(stat);
+#if DM_ETH_DEBUG_MODE
   if (!DM_Eth_Regs_Info_Linkup(stat))
-    DM_Eth_Input_HexDumpReset(stat);
+		/* Resets the hex dump state for input processing */
+    dm_eth_input_hexdump_reset();
+#endif
 }

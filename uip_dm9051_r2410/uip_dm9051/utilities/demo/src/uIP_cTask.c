@@ -167,31 +167,6 @@ uint16_t DM_ETH_RXHandler_Poll(void)
 }
 #endif
 
-void led3_toggle(uint16_t nms)
-{
-	static uint32_t state_time;
-	
-	if (nms == 0) {
-		state_time = 0;
-		led3_off();
-		return;
-	}
-	
-	if (nms == 250) {
-		if (!state_time) {
-			state_time = dm_sys_now();
-			led3_on();
-			return;
-		}
-		if ((dm_sys_now() - state_time) > (2*nms)) {
-			state_time = 0;
-		} else
-		if ((dm_sys_now() - state_time) > nms) {
-			led3_off();
-		}
-	}
-}
-
 /*---------------------------------------------------------------------------*/
 
 void vuIP_Task(void *pvParameters)
@@ -247,8 +222,7 @@ void vuIP_Task(void *pvParameters)
 #endif
     httpd_init();
 #if 1
-		config_button();
-		config_led3();
+		button_toggle_led3_init();
 #endif
 
     while (1)
@@ -380,12 +354,7 @@ void vuIP_Task(void *pvParameters)
             vTaskDelayUntil(&xLastWakeTime, xFrequency);
         }
 #if 1
-				if (button_is_pressed() == USER_BUTTON) {
-					led3_toggle(250);
-				}
-				else {
-					led3_toggle(0);
-				}
+				button_toggle_led3();
 #endif
     } //while
 }

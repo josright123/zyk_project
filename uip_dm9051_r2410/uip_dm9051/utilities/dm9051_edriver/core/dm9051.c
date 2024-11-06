@@ -71,6 +71,22 @@ static const uint8_t *cspi_dm_start1(const uint8_t *adr);
 static void          cspi_set_par(const uint8_t *adr);
 
 /*-----------------------------------------------------------------------------
+ * Public dm_impl Functions
+ *-----------------------------------------------------------------------------*/
+
+#if 1
+//[Public dm_types Functions, belong to dm9051.c]
+//#include "control/conf.h"
+//#include "control/drv/dm9051_eth_debug.h"
+
+/* Type Definitions */
+#define DM_TYPE 1
+#include "dm/dm_types_define.h"
+#define DM_TYPE 2
+#include "dm/dm_types_define.h"
+#endif
+
+/*-----------------------------------------------------------------------------
  * Public Interface Functions
  *-----------------------------------------------------------------------------*/
 

@@ -6,8 +6,18 @@
 
 /* Configuration Selection */
 #if 1
-#include "control/conf.h"
-#include "control/drv/dm9051_eth_debug.h"
+
+#if 0
+//#include "control/conf.h"
+//#include "control/drv/dm9051_eth_debug.h"
+
+/* Type Definitions */
+//#define DM_TYPE 1
+//#include "dm_types_define.h"
+//#define DM_TYPE 2
+//#include "dm_types_define.h"
+#endif
+
 #else
 #include "control/conf.h"
 #include "control/ap/dm9051_ap_debug.h"
@@ -28,11 +38,12 @@
 #define MIN(a, b)             ((a < b) ? a : b)
 #define LIMIT_LEN(n, nTP)     ((n <= nTP) ? n : nTP)
 
-/* Type Definitions */
-#define DM_TYPE 1
-#include "dm_types_define.h"
-#define DM_TYPE 2
-#include "dm_types_define.h"
+#if 1
+#if 1
+#include "control/conf.h"
+#include "control/ap/dm9051_ap_debug.h"
+#endif
+#endif
 
 /* Network Configuration */
 const struct eth_node_t node_candidate[1] = {
@@ -90,13 +101,16 @@ uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e)
 
 /* Debug Pointer Tracking */
 #if DM_ETH_DEBUG_MODE
+
+#if (defined(__DM9051_ETH_DEBUG_H) && drv_print)  || (defined(__DM9051_AP_DEBUG_H) && ap_print) //org 'drv_print'
 static int fifo_fifoTurn_n = 0;
 static uint16_t fifo_premdra_rd = DEFAULT_MDRA_RD;
 static uint16_t fifo_mdra_rd;
+#endif
 
 void debug_diff_rx_pointers(int state, uint16_t rd_now)
 {
-#if drv_print
+#if (defined(__DM9051_ETH_DEBUG_H) && drv_print)  || (defined(__DM9051_AP_DEBUG_H) && ap_print) //org 'drv_print'
 	if (fifo_premdra_rd == DEFAULT_MDRA_RD)
 		fifo_mdra_rd = rd_now;
 
@@ -124,6 +138,7 @@ void debug_diff_rx_pointers(int state, uint16_t rd_now)
 #endif
 
 /* Hex Dump Implementation */
+#if (defined(__DM9051_ETH_DEBUG_H) && drv_print)  || (defined(__DM9051_AP_DEBUG_H) && ap_print) //org 'drv_print'
 static int room_printf_space(char *lineroom, int offset, int n)
 {
     while (n--)
@@ -152,11 +167,13 @@ static int room_printf_rxlen_head(char *lineroom, size_t tlen, int nspc)
     room_printf_space(lineroom, 0, nspc);
     return nspc;
 }
+#endif
 
 static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
                            size_t tlen, int rowsize, const void *buf, 
                            int seg_start, size_t len, int cast_lf)
 {
+#if (defined(__DM9051_ETH_DEBUG_H) && drv_print)  || (defined(__DM9051_AP_DEBUG_H) && ap_print) //org 'drv_print'
     char lineroombuff[MAX_HEX_LINE_BUF];
     int print_linefeed_flag;
     int si = seg_start;
@@ -205,6 +222,7 @@ static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
         print_linefeed_flag = ((i + rowsize) < se) || cast_lf;
         printf("%s%s", lineroombuff, print_linefeed_flag ? "\r\n" : "");
     }
+#endif
 }
 
 /* Debug Logging Interface */

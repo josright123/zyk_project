@@ -108,45 +108,8 @@ static void uip_update_ip_config(const uint8_t *ip, const uint8_t *gw, const uin
 
 #if defined(ETHERNET_INTERRUPT_MODE)
 
-int fifoTurn_n = 0;
 uint16_t isrSemaphore_src;
 int isrSemaphore_n = 0;
-
-#if DM_ETH_DEBUG_MODE
-static void debug_packets(int n) {
-//	printf("(%d packets)\r\n", n);
-}
-#endif
-
-void diff_rx_pointers_s(uint16_t *pMdra_rds) {
-#if DM_ETH_DEBUG_MODE
-	uint16_t dummy_rds= 0xc00 /*mdra_rds*/;
-	DM_ETH_ToCalc_rx_pointers(0, &dummy_rds, pMdra_rds);
-#endif
-}
-
-void diff_rx_pointers_e(int n, uint16_t *pMdra_rds) {
-#if DM_ETH_DEBUG_MODE
-	static uint16_t premdra_rd = 0x4000;
-	uint16_t mdra_rd, diff;
-
-	diff = DM_ETH_ToCalc_rx_pointers(1, pMdra_rds, &mdra_rd); //......................
-	
-	fifoTurn_n += n;
-	if (mdra_rd < premdra_rd && (premdra_rd != 0x4000))
-	{
-		//uint16_t compos_totaldiff = (mdra_rd >= *pMdra_rds) ? 0x3400 : 0;
-		diff += (mdra_rd >= *pMdra_rds) ? 0x3400 : 0;
-		printf("[vuIP_Tasks] mdra.s %02x%02x e %02x%02x dif %02x%02x (nrx %d)\r\n",
-			*pMdra_rds >> 8, *pMdra_rds & 0xff,
-			mdra_rd >> 8, mdra_rd & 0xff,
-			diff >> 8, diff & 0xff,
-			fifoTurn_n);
-		fifoTurn_n = 0;
-	}
-	premdra_rd = mdra_rd;
-#endif
-}
 
 int input_intr(void)
 {
@@ -234,15 +197,11 @@ void vuIP_Task(void *pvParameters)
 			isrSemaphore_src = 0x5555 >> 8;
 
 			do { //[isrSemaphore_n = net_pkts_handle_intr(tcpip_stack_netif());]
-				uint16_t mdra_rds;
-				
-//				diff_rx_pointers_s(&mdra_rds);
-
+				//uint16_t mdra_rds;
 				isrSemaphore_n = 0;
 				while (1) {
 					
-					if (!fifoTurn_n)
-						diff_rx_pointers_s(&mdra_rds);
+					diff_rx_s(); //diff_rx_pointers_s(&mdra_rds);
 					
 					if (input_intr()) {
 					
@@ -275,18 +234,11 @@ void vuIP_Task(void *pvParameters)
 						isrSemaphore_n++;
 						
 						#if 1
-						diff_rx_pointers_e(1, &mdra_rds);
+						diff_rx_e(); //diff_rx_pointers_e(1, &mdra_rds);
 						#endif
-						
 					} else
 						break;
 				}
-
-				if (isrSemaphore_n >= 3) {
-//					diff_rx_pointers_e(isrSemaphore_n, &mdra_rds);
-					debug_packets(isrSemaphore_n);
-				}
-				
 			} while(0);
 			
 			tapdev_clr_ievent(); //DM_ETH_ToRst_ISR(); //cspi_isr_enab(); //DM_ETH_IRQEnable(); //dm9051_isr_enab();

@@ -28,9 +28,13 @@ static volatile int flgSemaphore_r = 0;
 #define DM_ETH_IRQHandler EXINT9_5_UserFunction
 
 /* Debug Type Definitions */
-#define DM_DEBUG_TYPE 1
+#define DM_DEBUG_TYPE 10
 #include "debug_types_define.h"
-#define DM_DEBUG_TYPE 2
+#define DM_DEBUG_TYPE 11
+#include "debug_types_define.h"
+#define DM_DEBUG_TYPE 20
+#include "debug_types_define.h"
+#define DM_DEBUG_TYPE 21
 #include "debug_types_define.h"
 
 /**
@@ -140,7 +144,6 @@ uint8_t *DM_ETH_Mask_Configured(void)
   return identified_tcpip_mask();
 }
 
-#if DM_ETH_DEBUG_MODE
 /**
  * @brief  Debug function for RX pointer calculation
  */
@@ -148,10 +151,11 @@ uint16_t DM_ETH_ToCalc_rx_pointers(int state, const uint16_t *mdra_rd_org, uint1
 {
   static uint16_t dummy_rwpa;
   cspi_read_rx_pointers(&dummy_rwpa, mdra_rd_now);
+#if DM_ETH_DEBUG_MODE
   debug_diff_rx_pointers(state, *mdra_rd_now);
+#endif
   return (state == 0) ? 0 : wrpadiff(*mdra_rd_org, *mdra_rd_now);
 }
-#endif
 
 /**
  * @brief  Checks if link is up based on configured source
@@ -175,9 +179,7 @@ int DM_Eth_Regs_Info_Linkup(uint8_t *stat)
 void DM_Eth_ReadRegsInfo(uint8_t *stat)
 {
   cspi_read_regs_info(stat);
-#if DM_ETH_DEBUG_MODE
   if (!DM_Eth_Regs_Info_Linkup(stat))
 		/* Resets the hex dump state for input processing */
     dm_eth_input_hexdump_reset();
-#endif
 }

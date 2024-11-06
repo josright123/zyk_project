@@ -5,19 +5,9 @@
  */
 
 /* Configuration Selection */
-#if 1
-
 #if 0
 //#include "control/conf.h"
 //#include "control/drv/dm9051_eth_debug.h"
-
-/* Type Definitions */
-//#define DM_TYPE 1
-//#include "dm_types_define.h"
-//#define DM_TYPE 2
-//#include "dm_types_define.h"
-#endif
-
 #else
 #include "control/conf.h"
 #include "control/ap/dm9051_ap_debug.h"
@@ -38,59 +28,7 @@
 #define MIN(a, b)             ((a < b) ? a : b)
 #define LIMIT_LEN(n, nTP)     ((n <= nTP) ? n : nTP)
 
-#if 1
-#if 1
-#include "control/conf.h"
-#include "control/ap/dm9051_ap_debug.h"
-#endif
-#endif
-
-/* Network Configuration */
-const struct eth_node_t node_candidate[1] = {
-	{
-		{0, 0x60, 0x6e, 0x00, 0x00, 0x17},
-		{192, 168, 6, 17},
-		{192, 168, 6, 1},
-		{255, 255, 255, 0},
-	}, 
-	/*
-	{
-	 {0, 0x60, 0x6e, 0x00, 0x01, 0x25,},
-	 {192, 168, 6,  25},
-	 {192, 168, 6,   1},
-	 {255, 255, 255, 0},
-	},
-	   */
-	// ... other nodes can be uncommented and added here
-};
-
-/* Debug Level Implementation */
-const char *level_str_impl(dm9051_eth_debug_level_t level)
-{
-    static const char* const LEVEL_STRINGS[] = {
-        "ERROR", //[DM9051_ETH_DEBUG_LEVEL_ERROR] = 
-        "DEBUG", //[DM9051_ETH_DEBUG_LEVEL_DEBUG] = 
-        "WARN", //[DM9051_ETH_DEBUG_LEVEL_WARN]  = 
-        "INFO", //[DM9051_ETH_DEBUG_LEVEL_INFO]  = 
-    };
-
-    return (level < sizeof(LEVEL_STRINGS)/sizeof(LEVEL_STRINGS[0]) && 
-            LEVEL_STRINGS[level]) ? LEVEL_STRINGS[level] : "UNKNOWN";
-}
-
-/* Interrupt Tracking */
-static volatile unsigned long dispc_int_active = 0;
-
-void inc_interrupt_count(void)
-{
-    dispc_int_active++;
-}
-
-unsigned long get_interrupt_count(void)
-{
-    return dispc_int_active;
-}
-
+#if DM_ETH_DEBUG_MODE
 /* Buffer Management */
 uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e)
 {
@@ -100,8 +38,6 @@ uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e)
 }
 
 /* Debug Pointer Tracking */
-#if DM_ETH_DEBUG_MODE
-
 #if (defined(__DM9051_ETH_DEBUG_H) && drv_print)  || (defined(__DM9051_AP_DEBUG_H) && ap_print) //org 'drv_print'
 static int fifo_fifoTurn_n = 0;
 static uint16_t fifo_premdra_rd = DEFAULT_MDRA_RD;
@@ -135,7 +71,6 @@ void debug_diff_rx_pointers(int state, uint16_t rd_now)
 	fifo_premdra_rd = rd_now;
 #endif
 }
-#endif
 
 /* Hex Dump Implementation */
 #if (defined(__DM9051_ETH_DEBUG_H) && drv_print)  || (defined(__DM9051_AP_DEBUG_H) && ap_print) //org 'drv_print'
@@ -226,7 +161,6 @@ static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
 }
 
 /* Debug Logging Interface */
-#if DM_ETH_DEBUG_MODE
 static int link_log_reset_allow_num = 0;
 static const int rx_modle_log_reset_allow_num = MAX_RX_LOG_ENTRIES;
 

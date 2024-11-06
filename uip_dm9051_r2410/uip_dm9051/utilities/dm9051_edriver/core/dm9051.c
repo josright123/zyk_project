@@ -81,9 +81,9 @@ static void          cspi_set_par(const uint8_t *adr);
 
 /* Type Definitions */
 #define DM_TYPE 1
-#include "dm/dm_types_define.h"
+#include "dm_types_define.h"
 #define DM_TYPE 2
-#include "dm/dm_types_define.h"
+#include "dm_types_define.h"
 #endif
 
 /*-----------------------------------------------------------------------------

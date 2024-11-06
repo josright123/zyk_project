@@ -31,6 +31,29 @@
 
 #if defined(_DLW_AT32F437xx)
 
+#define cint_enable_mcu_irq_AT cint_enable_mcu_irq
+#define	dm9051_hal_irqline HAL_IRQLine
+
+// GPIO Data
+struct gpio_config_t
+cs = {
+		GPIOA, GPIO_PINS_15, GPIO_PULL_NONE, CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_OUTPUT,
+},
+intr = {
+		GPIOC, GPIO_PINS_7, GPIO_PULL_UP, CRM_GPIOC_PERIPH_CLOCK, GPIO_MODE_INPUT,
+};
+
+const struct interrupt_config_t intr_cset[1] = {
+	{
+		CRM_SCFG_PERIPH_CLOCK,
+		CRM_GPIOC_PERIPH_CLOCK,
+		SCFG_PORT_SOURCE_GPIOC,
+		SCFG_PINS_SOURCE7,
+		EXINT_LINE_7,
+		NVIC_PRIORITY_GROUP_0,
+		EXINT9_5_IRQn,
+	}};
+
 /**
  * @brief  Configures a standard GPIO pin
  * @param  gpio: Pointer to GPIO configuration structure
@@ -105,6 +128,72 @@ flag_status gpio_hal_stdpin_get(const struct gpio_config_t *gpio)
 {
 	return gpio_input_data_bit_read(gpio->port, gpio->pin);
 }
+
+//[hw]
+//static void configure_cirq(const struct interrupt_config_t *cf,
+//						   exint_polarity_config_type polarity)
+//{
+//}
+
+// Static function prototypes
+void interrupt_config_init(const struct interrupt_config_t *cf)
+{
+	//=configure_cirq(config, EXINT_TRIGGER_FALLING_EDGE);
+	#ifdef ETHERNET_INTERRUPT_MODE
+	exint_polarity_config_type polarity = EXINT_TRIGGER_FALLING_EDGE;
+	exint_init_type exint_init_struct;
+
+	/* config irq
+	 */
+	crm_periph_clock_enable(cf->scfgclock, TRUE);
+	crm_periph_clock_enable(cf->clock, TRUE);
+
+	scfg_exint_line_config(cf->port_source,
+						   cf->pin_source);
+
+	exint_default_para_init(&exint_init_struct);
+	exint_init_struct.line_enable = TRUE;
+	exint_init_struct.line_mode = EXINT_LINE_INTERRUPUT;
+	exint_init_struct.line_select = cf->line;
+	exint_init_struct.line_polarity = polarity;
+	exint_init(&exint_init_struct);
+
+	identify_irq_stat(ISTAT_IRQ_CFG);
+	trace_irq_stat(ISTAT_IRQ_CFG);
+
+	identify_irq_stat(ISTAT_LOW_TRIGGER);
+	trace_irq_stat(ISTAT_LOW_TRIGGER);
+	#endif
+}
+
+void cint_disable_mcu_irq_AT(void)
+{
+	deidentify_irq_stat(ISTAT_IRQ_ENAB);
+	nvic_irq_disable(nvic_irqn());
+}
+
+void cint_enable_mcu_irq_AT(void)
+{
+	identify_irq_stat(ISTAT_IRQ_ENAB);
+	trace_irq_stat(ISTAT_IRQ_ENAB);
+
+	nvic_priority_group_config(nvic_prio());
+	nvic_irq_enable(nvic_irqn(), 1, 0);
+}
+
+uint32_t dm9051_hal_irqline(void)
+{
+	return irq_line();
+}
+
+#if 1
+//void dm9051if_gpio_lo(void) {
+//	gpio_hal_stdpin_lo(&cs);
+//}
+//void dm9051if_gpio_hi(void) {
+//	gpio_hal_stdpin_hi(&cs);
+//}
+#endif
 
 /*-----------------------------------------------------------------------------
  * GPIO Pin Configurations and Control Functions

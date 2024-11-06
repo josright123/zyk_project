@@ -11,7 +11,7 @@
 
 /* common util */
 #define DM_TYPE 0
-#include "dm/dm_types_define.h"
+#include "core/dm_types_define.h"
 
 /* all common */
 #include "dm9051opts.h" //"temp"

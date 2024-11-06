@@ -1,7 +1,7 @@
 # 1 Using Mermaid
 ## Mermaid chart
 
-```mermaid
+```c
 graph TD
     A[Application Layer] --> B[Driver API Layer]
     B --> C[Implementation Layer]

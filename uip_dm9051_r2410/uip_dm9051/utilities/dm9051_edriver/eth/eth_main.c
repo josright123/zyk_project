@@ -27,6 +27,12 @@ static volatile int flgSemaphore_r = 0;
 /* Interrupt handler mapping */
 #define DM_ETH_IRQHandler EXINT9_5_UserFunction
 
+/* Debug Type Definitions */
+#define DM_DEBUG_TYPE 1
+#include "debug_types_define.h"
+#define DM_DEBUG_TYPE 2
+#include "debug_types_define.h"
+
 /**
  * @brief  Interrupt service routine for Ethernet events
  * @note   Handles packet reception and updates interrupt statistics

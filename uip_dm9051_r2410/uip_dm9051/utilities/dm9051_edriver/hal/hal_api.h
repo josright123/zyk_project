@@ -37,6 +37,19 @@
 #endif
 #endif //_DLW_AT32F437xx
 
+// Interrupt Configuration Structure
+struct interrupt_config_t
+{
+	/*struct gpio_config_t gpio; */
+	crm_periph_clock_type scfgclock;
+	crm_periph_clock_type clock;
+	scfg_port_source_type port_source;
+	scfg_pins_source_type pin_source;
+	uint32_t line;
+	nvic_priority_group_type priority_group;
+	IRQn_Type irqn;
+};
+
 // general programable input/output Structure
 struct gpio_config_t
 {
@@ -54,18 +67,34 @@ struct gpio_mux_t
 	gpio_mux_sel_type mux;
 };
 
+/* hal_intr api
+ */
+extern const struct interrupt_config_t intr_cset[1];
+#define intr_set() &intr_cset[0]
+#define irq_line() intr_cset[0].line
+#define nvic_irqn() intr_cset[0].irqn
+#define nvic_prio() intr_cset[0].priority_group
+
+#define interrupt_config_init dm9051if_intr_config
+void interrupt_config_init(const struct interrupt_config_t *config);
+
 /* hal_gpio api
  */
-
-#define gpio_hal_muxpin_config dm9051if_spi_pin_config
+extern struct gpio_config_t cs;
+extern struct gpio_config_t intr;
+#define gpio_hal_muxpin_config dm9051if_muxpin_config
 void gpio_hal_muxpin_config(const struct gpio_mux_t *gpiomux);
 
-#define gpio_hal_stdpin_config dm9051if_gpio_config //..........
+#define gpio_hal_stdpin_config dm9051if_stdpin_config //..........
 void gpio_hal_stdpin_config(const struct gpio_config_t *gpio); //..........
 
-#define gpio_hal_stdpin_lo dm9051if_gpio_lo
+#define gpio_hal_stdpin_lo dm9051if_stdpin_lo
+#define gpio_hal_stdpin_hi dm9051if_stdpin_hi
+//#define dm9051if_gpio_lo dm9051if_stdpin_lo
+//#define dm9051if_gpio_hi dm9051if_stdpin_lo
+//void dm9051if_gpio_lo(void);
+//void dm9051if_gpio_hi(void);
 void gpio_hal_stdpin_lo(const struct gpio_config_t *gpio);
-#define gpio_hal_stdpin_hi dm9051if_gpio_hi
 void gpio_hal_stdpin_hi(const struct gpio_config_t *gpio);
 
 flag_status gpio_hal_stdpin_get(const struct gpio_config_t *gpio);

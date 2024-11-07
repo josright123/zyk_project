@@ -28,8 +28,8 @@
 #include <stdlib.h>
 
 /* Project Specific Includes */
-#include "control/drv/conf_core.h"
-#include "control/drv/dm9051_eth_debug.h"
+#include "control/drv_control/conf_core.h"
+#include "control/drv_control/dm9051_eth_debug.h"
 
 /*-----------------------------------------------------------------------------
  * Configuration and Definitions
@@ -77,7 +77,7 @@ static void          cspi_set_par(const uint8_t *adr);
 #if 1
 //[Public dm_types Functions, belong to dm9051.c]
 //#include "control/conf.h"
-//#include "control/drv/dm9051_eth_debug.h"
+//#include "control/drv_control/dm9051_eth_debug.h"
 
 /* Type Definitions */
 #define DM_TYPE 1

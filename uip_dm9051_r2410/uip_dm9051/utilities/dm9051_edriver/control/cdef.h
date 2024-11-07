@@ -52,7 +52,7 @@ typedef enum
 //#define	DM_ETH_IRQHandler	EXINT9_5_UserFunction	(EXINT9_5_IRQHandler)
 
 /* dbg_def */
-//ap
+//nosys
 #define	PRINT_SEMA	SEMA_OFF
 #define PRINT_INFO_AP	"[iAP] "
 #define PRINT_INFO_APIN	"[APIN] "

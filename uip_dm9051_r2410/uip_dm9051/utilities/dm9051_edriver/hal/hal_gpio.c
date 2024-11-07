@@ -27,7 +27,7 @@
  **************************************************************************
  */
 
-#include "control/drv/conf_core.h"
+#include "control/drv_control/conf_core.h"
 
 #if defined(_DLW_AT32F437xx)
 

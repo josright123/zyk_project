@@ -30,9 +30,9 @@
 #include "task.h"
 
 //#include "control/cdef.h"
-#include "control/drv/conf_core.h"
-#include "control/ap/conf_ap.h"
-#include "control/ap/dm9051_ap_debug.h"
+#include "control/drv_control/conf_core.h"
+#include "nosys/nosys_control/conf_ap.h"
+#include "nosys/nosys_control/dm9051_ap_debug.h"
 
 #if freeRTOS
 #error "freeRTOS check defined, WRONG CONDITION!"

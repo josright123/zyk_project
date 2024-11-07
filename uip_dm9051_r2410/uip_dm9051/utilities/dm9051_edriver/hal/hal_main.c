@@ -9,8 +9,8 @@
  *	for debugging purposes.
  **************************************************************************
  */
-#include "control/drv/conf_core.h"
-#include "control/drv/dm9051_eth_debug.h"
+#include "control/drv_control/conf_core.h"
+#include "control/drv_control/dm9051_eth_debug.h"
 
 // SPI Configuration Structure
 struct spi_config_t

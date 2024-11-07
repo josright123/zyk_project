@@ -41,8 +41,8 @@
 #include "dhcpc.h"
 
 //#include "control/cdef.h"
-#include "control/ap/conf_ap.h"
-#include "control/ap/dm9051_ap_debug.h"
+#include "nosys/nosys_control/conf_ap.h"
+#include "nosys/nosys_control/dm9051_ap_debug.h"
 
 #if defined PORT_APP_MAPPER
     bool dhcpc_running = 0;

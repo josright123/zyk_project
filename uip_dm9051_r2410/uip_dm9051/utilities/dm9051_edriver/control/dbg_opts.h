@@ -7,15 +7,12 @@
 #ifndef __IDENTIFY_OPTS_H__
 #define	__IDENTIFY_OPTS_H__
 
-#define ap_print					0 //section
-#define rt_print					0 //section
-#define drv_print					1 //section
-
-#define qprint 						(ap_print | rt_print | drv_print)
-
- 
-#define DM_ETH_DEBUG_MODE			0 //1
-
+#define ap_print									1 //section
+#define rt_print									0 //section
+#define drv_print									1 //section
+#define DM_ETH_DEBUG_MODE					0 //1
 #define IDENTIFY_PRINTF_IRQ_STATE	0
+
+#define qprint 										(ap_print | rt_print | drv_print)
 
 #endif //__IDENTIFY_OPTS_H__

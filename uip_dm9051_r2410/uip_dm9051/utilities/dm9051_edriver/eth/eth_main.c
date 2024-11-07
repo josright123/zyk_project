@@ -106,18 +106,26 @@ void DM_ETH_Output(uint8_t *bff, uint16_t len)
   dm9051_tx(bff, len);
 }
 
+void eth_printkey(char *str) {
+#if 1 //no head-str
+	printkey("%s", str);
+#else //with head-str
+	printf("%s", str);
+#endif
+}
+
 /**
  * @brief  Network configuration functions
  */
 uint8_t *DM_ETH_Ip_Configuration(const uint8_t *ip)
 {
-  printkey("config ip %d.%d.%d.%d\r\n", ip[0], ip[1], ip[2], ip[3]);
+	eth_print_netconfig("config ip", ip, eth_printkey);
   return identify_tcpip_ip(ip);
 }
 
 uint8_t *DM_ETH_Gw_Configuration(const uint8_t *ip)
 {
-  printkey("config gw %d.%d.%d.%d\r\n", ip[0], ip[1], ip[2], ip[3]);
+	eth_print_netconfig("config gw", ip, eth_printkey);
   return identify_tcpip_gw(ip);
 }
 
@@ -151,9 +159,7 @@ uint16_t DM_ETH_ToCalc_rx_pointers(int state, const uint16_t *mdra_rd_org, uint1
 {
   static uint16_t dummy_rwpa;
   cspi_read_rx_pointers(&dummy_rwpa, mdra_rd_now);
-#if DM_ETH_DEBUG_MODE
   debug_diff_rx_pointers(state, *mdra_rd_now);
-#endif
   return (state == 0) ? 0 : wrpadiff(*mdra_rd_org, *mdra_rd_now);
 }
 

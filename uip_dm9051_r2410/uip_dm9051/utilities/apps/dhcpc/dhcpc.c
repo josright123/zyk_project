@@ -372,14 +372,14 @@ send_request_section:
 
             if (msg_type == DHCPACK)
             {
-                printf("DHCPACK\r\n");
+                printf("DHCPACK\r\n\r\n");
 
                 s.state = STATE_CONFIG_RECEIVED;
                 break;
             }
             else if (msg_type == DHCPNAK)
             {
-                printf("DHCPNAK\n");
+                printf("DHCPNAK\r\n\r\n");
 
                 s.state = STATE_FAIL;
                 goto close_and_clean_up;

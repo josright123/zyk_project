@@ -75,11 +75,8 @@ static void          cspi_set_par(const uint8_t *adr);
  *-----------------------------------------------------------------------------*/
 
 #if 1
-//[Public dm_types Functions, belong to dm9051.c]
-//#include "control/conf.h"
-//#include "control/drv_control/dm9051_eth_debug.h"
-
 /* Type Definitions */
+/* [Public dm_types Functions, belong to dm9051.c] */
 #define DM_TYPE 1
 #include "dm_types_define.h"
 #define DM_TYPE 2
@@ -367,14 +364,14 @@ int env_init_setup(uint16_t *id)
     *id = 0x9051;
   }
 
-  if (*id != 0x9051) {
-    printf("DM9051 not found, chipid: %04x\r\n", id);
-    return 0;
+  if (*id == 0x9051) {
+		printk("\r\n");
+		printf("DM9051 found: %04x\r\n", *id);
   }
-
-  printk("\r\n");
-  printf("DM9051 found: %04x\r\n", *id);
-  return 1;
+	else {
+    printf("DM9051 not found, chipid: %04x\r\n", id);
+	}
+  return (*id == 0x9051) ? 1 : 0;
 }
 
 /**

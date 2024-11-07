@@ -336,9 +336,14 @@ void    resolv_found(char *name, u16_t *ipaddr)
     }
 }
 
+void ap_printkey(char *str) {
+	printf("%s", str);
+}
+
 #ifdef __DHCPC_H__
 void    dhcpc_configured(const struct dhcpc_state *s)
 {
+		//uip_ipaddr_t ip, gw, mask;
     if (s->state == STATE_FAIL)
     {
 //		uint8_t *p;
@@ -353,7 +358,9 @@ void    dhcpc_configured(const struct dhcpc_state *s)
 //        uip_setnetmask(ipaddr);
 				
 				uip_update_ip_config(NULL, NULL, NULL);
-        printf("--Fixed IP address ---------------------\r\n");
+				ap_print_ipconfig("--Fixed IP address ----------------------",
+					uip_ethaddr.addr, ap_printkey
+					);
     }
     else
     {
@@ -363,30 +370,16 @@ void    dhcpc_configured(const struct dhcpc_state *s)
 //        uip_setnetmask(s->netmask);
 //        uip_setdraddr(s->default_router);
 //        //  resolv_conf(s->dnsaddr);            // Now don't need DNS
-				
+
 				uip_update_ip_config(
 					(const uint8_t *) s->ipaddr,
 					(const uint8_t *) s->default_router,
 					(const uint8_t *) s->netmask);
-        printf("--IP address setting from DHCP-----------\r\n");
+				/* Display system information */
+				ap_print_ipconfig("--IP address setting from DHCP-----------",
+					uip_ethaddr.addr, ap_printkey
+					);
     }
-
-    /* Display system information */
-		#if ap_print
-		do {
-			uip_ipaddr_t ipaddr={0,0};
-			printf("Network chip: DAVICOM DM9051 \r\n");
-			printf("MAC Address: %X:%X:%X:%X:%X:%X \r\n", uip_ethaddr.addr[0], uip_ethaddr.addr[1],
-						 uip_ethaddr.addr[2], uip_ethaddr.addr[3], uip_ethaddr.addr[4], uip_ethaddr.addr[5]);
-			uip_gethostaddr(ipaddr);
-			printf("Host IP Address: %d.%d.%d.%d \r\n", uip_ipaddr1(ipaddr), uip_ipaddr2(ipaddr), uip_ipaddr3(ipaddr), uip_ipaddr4(ipaddr));
-			uip_getnetmask(ipaddr);
-			printf("Network Mask: %d.%d.%d.%d \r\n", uip_ipaddr1(ipaddr), uip_ipaddr2(ipaddr), uip_ipaddr3(ipaddr), uip_ipaddr4(ipaddr));
-			uip_getdraddr(ipaddr);
-			printf("Gateway IP Address: %d.%d.%d.%d \r\n", uip_ipaddr1(ipaddr), uip_ipaddr2(ipaddr), uip_ipaddr3(ipaddr), uip_ipaddr4(ipaddr));
-			printf("---------------------------------------------\r\n");
-		} while(0);
-		#endif
 }
 #endif /* __DHCPC_H__ */
 

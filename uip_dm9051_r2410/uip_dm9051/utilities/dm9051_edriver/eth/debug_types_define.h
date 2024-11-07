@@ -1,5 +1,6 @@
 //.#ifndef __DM_TYPES3_H
 //.#define __DM_TYPES3_H
+/* #include "control/dbg_opts.h" */
 
 /* Configuration Constants */
 #define MAX_NODE_CANDIDATES    6
@@ -39,6 +40,9 @@ static unsigned long get_interrupt_count(void)
     return 0;
 }
 static void dm_eth_input_hexdump_reset(void)
+{
+}
+static void debug_diff_rx_pointers(int state, uint16_t rd_now)
 {
 }
 static void dm_eth_input_hexdump(const void *buf, size_t len)
@@ -179,7 +183,6 @@ static void dm_eth_input_hexdump(const void *buf, size_t len)
 }
 
 //uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e);
-//void debug_diff_rx_pointers(int state, uint16_t rd_now);
 //void dm_eth_input_hexdump_reset(void);
 //void dm_eth_input_hexdump(const void *buf, size_t len);
 
@@ -190,7 +193,7 @@ static uint16_t fifo_premdra_rd = DEFAULT_MDRA_RD;
 static uint16_t fifo_mdra_rd;
 #endif
 
-void debug_diff_rx_pointers(int state, uint16_t rd_now)
+static void debug_diff_rx_pointers(int state, uint16_t rd_now)
 {
 #if (defined(__DM9051_ETH_DEBUG_H) && drv_print)  || (defined(__DM9051_AP_DEBUG_H) && ap_print) //org 'drv_print'
 	if (fifo_premdra_rd == DEFAULT_MDRA_RD)
@@ -225,8 +228,13 @@ void debug_diff_rx_pointers(int state, uint16_t rd_now)
  *  - essential extern sub declaration (or extern data)
  */
 #if DM_DEBUG_TYPE == 0
+//typedef void (func_apt *)(char *);
+typedef void (*func_ptr)(char *);
+
 void diff_rx_s(void);
 void diff_rx_e(void);
+void eth_print_netconfig(char *head, const uint8_t *ip, func_ptr printky);
+void ap_print_ipconfig(char *head, const uint8_t *mac, func_ptr printky);
 #endif //DM_DEBUG_TYPE 0
 
 /*
@@ -235,7 +243,65 @@ void diff_rx_e(void);
  *  - non-debug extern sub
  */
 #if DM_DEBUG_TYPE == 20
+/* essential extern sub */
+void eth_print_netconfig(char *head, const uint8_t *ip, func_ptr printky)
+{
+#if rt_print | drv_print
+	char buf[100];
+  sprintf(buf, "%s %d.%d.%d.%d\r\n", head, ip[0], ip[1], ip[2], ip[3]);
+	printky(buf);
+#endif
+}
+void ap_print_ipconfig(char *head, const uint8_t *mac, func_ptr printky)
+{
+	#if ap_print //defined(__DM9051_AP_DEBUG_H) && ap_print
+		uint8_t *addr;
+		char buf[100];
+		
+		sprintf(buf, "%s\r\n", head);
+		printky(buf);
+
+		sprintf(buf, "Network chip: DAVICOM DM9051 \r\n");
+		printky(buf);
+		sprintf(buf, "MAC Address: %X:%X:%X:%X:%X:%X \r\n", mac[0], mac[1],
+					 mac[2], mac[3], mac[4], mac[5]);
+		printky(buf);
+		addr = DM_ETH_Ip_Configured();
+		sprintf(buf, "Host IP Address: %d.%d.%d.%d \r\n", addr[0], addr[1], addr[2], addr[3]);
+		printky(buf);
+		addr = DM_ETH_Mask_Configured();
+		sprintf(buf, "Network Mask: %d.%d.%d.%d \r\n", addr[0], addr[1], addr[2], addr[3]);
+		printky(buf);
+		addr = DM_ETH_Gw_Configured();
+		sprintf(buf, "Gateway IP Address: %d.%d.%d.%d \r\n", addr[0], addr[1], addr[2], addr[3]);
+		printky(buf);
+//		printkey("%s\r\n", head);
+
+//		printkey("Network chip: DAVICOM DM9051 \r\n");
+//		printkey("MAC Address: %X:%X:%X:%X:%X:%X \r\n", mac[0], mac[1],
+//					 mac[2], mac[3], mac[4], mac[5]);
+//		addr = DM_ETH_Ip_Configured();
+//		printkey("Host IP Address: %d.%d.%d.%d \r\n", addr[0], addr[1], addr[2], addr[3]);
+//		addr = DM_ETH_Mask_Configured();
+//		printkey("Network Mask: %d.%d.%d.%d \r\n", addr[0], addr[1], addr[2], addr[3]);
+//		addr = DM_ETH_Gw_Configured();
+//		printkey("Gateway IP Address: %d.%d.%d.%d \r\n", addr[0], addr[1], addr[2], addr[3]);
+		
+//		uip_ipaddr_t ipaddr={0,0};
+//		printf("MAC Address: %X:%X:%X:%X:%X:%X \r\n", uip_ethaddr.addr[0], uip_ethaddr.addr[1],
+//					 uip_ethaddr.addr[2], uip_ethaddr.addr[3], uip_ethaddr.addr[4], uip_ethaddr.addr[5]);
+//		uip_gethostaddr(ipaddr);
+//		printf("Host IP Address: %d.%d.%d.%d \r\n", uip_ipaddr1(ipaddr), uip_ipaddr2(ipaddr), uip_ipaddr3(ipaddr), uip_ipaddr4(ipaddr));
+//		uip_getnetmask(ipaddr);
+//		printf("Network Mask: %d.%d.%d.%d \r\n", uip_ipaddr1(ipaddr), uip_ipaddr2(ipaddr), uip_ipaddr3(ipaddr), uip_ipaddr4(ipaddr));
+//		uip_getdraddr(ipaddr);
+//		printf("Gateway IP Address: %d.%d.%d.%d \r\n", uip_ipaddr1(ipaddr), uip_ipaddr2(ipaddr), uip_ipaddr3(ipaddr), uip_ipaddr4(ipaddr));
+		printky("-----------------------------------------\r\n");
+	#endif
+}
+
 #if !DM_ETH_DEBUG_MODE
+/* non-debug */
 void diff_rx_s(void)
 {
 }
@@ -250,6 +316,7 @@ void diff_rx_e(void)
  */
 #if DM_DEBUG_TYPE == 21
 #if DM_ETH_DEBUG_MODE
+/* debug */
 void diff_rx_pointers_s(uint16_t *pMdra_rds) {
 	uint16_t dummy_rds= 0xc00;
 	DM_ETH_ToCalc_rx_pointers(0, &dummy_rds, pMdra_rds);

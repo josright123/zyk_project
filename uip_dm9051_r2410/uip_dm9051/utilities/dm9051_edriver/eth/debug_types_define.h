@@ -35,10 +35,6 @@ static uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e)
 static void inc_interrupt_count(void)
 {
 }
-static unsigned long get_interrupt_count(void)
-{
-    return 0;
-}
 static void dm_eth_input_hexdump_reset(void)
 {
 }
@@ -64,11 +60,6 @@ static volatile unsigned long dispc_int_active = 0;
 static void inc_interrupt_count(void)
 {
     dispc_int_active++;
-}
-
-static unsigned long get_interrupt_count(void)
-{
-    return dispc_int_active;
 }
 
 /* Hex Dump Implementation */
@@ -235,6 +226,7 @@ void diff_rx_s(void);
 void diff_rx_e(void);
 void eth_print_netconfig(char *head, const uint8_t *ip, printkey_ptr printky);
 void ap_print_ipconfig(char *head, const uint8_t *mac, printkey_ptr printky);
+unsigned long get_interrupt_count(void);
 #endif //DM_DEBUG_TYPE 0
 
 /*
@@ -261,19 +253,19 @@ void ap_print_ipconfig(char *head, const uint8_t *mac, printkey_ptr printky)
 		sprintf(buf, "%s\r\n", head);
 		printky(buf);
 
-		sprintf(buf, "Network chip: DAVICOM DM9051 \r\n");
+		sprintf(buf, "  Network chip: DAVICOM DM9051 \r\n");
 		printky(buf);
-		sprintf(buf, "MAC Address: %X:%X:%X:%X:%X:%X \r\n", mac[0], mac[1],
+		sprintf(buf, "  MAC Address: %X:%X:%X:%X:%X:%X \r\n", mac[0], mac[1],
 					 mac[2], mac[3], mac[4], mac[5]);
 		printky(buf);
 		addr = DM_ETH_Ip_Configured();
-		sprintf(buf, "Host IP Address: %d.%d.%d.%d \r\n", addr[0], addr[1], addr[2], addr[3]);
+		sprintf(buf, "  Host IP Address: %d.%d.%d.%d \r\n", addr[0], addr[1], addr[2], addr[3]);
 		printky(buf);
 		addr = DM_ETH_Mask_Configured();
-		sprintf(buf, "Network Mask: %d.%d.%d.%d \r\n", addr[0], addr[1], addr[2], addr[3]);
+		sprintf(buf, "  Network Mask: %d.%d.%d.%d \r\n", addr[0], addr[1], addr[2], addr[3]);
 		printky(buf);
 		addr = DM_ETH_Gw_Configured();
-		sprintf(buf, "Gateway IP Address: %d.%d.%d.%d \r\n", addr[0], addr[1], addr[2], addr[3]);
+		sprintf(buf, "  Gateway IP Address: %d.%d.%d.%d \r\n", addr[0], addr[1], addr[2], addr[3]);
 		printky(buf);
 //		printkey("%s\r\n", head);
 
@@ -307,6 +299,11 @@ void diff_rx_s(void)
 }
 void diff_rx_e(void)
 {
+}
+
+unsigned long get_interrupt_count(void)
+{
+    return 0;
 }
 #endif //!DM_ETH_DEBUG_MODE
 #endif //DM_DEBUG_TYPE 20
@@ -355,6 +352,11 @@ void diff_rx_e(void)
 {
 	fifoTurn_n++;
 	diff_rx_pointers_e(&gkeep_mdra_rds); //&mdra_rds
+}
+
+unsigned long get_interrupt_count(void)
+{
+    return dispc_int_active;
 }
 #endif //DM_ETH_DEBUG_MODE
 #endif //DM_DEBUG_TYPE 21

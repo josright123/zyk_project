@@ -229,12 +229,12 @@ static void debug_diff_rx_pointers(int state, uint16_t rd_now)
  */
 #if DM_DEBUG_TYPE == 0
 //typedef void (func_apt *)(char *);
-typedef void (*func_ptr)(char *);
+typedef void (*printkey_ptr)(char *);
 
 void diff_rx_s(void);
 void diff_rx_e(void);
-void eth_print_netconfig(char *head, const uint8_t *ip, func_ptr printky);
-void ap_print_ipconfig(char *head, const uint8_t *mac, func_ptr printky);
+void eth_print_netconfig(char *head, const uint8_t *ip, printkey_ptr printky);
+void ap_print_ipconfig(char *head, const uint8_t *mac, printkey_ptr printky);
 #endif //DM_DEBUG_TYPE 0
 
 /*
@@ -244,7 +244,7 @@ void ap_print_ipconfig(char *head, const uint8_t *mac, func_ptr printky);
  */
 #if DM_DEBUG_TYPE == 20
 /* essential extern sub */
-void eth_print_netconfig(char *head, const uint8_t *ip, func_ptr printky)
+void eth_print_netconfig(char *head, const uint8_t *ip, printkey_ptr printky)
 {
 #if rt_print | drv_print
 	char buf[100];
@@ -252,7 +252,7 @@ void eth_print_netconfig(char *head, const uint8_t *ip, func_ptr printky)
 	printky(buf);
 #endif
 }
-void ap_print_ipconfig(char *head, const uint8_t *mac, func_ptr printky)
+void ap_print_ipconfig(char *head, const uint8_t *mac, printkey_ptr printky)
 {
 	#if ap_print //defined(__DM9051_AP_DEBUG_H) && ap_print
 		uint8_t *addr;

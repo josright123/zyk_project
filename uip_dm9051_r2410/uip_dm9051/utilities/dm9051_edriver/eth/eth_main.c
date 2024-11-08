@@ -189,3 +189,24 @@ void DM_Eth_ReadRegsInfo(uint8_t *stat)
 		/* Resets the hex dump state for input processing */
     dm_eth_input_hexdump_reset();
 }
+
+int dm_eth_polling_downup(void)
+{
+	static int link_stat = 0;
+	uint8_t statdat[6];
+
+	DM_Eth_ReadRegsInfo(statdat);
+#if 1
+	toggle_led3(LED3_BY_LINK, DM_Eth_Regs_Info_Linkup(statdat) ? USER_BUTTON : NO_BUTTON);
+#endif
+	if (DM_Eth_Regs_Info_Linkup(statdat) && !link_stat) {
+		link_stat = 1;
+		printf("link up (down2up)\r\n");
+		return 1;
+	} else if (!DM_Eth_Regs_Info_Linkup(statdat) && link_stat) {
+		link_stat = 0;
+		printf("link down (up2down)\r\n");
+		return 0;
+	}
+	return 0;
+}

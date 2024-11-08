@@ -42,6 +42,7 @@ typedef enum
 } enable_t;
 
 #define DM_UNUSED_ARG(x) (void)x
+#define DM_NONUSED_ARG(x) (void)x
 
 /* domain */
 #define	uipAPP_CONF	1

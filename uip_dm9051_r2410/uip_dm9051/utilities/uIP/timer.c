@@ -81,7 +81,13 @@ void timer_set(struct timer *t, clock_time_t interval)
  */
 void timer_reset(struct timer *t)
 {
+#if 1
+	//[here, can be acceptable while init stage bug gone.]
     t->start += t->interval;
+#else
+	//[there is an init stage bug? Temp as below: (no accumulation balance style.)]
+    t->start = clock_time(); //= timer_restart()
+#endif
 }
 /*---------------------------------------------------------------------------*/
 /**
@@ -121,5 +127,12 @@ int timer_expired(struct timer *t)
     return (clock_time_t)(clock_time() - t->start) >= (clock_time_t)t->interval;
 }
 /*---------------------------------------------------------------------------*/
+
+int dbg_timer_expired(struct timer *t, clock_time_t now)
+{
+    //printf("clock_time = %x, t->start = %X, t->interval = %x\n", clock_time(), t->start, t->interval);
+
+    return (clock_time_t)(now - t->start) >= (clock_time_t)t->interval;
+}
 
 /** @} */

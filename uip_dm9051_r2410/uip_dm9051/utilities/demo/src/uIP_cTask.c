@@ -131,12 +131,36 @@ uint16_t DM_ETH_RXHandler_Poll(void)
 #endif
 
 /*---------------------------------------------------------------------------*/
+static int dbg_expire(void)
+{
+	clock_time_t now = clock_time();
+	if (dbg_timer_expired(&dhcp_timer, now))
+	{
+		printf("dbg expire (CLOCK_SECOND * 600) - now %lu tm_sta %lu, diff %lu, intval %lu\r\n", 
+			now, dhcp_timer.start, now - dhcp_timer.start, dhcp_timer.interval);
+		return 1;
+	}
+	return 0;
+}
+
+void printf_dhcp_dbg(char *head, uint32_t now)
+{
+	DM_NONUSED_ARG(head);
+	printf("--.\r\n");
+	printf("--. dhcp_time: start heartbeat %lu, now %lu, intvl-diff %lu intvl-expire %lu\r\n",
+				dhcp_timer.start, now, 
+				now - dhcp_timer.start,
+				dhcp_timer.interval);
+	printf("--.\r\n");
+}
+
+uint32_t downupcount = 0, dhcpccount = 0;
 
 void vuIP_Task(void *pvParameters)
 {
 	int i; //n = 0;
     const TickType_t xFrequency = 10;
-    TickType_t xLastWakeTime = xTaskGetTickCount();
+    TickType_t xLastWakeTime = clock_time(); //xTaskGetTickCount();
 
 #ifndef __DHCPC_H__
     uip_ipaddr_t ip, gw, mask; //ipaddr={0,0};
@@ -148,15 +172,20 @@ void vuIP_Task(void *pvParameters)
     timer_set(&periodic_timer, CLOCK_SECOND / 2); 		//500ms
     timer_set(&arp_timer, CLOCK_SECOND * 10);         // 10sec
 	
-	tapdev_init(&uip_ethaddr.addr[0]); //DM_ETH_Init(&uip_ethaddr.addr[0]); //DM_Eth_Open();
+		tapdev_init(&uip_ethaddr.addr[0]); //DM_ETH_Init(&uip_ethaddr.addr[0]); //DM_Eth_Open();
+#if 1
+		button_toggle_led3_init();
+#endif
 	
     uip_init();
     uip_arp_init(); // Clear arp table.
 
 #ifdef __DHCPC_H__ //if use fixed ip, #ifdef modify #ifndef
     // setup the dhcp renew timer the make the first request
+		
 	//printf("config: DHCPC\r\n");
     timer_set(&dhcp_timer, CLOCK_SECOND * 600);
+		printf_dhcp_dbg("---------------.", clock_time());
     dhcpc_init(&uip_ethaddr, 6);
     //dhcpc_request();
 #else //Fixed IP set
@@ -184,9 +213,6 @@ void vuIP_Task(void *pvParameters)
     printf("---------------------------------------------\n");
 #endif
     httpd_init();
-#if 1
-		button_toggle_led3_init();
-#endif
 
     while (1)
     {
@@ -290,16 +316,27 @@ void vuIP_Task(void *pvParameters)
                 uip_arp_timer();
             }
         }
-
 	#ifdef __DHCPC_H__
-        else if (timer_expired(&dhcp_timer))
+        else if (dbg_expire()) //if (dbg_timer_expired(&dhcp_timer, clock_time())) //of timer_expired(&dhcp_timer)
         {
             // for now turn off the led when we start the dhcp process
-            dhcpc_renew();
+						printf("dhcpc expire (CLOCK_SECOND * 600)\r\n");
+						
+						printf("dhcpc by-expire %lu\r\n", ++dhcpccount);
+            dhcpc_renew(); //timer hit...
             timer_reset(&dhcp_timer);
+						printf_dhcp_dbg("---------------.", clock_time());
         }
-
 	#endif // __DHCPC_H__
+				else if (dm_eth_polling_downup())
+				{
+	#ifdef __DHCPC_H__
+						printf("dhcpc by-downup %lu\r\n", ++downupcount);
+						dhcpc_renew(); //net hit...
+						timer_restart(&dhcp_timer); //instead, fixed the bug if using "timer_reset(&dhcp_timer)"; //as well
+						printf_dhcp_dbg("---------------.", clock_time());
+	#endif // __DHCPC_H__
+				}
         else
         {
             /* task delay */

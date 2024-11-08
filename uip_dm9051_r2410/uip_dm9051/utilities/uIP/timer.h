@@ -82,6 +82,8 @@ void timer_reset(struct timer *t);
 void timer_restart(struct timer *t);
 int timer_expired(struct timer *t);
 
+int dbg_timer_expired(struct timer *t, clock_time_t now);
+
 #endif /* __TIMER_H__ */
 
 /** @} */

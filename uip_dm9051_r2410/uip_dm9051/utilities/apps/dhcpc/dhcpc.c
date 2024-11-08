@@ -288,8 +288,8 @@ static PT_THREAD(handle_dhcp(void))
     dhcpc_running = 1;
 #endif
 
-#if 0
-	printf("sys %s mode\r\n", RX_MODE_STR);
+#if 1
+	printf("handle_dhcp.s (%s mode)\r\n", RX_MODE_STR);
 #endif
 
     //printf("handle_dhcp...\r\n");
@@ -302,7 +302,11 @@ static PT_THREAD(handle_dhcp(void))
     s.ticks = CLOCK_SECOND;
     dhcp_try = 0;
 
-	n_sending = 0;
+    n_sending = 0;
+		
+#if 1
+	printf("handle_dhcp.m= (dhcp_try %lu, n_sending %d)\r\n", dhcp_try, n_sending);
+#endif
     //sendString("\r\ndhcpc handle dhcp passed: STATE_SENDING");
     do
     {
@@ -372,7 +376,12 @@ send_request_section:
 
             if (msg_type == DHCPACK)
             {
-                printf("DHCPACK\r\n\r\n");
+                printf("DHCPACK\r\n");
+#if 1
+								printf("handle_dhcp.e= s.serverid %u.%u.%u.%u [%d end]...\r\n",
+									s.serverid[0], s.serverid[1], s.serverid[2], s.serverid[3], 3);
+#endif
+                printkey("\r\n");
 
                 s.state = STATE_CONFIG_RECEIVED;
                 break;
@@ -446,6 +455,7 @@ close_and_clean_up:
 /*---------------------------------------------------------------------------*/
 void dhcpc_init(const void *mac_addr, uint8_t mac_len)
 {
+		const uint8_t *maddr = mac_addr;
     uip_ipaddr_t addr;
 
     s.mac_addr = mac_addr;
@@ -459,6 +469,16 @@ void dhcpc_init(const void *mac_addr, uint8_t mac_len)
     {
         uip_udp_bind(s.conn, HTONS(DHCPC_CLIENT_PORT));     // setup local port
     }
+#if 1
+    printf("on dhcpc_init set mac addr %02x.%02x.%02x.%02x.%02x.%02x [%d start]...\r\n", 
+						maddr[0],maddr[1],maddr[2],maddr[3],maddr[4],maddr[5],
+						1);
+    printf("on dhcpc_init uip_udp_new set conn->ripaddr %u.%u.%u.%u [%d start]...\r\n", 
+						htons(addr[0]) >> 8, htons(addr[0])& 0xff,
+						htons(addr[1]) >> 8, htons(addr[1])& 0xff, 1);
+		printf("on dhcpc_init uip_udp_new s.serverid %u.%u.%u.%u [%d start]...\r\n", 
+								s.serverid[0], s.serverid[1], s.serverid[2], s.serverid[3], 1);
+#endif
 
     PT_INIT(&s.pt);
 }
@@ -474,24 +494,24 @@ void dhcpc_appcall(void)
     }
 }
 /*---------------------------------------------------------------------------*/
-void dhcpc_request(void)
-{
-    u16_t ipaddr[2]={0,0};
+//void dhcpc_request(void)
+//{
+//    u16_t ipaddr[2]={0,0};
 
-    printf("dhcpc_request...\n");
+//    printf("dhcpc_request...\n");
 
-    //sendString("\r\ndhcpc request called");
-    if (s.state == STATE_INITIAL)
-    {
-        //sendString("\r\ndhcpc request init state");
-#if defined PORT_APP_MAPPER
-        dhcpc_running = 1;
-#endif
-        uip_ipaddr(ipaddr, 0, 0, 0, 0);
-        uip_sethostaddr(ipaddr);
-        handle_dhcp();
-    }
-}
+//    //sendString("\r\ndhcpc request called");
+//    if (s.state == STATE_INITIAL)
+//    {
+//        //sendString("\r\ndhcpc request init state");
+//#if defined PORT_APP_MAPPER
+//        dhcpc_running = 1;
+//#endif
+//        uip_ipaddr(ipaddr, 0, 0, 0, 0);
+//        uip_sethostaddr(ipaddr);
+//        handle_dhcp();
+//    }
+//}
 /*---------------------------------------------------------------------------*/
 
 void dhcpc_renew(void)
@@ -517,14 +537,20 @@ void dhcpc_renew(void)
     // if no server ip then we have to do a full request
     if (s.serverid[0] == 0)
     {
-		printf("new dhcpc_init [%d]...\r\n", 1);
+        printf("new dhcpc_init s.serverid %u.%u.%u.%u [%d start]...\r\n", 
+								s.serverid[0], s.serverid[1], s.serverid[2], s.serverid[3], 0);
         dhcpc_init(s.mac_addr, s.mac_len);
         return;
     }
 
-	printf("renew dhcpc_init [%d]...\r\n", 2);
     // unicast to dhcp server
     uip_ipaddr(addr, s.serverid[0], s.serverid[1], s.serverid[2], s.serverid[3]);
+
+    printf("renew uip_udp_new set conn->ripaddr %u.%u.%u.%u [%d restart]...\r\n", 
+						htons(addr[0]) >> 8, htons(addr[0])& 0xff,
+						htons(addr[1]) >> 8, htons(addr[1])& 0xff, 2);
+    printf("renew uip_udp_new s.serverid %u.%u.%u.%u [%d restart]...\r\n", 
+						s.serverid[0], s.serverid[1], s.serverid[2], s.serverid[3], 2);
     s.conn = uip_udp_new(&addr, HTONS(DHCPC_SERVER_PORT));
 
     if (s.conn != NULL)

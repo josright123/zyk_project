@@ -292,37 +292,69 @@ void button_toggle_led3_init(void)
 }
 
 /**
+ * @brief  Periodically to Demo toggle led3
+ */
+#define NMS	250
+static int control_slice_led3(uint32_t diff, uint32_t intvl_expire)
+{
+	if (diff >= intvl_expire)
+	{
+				switch (intvl_expire) {
+					case (NMS):
+						led3_off();
+						break;
+					case (2*NMS):
+						//statime[trig_src] = 0;
+						break;
+				}
+				return 1;
+	}
+	return 0;
+}
+
+void toggle_led3(int trig_src, button_type usr_button)
+{
+	static uint32_t statime[2] = { 0, 0};
+	static uint32_t intvltime[2];
+	
+	if (usr_button == USER_BUTTON) {
+			uint32_t now = dm_sys_now();
+			if (!statime[trig_src]) {
+				statime[trig_src] = now;
+				intvltime[trig_src] = NMS;
+				led3_on();
+				return;
+			}
+			
+			if (control_slice_led3(now - statime[trig_src], intvltime[trig_src])) {
+				if (intvltime[trig_src] == (2*NMS))
+					statime[trig_src] = 0;
+				intvltime[trig_src] += NMS;
+			}
+			
+			//if ((now - statime[trig_src]) >= intvltime[trig_src])
+			//{
+			//  if (intvltime[trig_src] == (NMS))
+			//			led3_off();
+			//  if (intvltime[trig_src] == (2*NMS))
+			//			statime[trig_src] = 0;
+			//	intvltime[trig_src] += NMS;
+			//}
+		} else {
+			/* for only turn led off once by per operated trigger source! 
+			 */
+			if (statime[trig_src])
+				led3_off();
+			statime[trig_src] = 0;
+	}
+}
+
+/**
  * @brief  Periodically to Demo button control led3
  */
 void button_toggle_led3(void)
 {
-	//:led3_toggle(250) or :led3_toggle(0)
-	uint16_t nms = (button_is_pressed() == USER_BUTTON) ? 250 : 0;
-	
-	//:led3_toggle(uint16_t nms)
-	do {
-		static uint32_t state_time;
-		
-		if (nms == 0) {
-			state_time = 0;
-			led3_off();
-			return;
-		}
-		
-		if (nms == 250) {
-			if (!state_time) {
-				state_time = dm_sys_now();
-				led3_on();
-				return;
-			}
-			if ((dm_sys_now() - state_time) > (2*nms)) {
-				state_time = 0;
-			} else
-			if ((dm_sys_now() - state_time) > nms) {
-				led3_off();
-			}
-		}
-	} while(0);
+	toggle_led3(LED3_BY_BUTTON, button_is_pressed());
 }
 
 /**

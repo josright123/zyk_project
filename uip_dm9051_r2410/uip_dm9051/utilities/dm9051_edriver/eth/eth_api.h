@@ -14,6 +14,7 @@ uint8_t *DM_ETH_Gw_Configured(void);
 uint8_t *DM_ETH_Mask_Configured(void);
 int DM_Eth_Regs_Info_Linkup(uint8_t *stat);
 void DM_Eth_ReadRegsInfo(uint8_t *stat);
+int dm_eth_polling_downup(void);
 
 #ifdef ETHERNET_INTERRUPT_MODE
 int DM_ETH_GetInterruptEvent(void);

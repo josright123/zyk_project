@@ -40,6 +40,7 @@
 
 #include "clock-arch.h"
 #include "FreeRTOS.h"
+#include "nosys/nosys_control/conf_ap.h" //#include "control/conf.h"
 
 //extern __IO int32_t g_RunTime;
 extern portTickType xTaskGetTickCount(void);
@@ -47,7 +48,12 @@ extern portTickType xTaskGetTickCount(void);
 /*---------------------------------------------------------------------------*/
 clock_time_t clock_time(void)
 {
+#if 0
     //return g_RunTime;
     return xTaskGetTickCount();
+#else
+		//[20241108] Joseph Debug to it, relate to freertos's xTaskGetTickCount().
+		return dm_sys_now();
+#endif
 }
 /*---------------------------------------------------------------------------*/

@@ -113,6 +113,10 @@ flag_status inpt_get(void);
 void button_toggle_led3_init(void);
 void button_toggle_led3(void);
 
+#define LED3_BY_BUTTON	0
+#define LED3_BY_LINK		1
+void toggle_led3(int trig_src, button_type usr_button);
+
 /* hal_main api
  */
 #define dm9051_hal_init dm9051_boards_initialize

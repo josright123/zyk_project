@@ -6,9 +6,9 @@
 const uint8_t *DM_ETH_Init(const uint8_t *adr);
 uint16_t DM_ETH_Input(uint8_t *bff);
 void DM_ETH_Output(uint8_t *bff, uint16_t len);
-uint8_t *DM_ETH_Ip_Configuration(const uint8_t *ip);
-uint8_t *DM_ETH_Gw_Configuration(const uint8_t *ip);
-uint8_t *DM_ETH_Mask_Configuration(const uint8_t *ip);
+const uint8_t *DM_ETH_Ip_Configuration(const uint8_t *ip);
+const uint8_t *DM_ETH_Gw_Configuration(const uint8_t *ip);
+const uint8_t *DM_ETH_Mask_Configuration(const uint8_t *ip);
 uint8_t *DM_ETH_Ip_Configured(void);
 uint8_t *DM_ETH_Gw_Configured(void);
 uint8_t *DM_ETH_Mask_Configured(void);

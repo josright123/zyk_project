@@ -91,9 +91,9 @@ uint32_t LED_flag;
 static void uip_update_ip_config(const uint8_t *ip, const uint8_t *gw, const uint8_t *mask)
 {
 //	uip_ipaddr_t ipaddr;
-	uint8_t *ipn = tapdev_set_ip(ip);
-	uint8_t *gwn = tapdev_set_gw(gw);
-	uint8_t *maskn = tapdev_set_mask(mask);
+	const uint8_t *ipn = tapdev_set_ip(ip);
+	const uint8_t *gwn = tapdev_set_gw(gw);
+	const uint8_t *maskn = tapdev_set_mask(mask);
 
 //	uip_ipaddr(&ipaddr, ip[0], ip[1], ip[2], ip[3]);
 //	uip_sethostaddr(ipaddr);
@@ -136,17 +136,17 @@ static int dbg_expire(void)
 	clock_time_t now = clock_time();
 	if (dbg_timer_expired(&dhcp_timer, now))
 	{
-		printf("dbg expire (CLOCK_SECOND * 600) - now %lu tm_sta %lu, diff %lu, intval %lu\r\n", 
+		printf("dhcpc expire (CLOCK_SECOND * 600) - now %lu tm_sta %lu, diff %lu, intval %lu\r\n", 
 			now, dhcp_timer.start, now - dhcp_timer.start, dhcp_timer.interval);
 		return 1;
 	}
 	return 0;
 }
 
-void printf_dhcp_dbg(char *head, uint32_t now)
+void printf_dhcp_dbg(char *head, uint32_t op_count, uint32_t now)
 {
-	DM_NONUSED_ARG(head);
-	printf("--.\r\n");
+	//DM_NONUSED_ARG(head);
+	printf("--. %s, times %lu\r\n", head, op_count);
 	printf("--. dhcp_time: start heartbeat %lu, now %lu, elapsed %lu elaps-expire %lu\r\n",
 				dhcp_timer.start, now, 
 				now - dhcp_timer.start,
@@ -184,8 +184,10 @@ void vuIP_Task(void *pvParameters)
     // setup the dhcp renew timer the make the first request
 		
 	//printf("config: DHCPC\r\n");
+		downupcount = 0;
+		dhcpccount = 0;
     timer_set(&dhcp_timer, CLOCK_SECOND * 600);
-		printf_dhcp_dbg("---------------.", clock_time());
+		printf_dhcp_dbg("Init", dhcpccount, clock_time());
     dhcpc_init(&uip_ethaddr, 6);
     //dhcpc_request();
 #else //Fixed IP set
@@ -320,21 +322,19 @@ void vuIP_Task(void *pvParameters)
         else if (dbg_expire()) //if (dbg_timer_expired(&dhcp_timer, clock_time())) //of timer_expired(&dhcp_timer)
         {
             // for now turn off the led when we start the dhcp process
-						printf("dhcpc expire (CLOCK_SECOND * 600)\r\n");
-						
-						printf("dhcpc by-expire %lu\r\n", ++dhcpccount);
+						dhcpccount++;
             dhcpc_renew(); //timer hit...
             timer_reset(&dhcp_timer);
-						printf_dhcp_dbg("---------------.", clock_time());
+						printf_dhcp_dbg("Expire", dhcpccount, clock_time());
         }
 	#endif // __DHCPC_H__
 				else if (dm_eth_polling_downup())
 				{
 	#ifdef __DHCPC_H__
-						printf("dhcpc by-downup %lu\r\n", ++downupcount);
+						downupcount++;
 						dhcpc_renew(); //net hit...
 						timer_restart(&dhcp_timer); //instead, fixed the bug if using "timer_reset(&dhcp_timer)"; //as well
-						printf_dhcp_dbg("---------------.", clock_time());
+						printf_dhcp_dbg("Linkup", downupcount, clock_time());
 	#endif // __DHCPC_H__
 				}
         else

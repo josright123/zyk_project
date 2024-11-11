@@ -122,24 +122,38 @@ void eth_printkey(char *str) {
 	printkey("%s", str);
 }
 
+const uint8_t *identify_debug_ip(const uint8_t *ip)
+{
+	char *headtypestr = ip ? "config ip" : "config candidate ip";
+	ip = identify_tcpip_ip(ip);
+	print_eth_configuration(headtypestr, ip, 
+		PRINT_ETH_WITH_HEADER ? eth_printf : eth_printkey);
+	return ip;
+}
+
+const uint8_t *identify_debug_gw(const uint8_t *ip)
+{
+	char *headtypestr = ip ? "config gw" : "config candidate gw";
+	ip = identify_tcpip_gw(ip);
+	print_eth_configuration(headtypestr, ip,
+		PRINT_ETH_WITH_HEADER ? eth_printf : eth_printkey);
+  return ip;
+}
+
 /**
  * @brief  Network configuration functions
  */
-uint8_t *DM_ETH_Ip_Configuration(const uint8_t *ip)
+const uint8_t *DM_ETH_Ip_Configuration(const uint8_t *ip)
 {
-	print_eth_configuration("config ip", ip, 
-		PRINT_ETH_WITH_HEADER ? eth_printf : eth_printkey);
-  return identify_tcpip_ip(ip);
+	return identify_debug_ip(ip);
 }
 
-uint8_t *DM_ETH_Gw_Configuration(const uint8_t *ip)
+const uint8_t *DM_ETH_Gw_Configuration(const uint8_t *ip)
 {
-	print_eth_configuration("config gw", ip,
-		PRINT_ETH_WITH_HEADER ? eth_printf : eth_printkey);
-  return identify_tcpip_gw(ip);
+	return identify_debug_gw(ip);
 }
 
-uint8_t *DM_ETH_Mask_Configuration(const uint8_t *ip)
+const uint8_t *DM_ETH_Mask_Configuration(const uint8_t *ip)
 {
   return identify_tcpip_mask(ip);
 }
@@ -211,11 +225,11 @@ int dm_eth_polling_downup(void)
 	#endif
 	if (DM_Eth_Regs_Info_Linkup(statdat) && !link_stat) {
 		link_stat = 1;
-		printf("link up (down2up)\r\n");
+		printf("(down to link up)\r\n");
 		return 1;
 	} else if (!DM_Eth_Regs_Info_Linkup(statdat) && link_stat) {
 		link_stat = 0;
-		printf("link down (up2down)\r\n");
+		printf("(up2down to link down)\r\n");
 		return 0;
 	}
 	return 0;

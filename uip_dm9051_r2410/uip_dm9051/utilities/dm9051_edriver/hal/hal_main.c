@@ -2,9 +2,14 @@
  *******************************************************************************
  * @file    hal_main.c
  * @brief   Hardware Abstraction Layer for DM9051 Ethernet Controller
+ * 
+ * @details This file provides functions for SPI initialization and communication with
+ *          the DM9051 Ethernet controller.
+ * 
  * @version 1.0.0
  * @author  Joseph CHANG
  * @copyright (c) 2023-2025 Davicom Semiconductor, Inc.
+ * @date    2024-11-10
  *******************************************************************************
  */
 
@@ -116,10 +121,12 @@ void AT_hal_init(void)
     dm9051if_intr_config(intr_set());
 }
 
+// SPI Configuration Function
 void AT_spi_config_init(const struct spi_config_t *config)
 {
     spi_init_type spi_init_struct;
 
+    // Enable peripheral clock and initialize SPI
     crm_periph_clock_enable(config->clock, TRUE);
     spi_default_para_init(&spi_init_struct);
     
@@ -221,9 +228,8 @@ void cspi_read_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode) {
     } else { // CS_EACH
         cspi_read_regs_each(reg, buf, len);
     }
-    dm9051if_stdpin_hi(&cs_gpio);
 }
- 
+
 void cspi_read_regs_long(uint8_t reg, uint8_t *buf, uint16_t len) {
 	uint16_t i;
     dm9051if_stdpin_lo(&cs_gpio); // Chip select low
@@ -239,7 +245,7 @@ void cspi_read_regs_each(uint8_t reg, uint8_t *buf, uint16_t len) {
         buf[i] = cspi_read_reg(reg);
     }
 }
- 
+
 void cspi_write_regs(uint8_t reg, const uint8_t *buf, uint16_t len)
 {
 	uint16_t i;
@@ -262,7 +268,7 @@ uint16_t cspi_phy_read(uint16_t uReg)
     
     while (cspi_read_reg(DM9051_EPCR) & 0x1) {
         ctick_delay_us(1);
-        if (++w >= 500) break;
+        if (++w >= 500) break; // Timeout
     }
 
     cspi_write_reg(DM9051_EPCR, 0x0);
@@ -282,12 +288,12 @@ void cspi_phy_write(uint16_t reg, uint16_t value)
     
     while (cspi_read_reg(DM9051_EPCR) & 0x1) {
         ctick_delay_us(1);
-        if (++w >= 500) break;
+        if (++w >= 500) break; // Timeout
     }
 
     cspi_write_reg(DM9051_EPCR, 0x0);
 }
- 
+
 // RX Buffer Read Function
 uint8_t cspi_read_rxb(void) {
     uint8_t rxb;

@@ -332,7 +332,7 @@ static PT_THREAD(handle_dhcp(void))
         }
         else
         {
-            printf("DHCP - timeout.\n");
+            printf("DHCP - timeout.\r\n");
 
             //sendString("Timeout\n\r");
             if (s.ticks < CLOCK_SECOND * 60)

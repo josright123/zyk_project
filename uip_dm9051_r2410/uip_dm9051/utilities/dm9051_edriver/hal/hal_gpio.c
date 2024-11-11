@@ -19,7 +19,7 @@
  *
  * @api     Pin Configuration:
  *          - AT_hal_stdpin_config()  : Standard pin configuration
- *          - AT_hal_muxpin_config()  : Multiplexed pin configuration
+ *           (AT_hal_muxpin_config()  : Multiplexed pin configuration)
  *
  *          Pin Control:
  *          - AT_hal_stdpin_lo()      : Set pin high
@@ -39,7 +39,6 @@
 //#define AT_hal_stdpin_lo gpio_stdpin_lo
 //#define AT_hal_stdpin_hi gpio_stdpin_hi
 
-//#define cint_enable_mcu_irq_AT cint_enable_mcu_irq
 #define AT_hal_irqline HAL_IRQLine
 
 // ---------------------- data_impl -----------------------------------------------------------
@@ -48,16 +47,20 @@ const struct gpio_config_t
 	cs_gpio = {
 		GPIOA,
 		GPIO_PINS_15,
-		GPIO_PULL_NONE,
 		CRM_GPIOA_PERIPH_CLOCK,
-		GPIO_MODE_OUTPUT,
+		{
+			GPIO_PULL_NONE,
+			GPIO_MODE_OUTPUT,
+		}
 },
 	intr_gpio = {
 		GPIOC,
 		GPIO_PINS_7,
-		GPIO_PULL_UP,
 		CRM_GPIOC_PERIPH_CLOCK,
-		GPIO_MODE_INPUT,
+		{
+			GPIO_PULL_UP,
+			GPIO_MODE_INPUT,
+		}
 };
 
 const struct interrupt_pack_t intr_cset[1] = {{
@@ -96,12 +99,18 @@ void AT_hal_stdpin_config(const struct gpio_config_t *gpio)
 	/* Configure GPIO parameters */
 	gpio_init_struct.gpio_out_type = GPIO_OUTPUT_PUSH_PULL;
 	gpio_init_struct.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
-	gpio_init_struct.gpio_mode = gpio->mode;
-	gpio_init_struct.gpio_pull = gpio->pull;
+	gpio_init_struct.gpio_mode = gpio->pinland.mode;
+	gpio_init_struct.gpio_pull = gpio->pinland.pull;
 	gpio_init_struct.gpio_pins = gpio->pin;
 
 	/* Apply configuration */
 	gpio_init(gpio->port, &gpio_init_struct);
+
+	/* Configure multiplexing if in MUX mode */
+#if defined(_DLW_AT32F437xx)
+	if (gpio->pinland.mode == GPIO_MODE_MUX)
+		gpio_pin_mux_config(gpio->port, gpio->pinland.source, gpio->pinland.mux);
+#endif
 }
 
 /**
@@ -109,17 +118,15 @@ void AT_hal_stdpin_config(const struct gpio_config_t *gpio)
  * @param  gpiomux: Pointer to multiplexed GPIO configuration structure
  * @note   Extends standard configuration with multiplexing capabilities
  */
-void AT_hal_muxpin_config(const struct gpio_mux_t *gpiomux)
-{
+//void AT_hal_muxpin_config(const struct gpio_config_t *gpio)
+//{
 	/* Configure standard GPIO parameters first */
-	dm9051if_stdpin_config(&gpiomux->gpio);
+//	dm9051if_stdpin_config(gpio);
 
-#if defined(_DLW_AT32F437xx)
 	/* Configure multiplexing if in MUX mode */
-	if (gpiomux->gpio.mode == GPIO_MODE_MUX)
-		gpio_pin_mux_config(gpiomux->gpio.port, gpiomux->source, gpiomux->mux);
-#endif
-}
+//	if (gpio->mode == GPIO_MODE_MUX)
+//		gpio_pin_mux_config(gpio->port, gpio->pinland.source, gpio->pinland.mux);
+//}
 
 /**
  * @brief  Sets GPIO pin to low state
@@ -153,7 +160,7 @@ flag_status AT_hal_stdpin_get(const struct gpio_config_t *gpio)
 void AT_interrupt_config_init(const struct interrupt_pack_t *pack)
 {
 #ifdef ETHERNET_INTERRUPT_MODE
-	const struct interrupt_config_t *cf = &(pack->intr_conf);
+	const struct interrupt_config_t *cf = &(pack->cf);
 	exint_polarity_config_type pol = pack->polarity; //EXINT_TRIGGER_FALLING_EDGE;
 	exint_init_type exint_init_struct;
 
@@ -230,30 +237,38 @@ struct gpio_config_t
 	led3 = {
 		GPIOD,		  // LED3_GPIO
 		GPIO_PINS_14, // LED3_PIN
-		GPIO_PULL_NONE,
 		CRM_GPIOD_PERIPH_CLOCK, // LED3_GPIO_CRM_CLK
-		GPIO_MODE_OUTPUT,
+		{
+			GPIO_PULL_NONE,
+			GPIO_MODE_OUTPUT,
+		}
 },
 	button = {
 		GPIOA,		 // USER_BUTTON_PORT
 		GPIO_PINS_0, // USER_BUTTON_PIN
-		GPIO_PULL_DOWN,
 		CRM_GPIOA_PERIPH_CLOCK, // USER_BUTTON_CRM_CLK
-		GPIO_MODE_INPUT,
+		{
+			GPIO_PULL_DOWN,
+			GPIO_MODE_INPUT,
+		}
 },
 	diag = {
 		GPIOA,
 		GPIO_PINS_15,
-		GPIO_PULL_NONE,
 		CRM_GPIOA_PERIPH_CLOCK,
-		GPIO_MODE_OUTPUT,
+		{
+			GPIO_PULL_NONE,
+			GPIO_MODE_OUTPUT,
+		}
 },
 	inpt = {
 		GPIOC,
 		GPIO_PINS_7,
-		GPIO_PULL_UP,
 		CRM_GPIOC_PERIPH_CLOCK,
-		GPIO_MODE_INPUT,
+		{
+			GPIO_PULL_UP,
+			GPIO_MODE_INPUT,
+		}
 };
 
 /**
@@ -305,25 +320,6 @@ void button_toggle_led3_init(void)
  * @brief  Periodically to Demo toggle led3
  */
 #define NMS 250
-// static int control_slice_led3(uint32_t diff, uint32_t intvl_expire)
-// {
-// 	if (diff >= intvl_expire)
-// 	{
-// 		switch (intvl_expire)
-// 		{
-// 		case (NMS):
-// 			led3_off();
-// 			break;
-// 		case (2 * NMS):
-// 			// statime[trig_src] = 0;
-// 			break;
-// 		}
-// 		return 1;
-// 	}
-// 	return 0;
-// }
-
-//typedef enum {FALSE = 0, TRUE = !FALSE} BOOL;
 
 struct led_control_t {
     uint32_t start_time;
@@ -375,15 +371,6 @@ void toggle_led3(trigger_type trigger, led_ops_state ops)
 				ctrl->is_active = FALSE; //statime[trigger] = 0;
 			ctrl->interval += NMS;
 		}
-
-		// if ((now - statime[trig_src]) >= intvltime[trig_src])
-		//{
-		//   if (intvltime[trig_src] == (NMS))
-		//			led3_off();
-		//   if (intvltime[trig_src] == (2*NMS))
-		//			statime[trig_src] = 0;
-		//	intvltime[trig_src] += NMS;
-		// }
 	}
 	else
 	{
@@ -439,12 +426,9 @@ flag_status inpt_get(void)
 
 // Configure and use LED3
 //config_led3();
+//led3_toggle();
 //led3_on();
 //led3_off();
 
 //config_button();
 //button_is_pressed();
-
-// Configure and use button with LED toggle
-//button_toggle_led3_init();
-//button_toggle_led3();  // Call periodically in main loop

@@ -110,12 +110,16 @@ void DM_ETH_Output(uint8_t *bff, uint16_t len)
   dm9051_tx(bff, len);
 }
 
-void eth_printkey(char *str) {
-#if 1 //no head-str
-	printkey("%s", str);
-#else //with head-str
+#define PRINT_ETH_WITH_HEADER	0
+
+//with head-str
+void eth_printf(char *str) {
 	printf("%s", str);
-#endif
+}
+
+//no head-str
+void eth_printkey(char *str) {
+	printkey("%s", str);
 }
 
 /**
@@ -123,13 +127,15 @@ void eth_printkey(char *str) {
  */
 uint8_t *DM_ETH_Ip_Configuration(const uint8_t *ip)
 {
-	eth_print_netconfig("config ip", ip, eth_printkey);
+	print_eth_configuration("config ip", ip, 
+		PRINT_ETH_WITH_HEADER ? eth_printf : eth_printkey);
   return identify_tcpip_ip(ip);
 }
 
 uint8_t *DM_ETH_Gw_Configuration(const uint8_t *ip)
 {
-	eth_print_netconfig("config gw", ip, eth_printkey);
+	print_eth_configuration("config gw", ip,
+		PRINT_ETH_WITH_HEADER ? eth_printf : eth_printkey);
   return identify_tcpip_gw(ip);
 }
 
@@ -200,9 +206,9 @@ int dm_eth_polling_downup(void)
 	uint8_t statdat[6];
 
 	DM_Eth_ReadRegsInfo(statdat);
-#if 1
+	#if 1
 	toggle_led3(VIA_NET, DM_Eth_Regs_Info_Linkup(statdat) ? LED_FLASH : LED_OFF);
-#endif
+	#endif
 	if (DM_Eth_Regs_Info_Linkup(statdat) && !link_stat) {
 		link_stat = 1;
 		printf("link up (down2up)\r\n");

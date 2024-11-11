@@ -38,21 +38,18 @@
 #endif //_DLW_AT32F437xx
 
 // Interrupt Configuration Structure
-struct interrupt_config_t
-{
-	/*struct gpio_config_t gpio; */
-	crm_periph_clock_type scfgclock;
-	crm_periph_clock_type clock;
-	scfg_port_source_type port_source;
-	scfg_pins_source_type pin_source;
-	uint32_t line;
-	nvic_priority_group_type priority_group;
-	IRQn_Type irqn;
-};
-
 struct interrupt_pack_t
 {
-	struct interrupt_config_t intr_conf;
+	/*struct gpio_config_t gpio; */
+	struct interrupt_config_t {
+		crm_periph_clock_type scfgclock;
+		crm_periph_clock_type clock;
+		scfg_port_source_type port_source;
+		scfg_pins_source_type pin_source;
+		uint32_t line;
+		nvic_priority_group_type priority_group;
+		IRQn_Type irqn;
+	} cf;
 	exint_polarity_config_type polarity;
 };
 
@@ -61,16 +58,13 @@ struct gpio_config_t
 {
 	gpio_type *port;
 	uint16_t pin;
-	gpio_pull_type pull;
 	crm_periph_clock_type clock;
-	gpio_mode_type mode;
-};
-
-struct gpio_mux_t
-{
-	struct gpio_config_t gpio;
-	gpio_pins_source_type source;
-	gpio_mux_sel_type mux;
+	struct {
+		gpio_pull_type pull;
+		gpio_mode_type mode;
+		gpio_pins_source_type source;
+		gpio_mux_sel_type mux;
+	} pinland;
 };
 
 typedef enum {VIA_BUTTON = 0, VIA_NET} trigger_type; //#define LED_VIA_BUTTON 0 //#define LED_VIA_LINK 1
@@ -80,9 +74,9 @@ typedef enum {LED_OFF = 0, LED_FLASH = !LED_OFF} led_ops_state;
  */
 extern const struct interrupt_pack_t intr_cset[1];
 #define intr_set() &intr_cset[0]
-#define irq_line() intr_cset[0].intr_conf.line
-#define nvic_irqn() intr_cset[0].intr_conf.irqn
-#define nvic_prio() intr_cset[0].intr_conf.priority_group
+#define irq_line() intr_cset[0].cf.line
+#define nvic_irqn() intr_cset[0].cf.irqn
+#define nvic_prio() intr_cset[0].cf.priority_group
 
 #define AT_interrupt_config_init dm9051if_intr_config
 void AT_interrupt_config_init(const struct interrupt_pack_t *pack);
@@ -94,8 +88,8 @@ extern const struct gpio_config_t intr_gpio;
 
 #define AT_hal_stdpin_config dm9051if_stdpin_config //..........
 void AT_hal_stdpin_config(const struct gpio_config_t *gpio); //..........
-#define AT_hal_muxpin_config dm9051if_muxpin_config
-void AT_hal_muxpin_config(const struct gpio_mux_t *gpiomux);
+//#define AT_hal_muxpin_config dm9051if_muxpin_config
+//void AT_hal_muxpin_config(const struct gpio_config_t *gpiomux);
 
 #define AT_hal_stdpin_lo dm9051if_stdpin_lo
 #define AT_hal_stdpin_hi dm9051if_stdpin_hi
@@ -103,10 +97,6 @@ void AT_hal_stdpin_lo(const struct gpio_config_t *gpio);
 void AT_hal_stdpin_hi(const struct gpio_config_t *gpio);
 //#define _AT_hal_stdpin_lo gpio_hal_stdpin_lo
 //#define _AT_hal_stdpin_hi gpio_hal_stdpin_hi
-//void AT_hal_stdpin_lo(const struct gpio_config_t *gpio);
-//void AT_hal_stdpin_hi(const struct gpio_config_t *gpio);
-//void gpio_stdpin_lo(const struct gpio_config_t *gpio);
-//void gpio_stdpin_hi(const struct gpio_config_t *gpio);
 
 #define AT_hal_stdpin_get gpio_stdpin_get
 flag_status AT_hal_stdpin_get(const struct gpio_config_t *gpio);

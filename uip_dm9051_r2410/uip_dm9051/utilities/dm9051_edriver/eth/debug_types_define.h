@@ -224,7 +224,7 @@ typedef void (*printkey_ptr)(char *);
 
 void diff_rx_s(void);
 void diff_rx_e(void);
-void eth_print_netconfig(char *head, const uint8_t *ip, printkey_ptr printky);
+void print_eth_configuration(char *head, const uint8_t *ip, printkey_ptr printky);
 void ap_print_ipconfig(char *head, const uint8_t *mac, printkey_ptr printky);
 unsigned long get_interrupt_count(void);
 #endif //DM_DEBUG_TYPE 0
@@ -236,7 +236,7 @@ unsigned long get_interrupt_count(void);
  */
 #if DM_DEBUG_TYPE == 20
 /* essential extern sub */
-void eth_print_netconfig(char *head, const uint8_t *ip, printkey_ptr printky)
+void print_eth_configuration(char *head, const uint8_t *ip, printkey_ptr printky)
 {
 #if rt_print | drv_print
 	char buf[100];

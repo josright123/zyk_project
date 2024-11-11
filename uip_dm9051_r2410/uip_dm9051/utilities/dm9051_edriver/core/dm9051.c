@@ -43,12 +43,6 @@
  * Function Prototypes
  *-----------------------------------------------------------------------------*/
 
-/* MCU Interrupt Control Macros */
-/* MCU Interrupt Control */
-//#define cint_disable_mcu_irq_AT    cint_disable_mcu_irq
-//#define cint_enable_mcu_irq_AT     cint_enable_mcu_irq
-//void      cint_enable_mcu_irq_AT(void);
-
 /* Hardware Interface Functions */
 uint8_t   cspi_read_reg(uint8_t reg);
 void      cspi_write_reg(uint8_t reg, uint8_t val);
@@ -73,14 +67,11 @@ static void          cspi_set_par(const uint8_t *adr);
  * Public dm_impl Functions
  *-----------------------------------------------------------------------------*/
 
-#if 1
-/* Type Definitions */
-/* [Public dm_types Functions, belong to dm9051.c] */
+/* Type Definitions [Public dm_types Functions, belong to dm9051.c] */
 #define DM_TYPE 1
 #include "dm_types_define.h"
 #define DM_TYPE 2
 #include "dm_types_define.h"
-#endif
 
 /*-----------------------------------------------------------------------------
  * Public Interface Functions

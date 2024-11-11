@@ -89,7 +89,7 @@ int main(void)
 	//gpio_boards_initialize();
   //gpio_boards_write(diag_gpio_port(), diag_gpio_pin(), diag_gpio_lo());
 	#endif
-  printkey("\r\n\r\n\r\n/ZYK_project /R2410 [uip_dm9051_r2410] %s\r\n", __DATE__);
+	dm_eth_help_to_app_info(); //printkey("\r\n\r\n\r\n/ZYK_project /R2410 [uip_dm9051_r2410] %s\r\n", __DATE__);
 	#if 1
   //gpio_boards_write(diag_gpio_port(), diag_gpio_pin(), diag_gpio_hi());
 	#endif

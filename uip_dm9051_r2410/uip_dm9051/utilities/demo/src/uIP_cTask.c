@@ -154,6 +154,14 @@ void printf_dhcp_dbg(char *head, uint32_t op_count, uint32_t now)
 	printf("--.\r\n");
 }
 
+void polling_button(void)
+{
+	if (button_is_pressed() == USER_BUTTON)
+		toggle_led3(VIA_BUTTON, LED_FLASH); //button_toggle_led3(LED_FLASH);
+	else
+		toggle_led3(VIA_BUTTON, LED_OFF); //button_toggle_led3(LED_OFF);
+}
+
 uint32_t downupcount = 0, dhcpccount = 0;
 
 void vuIP_Task(void *pvParameters)
@@ -322,10 +330,10 @@ void vuIP_Task(void *pvParameters)
         else if (dbg_expire()) //if (dbg_timer_expired(&dhcp_timer, clock_time())) //of timer_expired(&dhcp_timer)
         {
             // for now turn off the led when we start the dhcp process
-						dhcpccount++;
+            dhcpccount++;
             dhcpc_renew(); //timer hit...
             timer_reset(&dhcp_timer);
-						printf_dhcp_dbg("Expire", dhcpccount, clock_time());
+            printf_dhcp_dbg("Expire", dhcpccount, clock_time());
         }
 	#endif // __DHCPC_H__
 				else if (dm_eth_polling_downup())
@@ -343,7 +351,7 @@ void vuIP_Task(void *pvParameters)
             vTaskDelayUntil(&xLastWakeTime, xFrequency);
         }
 #if 1
-				button_toggle_led3();
+        polling_button();
 #endif
     } //while
 }

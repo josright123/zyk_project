@@ -234,3 +234,8 @@ int dm_eth_polling_downup(void)
 	}
 	return 0;
 }
+
+void dm_eth_help_to_app_info(void)
+{
+	printkey("\r\n\r\n\r\n/ZYK_project /R2410 [uip_dm9051_r2410] %s\r\n", __DATE__);
+}

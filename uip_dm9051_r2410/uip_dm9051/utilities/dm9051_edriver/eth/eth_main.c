@@ -3,6 +3,10 @@
  * @file      eth_main.c
  * @version   v1.0.1
  * @date      2024-06-24
+ * 
+ * @author   Joseph CHANG <joseph_chang@davicom.com.tw>
+ * @copyright (c) 2023-2025 Davicom Semiconductor, Inc.
+ * 
  * @brief     DM9051 Ethernet Driver Implementation
  * 
  * @details   This module implements the main functionality for the DM9051
@@ -197,7 +201,7 @@ int dm_eth_polling_downup(void)
 
 	DM_Eth_ReadRegsInfo(statdat);
 #if 1
-	toggle_led3(LED3_BY_LINK, DM_Eth_Regs_Info_Linkup(statdat) ? USER_BUTTON : NO_BUTTON);
+	toggle_led3(VIA_NET, DM_Eth_Regs_Info_Linkup(statdat) ? LED_FLASH : LED_OFF);
 #endif
 	if (DM_Eth_Regs_Info_Linkup(statdat) && !link_stat) {
 		link_stat = 1;

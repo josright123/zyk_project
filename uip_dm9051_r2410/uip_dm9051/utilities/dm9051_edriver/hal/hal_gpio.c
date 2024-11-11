@@ -12,18 +12,19 @@
  *          - Input/Output operations with configurable pull-up/down
  *          - Pin state control and reading
  *
- * @author  Joseph CHANG
  * @version 1.0
+ * @author  Joseph CHANG
+ * @copyright (c) 2023-2025 Davicom Semiconductor, Inc.
  * @date    2024-11-05
  *
  * @api     Pin Configuration:
- *          - gpio_hal_stdpin_config()  : Standard pin configuration
- *          - gpio_hal_muxpin_config()  : Multiplexed pin configuration
+ *          - AT_hal_stdpin_config()  : Standard pin configuration
+ *          - AT_hal_muxpin_config()  : Multiplexed pin configuration
  *
  *          Pin Control:
- *          - gpio_hal_stdpin_hi()      : Set pin high
- *          - gpio_hal_stdpin_lo()      : Set pin low
- *          - gpio_hal_stdpin_get()     : Read pin state
+ *          - AT_hal_stdpin_lo()      : Set pin high
+ *          - AT_hal_stdpin_hi()      : Set pin low
+ *          - AT_hal_stdpin_get()     : Read pin state
  **************************************************************************
  */
 
@@ -31,29 +32,48 @@
 
 #if defined(_DLW_AT32F437xx)
 
-#define cint_enable_mcu_irq_AT cint_enable_mcu_irq
-#define	dm9051_hal_irqline HAL_IRQLine
+//#define gpio_stdpin_lo AT_hal_stdpin_lo
+//#define gpio_stdpin_hi AT_hal_stdpin_hi
+//#define dm9051if_stdpin_lo			_AT_hal_stdpin_lo
+//#define dm9051if_stdpin_hi			_AT_hal_stdpin_hi
+//#define AT_hal_stdpin_lo gpio_stdpin_lo
+//#define AT_hal_stdpin_hi gpio_stdpin_hi
 
+//#define cint_enable_mcu_irq_AT cint_enable_mcu_irq
+#define AT_hal_irqline HAL_IRQLine
+
+// ---------------------- data_impl -----------------------------------------------------------
 // GPIO Data
-struct gpio_config_t
-cs = {
-		GPIOA, GPIO_PINS_15, GPIO_PULL_NONE, CRM_GPIOA_PERIPH_CLOCK, GPIO_MODE_OUTPUT,
+const struct gpio_config_t
+	cs_gpio = {
+		GPIOA,
+		GPIO_PINS_15,
+		GPIO_PULL_NONE,
+		CRM_GPIOA_PERIPH_CLOCK,
+		GPIO_MODE_OUTPUT,
 },
-intr = {
-		GPIOC, GPIO_PINS_7, GPIO_PULL_UP, CRM_GPIOC_PERIPH_CLOCK, GPIO_MODE_INPUT,
+	intr_gpio = {
+		GPIOC,
+		GPIO_PINS_7,
+		GPIO_PULL_UP,
+		CRM_GPIOC_PERIPH_CLOCK,
+		GPIO_MODE_INPUT,
 };
 
-const struct interrupt_config_t intr_cset[1] = {
-	{
-		CRM_SCFG_PERIPH_CLOCK,
-		CRM_GPIOC_PERIPH_CLOCK,
-		SCFG_PORT_SOURCE_GPIOC,
-		SCFG_PINS_SOURCE7,
-		EXINT_LINE_7,
-		NVIC_PRIORITY_GROUP_0,
-		EXINT9_5_IRQn,
+const struct interrupt_pack_t intr_cset[1] = {{
+		{
+			CRM_SCFG_PERIPH_CLOCK,
+			CRM_GPIOC_PERIPH_CLOCK,
+			SCFG_PORT_SOURCE_GPIOC,
+			SCFG_PINS_SOURCE7,
+			EXINT_LINE_7,
+			NVIC_PRIORITY_GROUP_0,
+			EXINT9_5_IRQn,
+		},
+		EXINT_TRIGGER_FALLING_EDGE,
 	}};
 
+// ---------------------- hw_impl -------------------------------------------------------------
 /**
  * @brief  Configures a standard GPIO pin
  * @param  gpio: Pointer to GPIO configuration structure
@@ -63,7 +83,7 @@ const struct interrupt_config_t intr_cset[1] = {
  *         - Pull-up/down configuration
  *         - Drive strength setting
  */
-void gpio_hal_stdpin_config(const struct gpio_config_t *gpio)
+void AT_hal_stdpin_config(const struct gpio_config_t *gpio)
 {
 	gpio_init_type gpio_init_struct;
 
@@ -89,10 +109,10 @@ void gpio_hal_stdpin_config(const struct gpio_config_t *gpio)
  * @param  gpiomux: Pointer to multiplexed GPIO configuration structure
  * @note   Extends standard configuration with multiplexing capabilities
  */
-void gpio_hal_muxpin_config(const struct gpio_mux_t *gpiomux)
+void AT_hal_muxpin_config(const struct gpio_mux_t *gpiomux)
 {
 	/* Configure standard GPIO parameters first */
-	gpio_hal_stdpin_config(&gpiomux->gpio);
+	dm9051if_stdpin_config(&gpiomux->gpio);
 
 #if defined(_DLW_AT32F437xx)
 	/* Configure multiplexing if in MUX mode */
@@ -105,7 +125,7 @@ void gpio_hal_muxpin_config(const struct gpio_mux_t *gpiomux)
  * @brief  Sets GPIO pin to low state
  * @param  gpio: Pointer to GPIO configuration structure
  */
-void gpio_hal_stdpin_lo(const struct gpio_config_t *gpio)
+void AT_hal_stdpin_lo(const struct gpio_config_t *gpio)
 {
 	gpio_bits_reset(gpio->port, gpio->pin);
 }
@@ -114,7 +134,7 @@ void gpio_hal_stdpin_lo(const struct gpio_config_t *gpio)
  * @brief  Sets GPIO pin to high state
  * @param  gpio: Pointer to GPIO configuration structure
  */
-void gpio_hal_stdpin_hi(const struct gpio_config_t *gpio)
+void AT_hal_stdpin_hi(const struct gpio_config_t *gpio)
 {
 	gpio_bits_set(gpio->port, gpio->pin);
 }
@@ -124,23 +144,17 @@ void gpio_hal_stdpin_hi(const struct gpio_config_t *gpio)
  * @param  gpio: Pointer to GPIO configuration structure
  * @return flag_status: SET if pin is high, RESET if pin is low
  */
-flag_status gpio_hal_stdpin_get(const struct gpio_config_t *gpio)
+flag_status AT_hal_stdpin_get(const struct gpio_config_t *gpio)
 {
 	return gpio_input_data_bit_read(gpio->port, gpio->pin);
 }
 
-//[hw]
-//static void configure_cirq(const struct interrupt_config_t *cf,
-//						   exint_polarity_config_type polarity)
-//{
-//}
-
 // Static function prototypes
-void interrupt_config_init(const struct interrupt_config_t *cf)
+void AT_interrupt_config_init(const struct interrupt_pack_t *pack)
 {
-	//=configure_cirq(config, EXINT_TRIGGER_FALLING_EDGE);
-	#ifdef ETHERNET_INTERRUPT_MODE
-	exint_polarity_config_type polarity = EXINT_TRIGGER_FALLING_EDGE;
+#ifdef ETHERNET_INTERRUPT_MODE
+	const struct interrupt_config_t *cf = &(pack->intr_conf);
+	exint_polarity_config_type pol = pack->polarity; //EXINT_TRIGGER_FALLING_EDGE;
 	exint_init_type exint_init_struct;
 
 	/* config irq
@@ -155,7 +169,7 @@ void interrupt_config_init(const struct interrupt_config_t *cf)
 	exint_init_struct.line_enable = TRUE;
 	exint_init_struct.line_mode = EXINT_LINE_INTERRUPUT;
 	exint_init_struct.line_select = cf->line;
-	exint_init_struct.line_polarity = polarity;
+	exint_init_struct.line_polarity = pol;
 	exint_init(&exint_init_struct);
 
 	identify_irq_stat(ISTAT_IRQ_CFG);
@@ -163,16 +177,16 @@ void interrupt_config_init(const struct interrupt_config_t *cf)
 
 	identify_irq_stat(ISTAT_LOW_TRIGGER);
 	trace_irq_stat(ISTAT_LOW_TRIGGER);
-	#endif
+#endif
 }
 
-void cint_disable_mcu_irq_AT(void)
+void AT_hal_disable_mcu_irq(void)
 {
 	deidentify_irq_stat(ISTAT_IRQ_ENAB);
 	nvic_irq_disable(nvic_irqn());
 }
 
-void cint_enable_mcu_irq_AT(void)
+void AT_hal_enable_mcu_irq(void)
 {
 	identify_irq_stat(ISTAT_IRQ_ENAB);
 	trace_irq_stat(ISTAT_IRQ_ENAB);
@@ -181,19 +195,10 @@ void cint_enable_mcu_irq_AT(void)
 	nvic_irq_enable(nvic_irqn(), 1, 0);
 }
 
-uint32_t dm9051_hal_irqline(void)
+uint32_t AT_hal_irqline(void)
 {
 	return irq_line();
 }
-
-#if 1
-//void dm9051if_gpio_lo(void) {
-//	gpio_hal_stdpin_lo(&cs);
-//}
-//void dm9051if_gpio_hi(void) {
-//	gpio_hal_stdpin_hi(&cs);
-//}
-#endif
 
 /*-----------------------------------------------------------------------------
  * GPIO Pin Configurations and Control Functions
@@ -256,17 +261,22 @@ struct gpio_config_t
  */
 void config_led3(void)
 {
-	gpio_hal_stdpin_config(&led3);
+	dm9051if_stdpin_config(&led3);
+}
+
+void led3_toggle(void)
+{
+	led3.port->odt ^= led3.pin; //gpio_stdpin_toggle
 }
 
 void led3_on(void)
 {
-	gpio_hal_stdpin_lo(&led3);
+	dm9051if_stdpin_lo(&led3); //gpio_stdpin_lo
 }
 
 void led3_off(void)
 {
-	gpio_hal_stdpin_hi(&led3);
+	dm9051if_stdpin_hi(&led3); //gpio_stdpin_hi
 }
 
 /**
@@ -274,12 +284,12 @@ void led3_off(void)
  */
 void config_button(void)
 {
-	gpio_hal_stdpin_config(&button);
+	dm9051if_stdpin_config(&button);
 }
 
 button_type button_is_pressed(void)
 {
-	return gpio_hal_stdpin_get(&button) == SET ? USER_BUTTON : NO_BUTTON;
+	return gpio_stdpin_get(&button) == SET ? USER_BUTTON : NO_BUTTON;
 }
 
 /**
@@ -294,58 +304,95 @@ void button_toggle_led3_init(void)
 /**
  * @brief  Periodically to Demo toggle led3
  */
-#define NMS	250
-static int control_slice_led3(uint32_t diff, uint32_t intvl_expire)
+#define NMS 250
+// static int control_slice_led3(uint32_t diff, uint32_t intvl_expire)
+// {
+// 	if (diff >= intvl_expire)
+// 	{
+// 		switch (intvl_expire)
+// 		{
+// 		case (NMS):
+// 			led3_off();
+// 			break;
+// 		case (2 * NMS):
+// 			// statime[trig_src] = 0;
+// 			break;
+// 		}
+// 		return 1;
+// 	}
+// 	return 0;
+// }
+
+//typedef enum {FALSE = 0, TRUE = !FALSE} BOOL;
+
+struct led_control_t {
+    uint32_t start_time;
+    uint32_t interval;
+    confirm_state is_active; //bool is_active;
+    //sled_ops_state state;
+};
+
+static struct led_control_t led_control[2] = {0};
+
+void led_start_alloc(trigger_type trigger, uint32_t now)
 {
-	if (diff >= intvl_expire)
-	{
-				switch (intvl_expire) {
-					case (NMS):
-						led3_off();
-						break;
-					case (2*NMS):
-						//statime[trig_src] = 0;
-						break;
-				}
-				return 1;
-	}
-	return 0;
+	struct led_control_t *ctrl = &led_control[trigger];
+
+	ctrl->start_time = now;
+
+	trigger++;
+	if (trigger > VIA_NET)
+		trigger = VIA_BUTTON;
+	ctrl = &led_control[trigger];
+	ctrl->start_time = now + (NMS >> 1);
 }
 
-void toggle_led3(int trig_src, button_type usr_button)
+void toggle_led3(trigger_type trigger, led_ops_state ops)
 {
-	static uint32_t statime[2] = { 0, 0};
-	static uint32_t intvltime[2];
-	
-	if (usr_button == USER_BUTTON) {
-			uint32_t now = dm_sys_now();
-			if (!statime[trig_src]) {
-				statime[trig_src] = now;
-				intvltime[trig_src] = NMS;
-				led3_on();
-				return;
-			}
-			
-			if (control_slice_led3(now - statime[trig_src], intvltime[trig_src])) {
-				if (intvltime[trig_src] == (2*NMS))
-					statime[trig_src] = 0;
-				intvltime[trig_src] += NMS;
-			}
-			
-			//if ((now - statime[trig_src]) >= intvltime[trig_src])
-			//{
-			//  if (intvltime[trig_src] == (NMS))
-			//			led3_off();
-			//  if (intvltime[trig_src] == (2*NMS))
-			//			statime[trig_src] = 0;
-			//	intvltime[trig_src] += NMS;
-			//}
-		} else {
-			/* for only turn led off once by per operated trigger source! 
-			 */
-			if (statime[trig_src])
-				led3_off();
-			statime[trig_src] = 0;
+	//static uint32_t statime[2] = {0, 0};
+	//static uint32_t intvltime[2];
+	struct led_control_t *ctrl = &led_control[trigger];
+	uint32_t elapsed;
+
+	if (ops == LED_FLASH)
+	{
+		uint32_t now = dm_sys_now();
+		if (!ctrl->is_active) //(!statime[trigger])
+		{
+			led_start_alloc(trigger, now); //ctrl->start_time = now; //statime[trigger] = now;
+			ctrl->interval = NMS; //intvltime[trigger] = NMS;
+			ctrl->is_active = TRUE;
+			led3_toggle(); //led3_on
+			return;
+		}
+
+		elapsed = now - ctrl->start_time; //statime[trigger];
+		if (elapsed >= ctrl->interval) //intvltime[trigger]
+		{
+			if (ctrl->interval == NMS) //intvltime[trigger]
+				led3_toggle(); //led3_off
+			if (ctrl->interval == (NMS * 2))
+				ctrl->is_active = FALSE; //statime[trigger] = 0;
+			ctrl->interval += NMS;
+		}
+
+		// if ((now - statime[trig_src]) >= intvltime[trig_src])
+		//{
+		//   if (intvltime[trig_src] == (NMS))
+		//			led3_off();
+		//   if (intvltime[trig_src] == (2*NMS))
+		//			statime[trig_src] = 0;
+		//	intvltime[trig_src] += NMS;
+		// }
+	}
+	else
+	{
+		/* for only turn led off once by per operated trigger source!
+		 */
+		if (ctrl->is_active) { //statime[trigger]
+			led3_off();
+			ctrl->is_active = FALSE; //statime[trigger] = 0;
+		}
 	}
 }
 
@@ -354,7 +401,7 @@ void toggle_led3(int trig_src, button_type usr_button)
  */
 void button_toggle_led3(void)
 {
-	toggle_led3(LED3_BY_BUTTON, button_is_pressed());
+	toggle_led3(VIA_BUTTON, button_is_pressed() == USER_BUTTON ? LED_FLASH : LED_OFF);
 }
 
 /**
@@ -362,17 +409,17 @@ void button_toggle_led3(void)
  */
 void config_diag(void)
 {
-	gpio_hal_stdpin_config(&diag);
+	dm9051if_stdpin_config(&diag);
 }
 
 void diag_lo(void)
 {
-	gpio_hal_stdpin_lo(&diag);
+	dm9051if_stdpin_lo(&diag); //gpio_stdpin_lo
 }
 
 void diag_hi(void)
 {
-	gpio_hal_stdpin_hi(&diag);
+	dm9051if_stdpin_hi(&diag); //gpio_stdpin_hi
 }
 
 /**
@@ -380,12 +427,24 @@ void diag_hi(void)
  */
 void config_inpt(void)
 {
-	gpio_hal_stdpin_config(&inpt);
+	dm9051if_stdpin_config(&inpt);
 }
 
 flag_status inpt_get(void)
 {
-	return gpio_hal_stdpin_get(&inpt);
+	return gpio_stdpin_get(&inpt);
 }
 
 #endif /* _DLW_AT32F437xx */
+
+// Configure and use LED3
+//config_led3();
+//led3_on();
+//led3_off();
+
+//config_button();
+//button_is_pressed();
+
+// Configure and use button with LED toggle
+//button_toggle_led3_init();
+//button_toggle_led3();  // Call periodically in main loop

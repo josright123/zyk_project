@@ -50,6 +50,12 @@ struct interrupt_config_t
 	IRQn_Type irqn;
 };
 
+struct interrupt_pack_t
+{
+	struct interrupt_config_t intr_conf;
+	exint_polarity_config_type polarity;
+};
+
 // general programable input/output Structure
 struct gpio_config_t
 {
@@ -67,39 +73,51 @@ struct gpio_mux_t
 	gpio_mux_sel_type mux;
 };
 
+typedef enum {VIA_BUTTON = 0, VIA_NET} trigger_type; //#define LED_VIA_BUTTON 0 //#define LED_VIA_LINK 1
+typedef enum {LED_OFF = 0, LED_FLASH = !LED_OFF} led_ops_state;
+
 /* hal_intr api
  */
-extern const struct interrupt_config_t intr_cset[1];
+extern const struct interrupt_pack_t intr_cset[1];
 #define intr_set() &intr_cset[0]
-#define irq_line() intr_cset[0].line
-#define nvic_irqn() intr_cset[0].irqn
-#define nvic_prio() intr_cset[0].priority_group
+#define irq_line() intr_cset[0].intr_conf.line
+#define nvic_irqn() intr_cset[0].intr_conf.irqn
+#define nvic_prio() intr_cset[0].intr_conf.priority_group
 
-#define interrupt_config_init dm9051if_intr_config
-void interrupt_config_init(const struct interrupt_config_t *config);
+#define AT_interrupt_config_init dm9051if_intr_config
+void AT_interrupt_config_init(const struct interrupt_pack_t *pack);
 
 /* hal_gpio api
  */
-extern struct gpio_config_t cs;
-extern struct gpio_config_t intr;
-#define gpio_hal_muxpin_config dm9051if_muxpin_config
-void gpio_hal_muxpin_config(const struct gpio_mux_t *gpiomux);
+extern const struct gpio_config_t cs_gpio;
+extern const struct gpio_config_t intr_gpio;
 
-#define gpio_hal_stdpin_config dm9051if_stdpin_config //..........
-void gpio_hal_stdpin_config(const struct gpio_config_t *gpio); //..........
+#define AT_hal_stdpin_config dm9051if_stdpin_config //..........
+void AT_hal_stdpin_config(const struct gpio_config_t *gpio); //..........
+#define AT_hal_muxpin_config dm9051if_muxpin_config
+void AT_hal_muxpin_config(const struct gpio_mux_t *gpiomux);
 
-#define gpio_hal_stdpin_lo dm9051if_stdpin_lo
-#define gpio_hal_stdpin_hi dm9051if_stdpin_hi
-//#define dm9051if_gpio_lo dm9051if_stdpin_lo
-//#define dm9051if_gpio_hi dm9051if_stdpin_lo
-//void dm9051if_gpio_lo(void);
-//void dm9051if_gpio_hi(void);
-void gpio_hal_stdpin_lo(const struct gpio_config_t *gpio);
-void gpio_hal_stdpin_hi(const struct gpio_config_t *gpio);
+#define AT_hal_stdpin_lo dm9051if_stdpin_lo
+#define AT_hal_stdpin_hi dm9051if_stdpin_hi
+void AT_hal_stdpin_lo(const struct gpio_config_t *gpio);
+void AT_hal_stdpin_hi(const struct gpio_config_t *gpio);
+//#define _AT_hal_stdpin_lo gpio_hal_stdpin_lo
+//#define _AT_hal_stdpin_hi gpio_hal_stdpin_hi
+//void AT_hal_stdpin_lo(const struct gpio_config_t *gpio);
+//void AT_hal_stdpin_hi(const struct gpio_config_t *gpio);
+//void gpio_stdpin_lo(const struct gpio_config_t *gpio);
+//void gpio_stdpin_hi(const struct gpio_config_t *gpio);
 
-flag_status gpio_hal_stdpin_get(const struct gpio_config_t *gpio);
+#define AT_hal_stdpin_get gpio_stdpin_get
+flag_status AT_hal_stdpin_get(const struct gpio_config_t *gpio);
+
+#define AT_hal_disable_mcu_irq cint_disable_mcu_irq
+void AT_hal_disable_mcu_irq(void);
+#define AT_hal_enable_mcu_irq cint_enable_mcu_irq
+void AT_hal_enable_mcu_irq(void);
 
 void config_led3(void);
+void led3_toggle(void);
 void led3_on(void);
 void led3_off(void);
 void config_button(void);
@@ -113,19 +131,17 @@ flag_status inpt_get(void);
 void button_toggle_led3_init(void);
 void button_toggle_led3(void);
 
-#define LED3_BY_BUTTON	0
-#define LED3_BY_LINK		1
-void toggle_led3(int trig_src, button_type usr_button);
+void toggle_led3(trigger_type trigger, led_ops_state ops);
 
 /* hal_main api
  */
-#define dm9051_hal_init dm9051_boards_initialize
-void dm9051_hal_init(void);
+#define AT_hal_init dm9051_boards_initialize
+void AT_hal_init(void);
 
-#define dm9051_hal_tick dm9051_boards_heartbeat_tick
-void dm9051_hal_tick(void);
+#define AT_hal_tick dm9051_boards_heartbeat_tick
+void AT_hal_tick(void);
 
-#define dm9051_hal_tick_count dm_sys_now
-uint32_t dm9051_hal_tick_count(void);
+#define AT_hal_tick_count dm_sys_now
+uint32_t AT_hal_tick_count(void);
 
 #endif //__HAL_API_MCU_H

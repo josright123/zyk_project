@@ -35,10 +35,6 @@
  * Configuration and Definitions
  *-----------------------------------------------------------------------------*/
 
-/* MCU Interrupt Control Macros */
-#define cint_disable_mcu_irq_AT    cint_disable_mcu_irq
-#define cint_enable_mcu_irq_AT     cint_enable_mcu_irq
-
 /* Buffer Size Definitions */
 #define PBUF_POOL_BUFSIZE         (1514 + 4)    /* Maximum Ethernet frame size + header */
 #define TIMES_TO_RST              10
@@ -47,8 +43,11 @@
  * Function Prototypes
  *-----------------------------------------------------------------------------*/
 
+/* MCU Interrupt Control Macros */
 /* MCU Interrupt Control */
-void      cint_enable_mcu_irq_AT(void);
+//#define cint_disable_mcu_irq_AT    cint_disable_mcu_irq
+//#define cint_enable_mcu_irq_AT     cint_enable_mcu_irq
+//void      cint_enable_mcu_irq_AT(void);
 
 /* Hardware Interface Functions */
 uint8_t   cspi_read_reg(uint8_t reg);
@@ -61,7 +60,7 @@ uint8_t   cspi_read_rxb(void);
 void      cspi_tx_req(void);
 void      cspi_read_mem(uint8_t *buf, uint16_t len);
 void      cspi_write_mem(uint8_t *buf, uint16_t len);
-void      dm_delay_ms(uint16_t nms);
+void      ctick_delay_ms(uint16_t nms);
 
 /* Internal Function Prototypes */
 static uint16_t      impl_dm9051_rx(uint8_t *buff);
@@ -229,7 +228,7 @@ void cspi_read_regs_info(uint8_t *stat)
 void cspi_phycore_on(uint16_t nms) 
 {
   cspi_write_reg(DM9051_GPR, 0x00);  /* Power on PHY */
-  dm_delay_ms(nms);
+  ctick_delay_ms(nms);
 }
 
 /**
@@ -240,7 +239,7 @@ void cspi_phycore_on(uint16_t nms)
 void cspi_ncr_reset(uint16_t nms) 
 {
   cspi_write_reg(DM9051_NCR, DM9051_NCR_RESET);
-  dm_delay_ms(nms);
+  ctick_delay_ms(nms);
 }
 
 /**

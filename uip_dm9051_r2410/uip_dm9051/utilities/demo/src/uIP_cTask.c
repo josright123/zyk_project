@@ -147,7 +147,7 @@ void printf_dhcp_dbg(char *head, uint32_t now)
 {
 	DM_NONUSED_ARG(head);
 	printf("--.\r\n");
-	printf("--. dhcp_time: start heartbeat %lu, now %lu, intvl-diff %lu intvl-expire %lu\r\n",
+	printf("--. dhcp_time: start heartbeat %lu, now %lu, elapsed %lu elaps-expire %lu\r\n",
 				dhcp_timer.start, now, 
 				now - dhcp_timer.start,
 				dhcp_timer.interval);

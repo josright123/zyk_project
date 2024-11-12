@@ -119,9 +119,8 @@ void config_inpt(void);
 flag_status inpt_get(void);
 
 void button_toggle_led3_init(void);
-void button_toggle_led3(led_ops_state ops);
-
-void toggle_led3(trigger_type trigger, led_ops_state ops);
+void polling_button(void);
+void operate_led3(trigger_type trigger, led_ops_state ops);
 
 /* hal_main api
  */

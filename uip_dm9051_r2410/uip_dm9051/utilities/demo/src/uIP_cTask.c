@@ -136,6 +136,10 @@ static int dbg_expire(void)
 	clock_time_t now = clock_time();
 	if (dbg_timer_expired(&dhcp_timer, now))
 	{
+		printkey("\r\n");
+		#if 1
+		uip_update_ip_config(NULL, NULL, NULL); //[TESTING.]
+		#endif
 		printf("dhcpc expire (CLOCK_SECOND * 600) - now %lu tm_sta %lu, diff %lu, intval %lu\r\n", 
 			now, dhcp_timer.start, now - dhcp_timer.start, dhcp_timer.interval);
 		return 1;
@@ -152,14 +156,6 @@ void printf_dhcp_dbg(char *head, uint32_t op_count, uint32_t now)
 				now - dhcp_timer.start,
 				dhcp_timer.interval);
 	printf("--.\r\n");
-}
-
-void polling_button(void)
-{
-	if (button_is_pressed() == USER_BUTTON)
-		toggle_led3(VIA_BUTTON, LED_FLASH); //button_toggle_led3(LED_FLASH);
-	else
-		toggle_led3(VIA_BUTTON, LED_OFF); //button_toggle_led3(LED_OFF);
 }
 
 uint32_t downupcount = 0, dhcpccount = 0;
@@ -180,9 +176,9 @@ void vuIP_Task(void *pvParameters)
     timer_set(&periodic_timer, CLOCK_SECOND / 2); 		//500ms
     timer_set(&arp_timer, CLOCK_SECOND * 10);         // 10sec
 	
-		tapdev_init(&uip_ethaddr.addr[0]); //DM_ETH_Init(&uip_ethaddr.addr[0]); //DM_Eth_Open();
+    tapdev_init(&uip_ethaddr.addr[0]); //DM_ETH_Init(&uip_ethaddr.addr[0]); //DM_Eth_Open();
 #if 1
-		button_toggle_led3_init();
+    button_toggle_led3_init();
 #endif
 	
     uip_init();
@@ -190,13 +186,16 @@ void vuIP_Task(void *pvParameters)
 
 #ifdef __DHCPC_H__ //if use fixed ip, #ifdef modify #ifndef
     // setup the dhcp renew timer the make the first request
-		
 	//printf("config: DHCPC\r\n");
-		downupcount = 0;
-		dhcpccount = 0;
+	#if 1
+	uip_update_ip_config(NULL, NULL, NULL); //[TESTING.]
+	#endif
     timer_set(&dhcp_timer, CLOCK_SECOND * 600);
-		printf_dhcp_dbg("Init", dhcpccount, clock_time());
     dhcpc_init(&uip_ethaddr, 6);
+
+	downupcount = 0;
+	dhcpccount = 0;
+	printf_dhcp_dbg("Init", dhcpccount, clock_time());
     //dhcpc_request();
 #else //Fixed IP set
 
@@ -336,23 +335,26 @@ void vuIP_Task(void *pvParameters)
             printf_dhcp_dbg("Expire", dhcpccount, clock_time());
         }
 	#endif // __DHCPC_H__
-				else if (dm_eth_polling_downup())
-				{
+		else if (dm_eth_polling_downup())
+		{
 	#ifdef __DHCPC_H__
-						downupcount++;
-						dhcpc_renew(); //net hit...
-						timer_restart(&dhcp_timer); //instead, fixed the bug if using "timer_reset(&dhcp_timer)"; //as well
-						printf_dhcp_dbg("Linkup", downupcount, clock_time());
+			downupcount++;
+			dhcpc_renew(); //net hit...
+			#if 1
+			uip_update_ip_config(NULL, NULL, NULL); //[TESTING.]
+			#endif
+			timer_restart(&dhcp_timer); //instead, fixed the bug if using "timer_reset(&dhcp_timer)"; //as well
+			printf_dhcp_dbg("Linkup", downupcount, clock_time());
 	#endif // __DHCPC_H__
-				}
+		}
         else
         {
             /* task delay */
             vTaskDelayUntil(&xLastWakeTime, xFrequency);
         }
-#if 1
+	#if 1
         polling_button();
-#endif
+	#endif
     } //while
 }
 

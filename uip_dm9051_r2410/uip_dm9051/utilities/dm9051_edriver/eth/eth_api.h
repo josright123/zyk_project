@@ -15,9 +15,9 @@ uint8_t *DM_ETH_Mask_Configured(void);
 int DM_Eth_Regs_Info_Linkup(uint8_t *stat);
 void DM_Eth_ReadRegsInfo(uint8_t *stat);
 int dm_eth_polling_downup(void);
-void dm_eth_help_to_app_info(void);
-const uint8_t *identify_debug_ip(const uint8_t *ip);
-const uint8_t *identify_debug_gw(const uint8_t *ip);
+void dm_eth_show_app_help_info(void);
+const uint8_t *dm_eth_show_identified_ip(char *headtypestr);
+const uint8_t *dm_eth_show_identified_gw(char *headtypestr);
 
 #ifdef ETHERNET_INTERRUPT_MODE
 int DM_ETH_GetInterruptEvent(void);

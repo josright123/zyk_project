@@ -304,23 +304,7 @@ void config_button(void)
 
 button_type button_is_pressed(void)
 {
-	//return gpio_stdpin_get(&button) == SET ? USER_BUTTON : NO_BUTTON;
-	static int button_stat = 0;
-
-	if (gpio_stdpin_get(&button) == SET) {
-		if (!button_stat) {
-			dm_eth_help_to_app_info();
-			button_stat = 1;
-		}
-		return USER_BUTTON;
-	} else {
-		if (button_stat) { //release button
-			identify_debug_ip(DM_ETH_Ip_Configured());
-			identify_debug_gw(DM_ETH_Gw_Configured());
-			button_stat = 0;
-		}
-		return NO_BUTTON;
-	}
+	return (gpio_stdpin_get(&button) == SET) ? USER_BUTTON : NO_BUTTON;
 }
 
 /**
@@ -330,6 +314,29 @@ void button_toggle_led3_init(void)
 {
 	config_button();
 	config_led3();
+}
+
+/**
+ * @brief  Periodically to Demo button control led3
+ */
+void polling_button(void)
+{
+	static int button_stat = 0;
+
+	if (button_is_pressed() == USER_BUTTON) {
+		if (!button_stat) {
+			dm_eth_show_app_help_info();
+			button_stat = 1;
+		}
+		operate_led3(VIA_BUTTON, LED_FLASH);
+	} else {
+		if (button_stat) { //release button
+			dm_eth_show_identified_ip("display config ip");
+			dm_eth_show_identified_gw("display config gw");
+			button_stat = 0;
+		}
+		operate_led3(VIA_BUTTON, LED_OFF);
+	}
 }
 
 /**
@@ -359,7 +366,7 @@ void led_start_alloc(trigger_type trigger, uint32_t now)
 	ctrl->start_time = now + (NMS >> 1);
 }
 
-void toggle_led3(trigger_type trigger, led_ops_state ops)
+void operate_led3(trigger_type trigger, led_ops_state ops)
 {
 	//static uint32_t statime[2] = {0, 0};
 	//static uint32_t intvltime[2];
@@ -398,14 +405,6 @@ void toggle_led3(trigger_type trigger, led_ops_state ops)
 		}
 	}
 }
-
-/**
- * @brief  Periodically to Demo button control led3
- */
-//void button_toggle_led3(led_ops_state ops)
-//{
-//	toggle_led3(VIA_BUTTON, ops); //button_is_pressed() == USER_BUTTON ? LED_FLASH : LED_OFF
-//}
 
 /**
  * @brief  Diagnostic pin control functions

@@ -304,9 +304,9 @@ static PT_THREAD(handle_dhcp(void))
 
     n_sending = 0;
 		
-#if 1
+	#if 0
 	printf("handle_dhcp.m= (dhcp_try %lu, n_sending %d)\r\n", dhcp_try, n_sending);
-#endif
+	#endif
     //sendString("\r\ndhcpc handle dhcp passed: STATE_SENDING");
     do
     {
@@ -455,7 +455,6 @@ close_and_clean_up:
 /*---------------------------------------------------------------------------*/
 void dhcpc_init(const void *mac_addr, uint8_t mac_len)
 {
-		const uint8_t *maddr = mac_addr;
     uip_ipaddr_t addr;
 
     s.mac_addr = mac_addr;
@@ -469,15 +468,17 @@ void dhcpc_init(const void *mac_addr, uint8_t mac_len)
     {
         uip_udp_bind(s.conn, HTONS(DHCPC_CLIENT_PORT));     // setup local port
     }
-#if 1
-    printf("on dhcpc_init set mac addr %02x.%02x.%02x.%02x.%02x.%02x [%d start]...\r\n", 
-						maddr[0],maddr[1],maddr[2],maddr[3],maddr[4],maddr[5],
-						1);
-    printf("on dhcpc_init uip_udp_new set conn->ripaddr %u.%u.%u.%u [%d start]...\r\n", 
-						htons(addr[0]) >> 8, htons(addr[0])& 0xff,
-						htons(addr[1]) >> 8, htons(addr[1])& 0xff, 1);
+#if 0
+	do {
+		printf("on dhcpc_init set mac addr %02x.%02x.%02x.%02x.%02x.%02x [%d start]...\r\n", 
+							s.mac_addr[0],s.mac_addr[1],s.mac_addr[2],s.mac_addr[3],s.mac_addr[4],s.mac_addr[5],
+							1);
+		printf("on dhcpc_init uip_udp_new set conn->ripaddr %u.%u.%u.%u [%d start]...\r\n", 
+							htons(addr[0]) >> 8, htons(addr[0])& 0xff,
+							htons(addr[1]) >> 8, htons(addr[1])& 0xff, 1);
 		printf("on dhcpc_init uip_udp_new s.serverid %u.%u.%u.%u [%d start]...\r\n", 
-								s.serverid[0], s.serverid[1], s.serverid[2], s.serverid[3], 1);
+							s.serverid[0], s.serverid[1], s.serverid[2], s.serverid[3], 1);
+	} while(0);
 #endif
 
     PT_INIT(&s.pt);

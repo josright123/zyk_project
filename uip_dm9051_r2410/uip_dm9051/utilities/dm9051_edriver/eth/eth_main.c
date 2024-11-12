@@ -110,52 +110,25 @@ void DM_ETH_Output(uint8_t *bff, uint16_t len)
   dm9051_tx(bff, len);
 }
 
-#define PRINT_ETH_WITH_HEADER	0
-
-//with head-str
-void eth_printf(char *str) {
-	printf("%s", str);
-}
-
-//no head-str
-void eth_printkey(char *str) {
-	printkey("%s", str);
-}
-
-const uint8_t *identify_debug_ip(const uint8_t *ip)
-{
-	char *headtypestr = ip ? "config ip" : "config candidate ip";
-	ip = identify_tcpip_ip(ip);
-	print_eth_configuration(headtypestr, ip, 
-		PRINT_ETH_WITH_HEADER ? eth_printf : eth_printkey);
-	return ip;
-}
-
-const uint8_t *identify_debug_gw(const uint8_t *ip)
-{
-	char *headtypestr = ip ? "config gw" : "config candidate gw";
-	ip = identify_tcpip_gw(ip);
-	print_eth_configuration(headtypestr, ip,
-		PRINT_ETH_WITH_HEADER ? eth_printf : eth_printkey);
-  return ip;
-}
-
 /**
  * @brief  Network configuration functions
  */
 const uint8_t *DM_ETH_Ip_Configuration(const uint8_t *ip)
 {
-	return identify_debug_ip(ip);
+	identify_tcpip_ip(ip);
+	return dm_eth_show_identified_ip(ip ? "config ip" : "candidate ip");
 }
 
 const uint8_t *DM_ETH_Gw_Configuration(const uint8_t *ip)
 {
-	return identify_debug_gw(ip);
+	identify_tcpip_gw(ip);
+	return dm_eth_show_identified_gw(ip ? "config gw" : "candidate gw");
 }
 
 const uint8_t *DM_ETH_Mask_Configuration(const uint8_t *ip)
 {
-  return identify_tcpip_mask(ip);
+  identify_tcpip_mask(ip);
+  return identified_tcpip_mask();
 }
 
 /**
@@ -221,7 +194,7 @@ int dm_eth_polling_downup(void)
 
 	DM_Eth_ReadRegsInfo(statdat);
 	#if 1
-	toggle_led3(VIA_NET, DM_Eth_Regs_Info_Linkup(statdat) ? LED_FLASH : LED_OFF);
+	operate_led3(VIA_NET, DM_Eth_Regs_Info_Linkup(statdat) ? LED_FLASH : LED_OFF);
 	#endif
 	if (DM_Eth_Regs_Info_Linkup(statdat) && !link_stat) {
 		link_stat = 1;
@@ -235,7 +208,41 @@ int dm_eth_polling_downup(void)
 	return 0;
 }
 
-void dm_eth_help_to_app_info(void)
+#define PRINT_ETH_WITH_HEADER	0
+
+//with head-str
+void eth_printf(char *str) {
+	printf("%s", str);
+}
+
+//no head-str
+void eth_printkey(char *str) {
+	printkey("%s", str);
+}
+
+const uint8_t *dm_eth_show_identified_ip(char *headtypestr)
+{
+	print_eth_configuration(
+		headtypestr, 
+		identified_tcpip_ip(), 
+		PRINT_ETH_WITH_HEADER ? 
+			eth_printf: 
+			eth_printkey);
+	return identified_tcpip_ip();
+}
+
+const uint8_t *dm_eth_show_identified_gw(char *headtypestr)
+{
+	print_eth_configuration(
+		headtypestr, 
+		identified_tcpip_gw(),
+		PRINT_ETH_WITH_HEADER ? 
+			eth_printf: 
+			eth_printkey);
+  return identified_tcpip_gw();
+}
+
+void dm_eth_show_app_help_info(void)
 {
 	printkey("\r\n\r\n\r\n/ZYK_project /R2410 [uip_dm9051_r2410] %s\r\n", __DATE__);
 }

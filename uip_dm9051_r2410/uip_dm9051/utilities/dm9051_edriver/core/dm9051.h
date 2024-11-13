@@ -205,6 +205,11 @@ extern "C"
   uint16_t dm9051_rx(uint8_t *buff);
   void dm9051_tx(uint8_t *buf, uint16_t len);
 
+  uint16_t dm9051_isr_enab(void); // read and/then write
+  
+  void dm9051_read_regs_info(uint8_t *stat);
+  void dm9051_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd);
+  
   //[API]lwip
   // uint16_t dm9051_read_chip_id(void);
   // uint16_t dm9051_read_bmsr(void);
@@ -222,10 +227,6 @@ extern "C"
 
   uint16_t cspi_read_chip_id(void);
   uint16_t cspi_read_control_status(void);
-  void cspi_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd);
-  void cspi_read_regs_info(uint8_t *stat);
-
-  uint16_t cspi_isr_enab(void); // read and/then write
 
   void cspi_phycore_on(uint16_t nms);
   void cspi_ncr_reset(uint16_t nms);

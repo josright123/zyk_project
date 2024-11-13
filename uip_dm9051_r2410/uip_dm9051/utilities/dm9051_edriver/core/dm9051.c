@@ -29,7 +29,21 @@
 
 /* Project Specific Includes */
 #include "control/drv_control/conf_core.h"
-#include "control/drv_control/dm9051_eth_debug.h"
+#include "control/drv_control/dm9051_drv_debug.h"
+
+/* eth api */
+#include "eth/types_eth_api.h"
+#include "eth/eth_api.h"
+
+/*-----------------------------------------------------------------------------
+ * Public dm_impl Functions
+ *-----------------------------------------------------------------------------*/
+
+/* Type Definitions [Public dm_types Functions, belong to dm9051.c] */
+//#define DM_TYPE 1
+//#include "dm_types_define.h"
+//#define DM_TYPE 2
+//#include "dm_types_define.h"
 
 /*-----------------------------------------------------------------------------
  * Configuration and Definitions
@@ -62,16 +76,6 @@ static const uint8_t *impl_dm9051_init(const uint8_t *adr);
 static void          cspi_core_reset(void);
 static const uint8_t *cspi_dm_start1(const uint8_t *adr);
 static void          cspi_set_par(const uint8_t *adr);
-
-/*-----------------------------------------------------------------------------
- * Public dm_impl Functions
- *-----------------------------------------------------------------------------*/
-
-/* Type Definitions [Public dm_types Functions, belong to dm9051.c] */
-#define DM_TYPE 1
-#include "dm_types_define.h"
-#define DM_TYPE 2
-#include "dm_types_define.h"
 
 /*-----------------------------------------------------------------------------
  * Public Interface Functions
@@ -134,7 +138,7 @@ void dm9051_tx(uint8_t *buf, uint16_t len)
  * @brief  Enable interrupts and read/write ISR register
  * @return Combined ISR status (upper 8 bits always 0xFF)
  */
-uint16_t cspi_isr_enab(void) 
+uint16_t dm9051_isr_enab(void) 
 {
   uint16_t isrs;
   
@@ -174,7 +178,7 @@ uint16_t cspi_read_control_status(void)
  * @param  rwpa_wt  Pointer to store write pointer
  * @param  mdra_rd  Pointer to store read address
  */
-void cspi_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd) 
+void dm9051_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd) 
 {
   *rwpa_wt = (uint16_t)cspi_read_reg(0x24) |      /* DM9051_RWPAL */
              (uint16_t)cspi_read_reg(0x25) << 8;   /* DM9051_RWPAH */
@@ -190,7 +194,7 @@ void cspi_read_rx_pointers(uint16_t *rwpa_wt, uint16_t *mdra_rd)
  * 
  * @note   Combines chip ID, control status, and PHY status
  */
-void cspi_read_regs_info(uint8_t *stat) 
+void dm9051_read_regs_info(uint8_t *stat) 
 {
   uint16_t cs;
   uint32_t pbm;

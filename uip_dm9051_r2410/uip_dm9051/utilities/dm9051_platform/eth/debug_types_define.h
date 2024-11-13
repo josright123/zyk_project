@@ -219,7 +219,6 @@ static void debug_diff_rx_pointers(int state, uint16_t rd_now)
  *  - essential extern sub declaration (or extern data)
  */
 #if DM_DEBUG_TYPE == 0
-//typedef void (func_apt *)(char *);
 typedef void (*printkey_ptr)(char *);
 
 void diff_rx_s(void);

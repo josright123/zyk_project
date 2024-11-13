@@ -57,6 +57,10 @@
 #include "nosys/nosys_control/conf_ap.h"
 #include "nosys/nosys_control/dm9051_ap_debug.h"
 
+/* eth api */
+#include "eth/types_eth_api.h"
+#include "eth/eth_api.h"
+
 //[version_1]
 #define	DM9051_init									DM_ETH_Init
 #define	DM9051_tx										DM_ETH_Output
@@ -276,7 +280,7 @@ void vuIP_Task(void *pvParameters)
 				}
 			} while(0);
 			
-			tapdev_clr_ievent(); //DM_ETH_ToRst_ISR(); //cspi_isr_enab(); //DM_ETH_IRQEnable(); //dm9051_isr_enab();
+			tapdev_clr_ievent(); //DM_ETH_ToRst_ISR(); //DM_ETH_IRQEnable(); //dm9051_isr_enab();
 		}
 	#else
 	//[version_1, to be continued.]

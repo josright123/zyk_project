@@ -23,7 +23,17 @@
  */
 
 #include "control/drv_control/conf_core.h"
-#include "control/drv_control/dm9051_eth_debug.h"
+#include "control/drv_control/dm9051_drv_debug.h"
+
+/* Basic Type Definitions */
+#include "types_eth_api.h"
+//#define DM_DEBUG_TYPE 0
+//#include "debug_types_define.h"
+//#define DM_TYPE 0
+//#include "dm_types_define.h"
+
+/* eth_main api */
+#include "eth_api.h"
 
 /* Global state variables */
 static volatile int flgSemaphore_r = 0;
@@ -82,7 +92,7 @@ int DM_ETH_GetInterruptEvent(void)
  */
 void DM_ETH_ToRst_ISR(void)
 {
-  cspi_isr_enab();
+  dm9051_isr_enab();
   identify_irq_stat(ISTAT_IRQ_NOW2END);
 }
 
@@ -165,7 +175,7 @@ uint8_t *DM_ETH_Mask_Configured(void)
 uint16_t DM_ETH_ToCalc_rx_pointers(int state, const uint16_t *mdra_rd_org, uint16_t *mdra_rd_now)
 {
   static uint16_t dummy_rwpa;
-  cspi_read_rx_pointers(&dummy_rwpa, mdra_rd_now);
+  dm9051_read_rx_pointers(&dummy_rwpa, mdra_rd_now);
   debug_diff_rx_pointers(state, *mdra_rd_now);
   return (state == 0) ? 0 : wrpadiff(*mdra_rd_org, *mdra_rd_now);
 }
@@ -191,7 +201,7 @@ int DM_Eth_Regs_Info_Linkup(uint8_t *stat)
  */
 void DM_Eth_ReadRegsInfo(uint8_t *stat)
 {
-  cspi_read_regs_info(stat);
+  dm9051_read_regs_info(stat);
   if (!DM_Eth_Regs_Info_Linkup(stat))
 		/* Resets the hex dump state for input processing */
     dm_eth_input_hexdump_reset();

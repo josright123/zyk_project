@@ -34,6 +34,10 @@
 #include "nosys/nosys_control/conf_ap.h"
 #include "nosys/nosys_control/dm9051_ap_debug.h"
 
+/* eth api */
+#include "eth/types_eth_api.h"
+#include "eth/eth_api.h"
+
 #if freeRTOS
 #error "freeRTOS check defined, WRONG CONDITION!"
 #else

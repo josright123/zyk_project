@@ -12,11 +12,6 @@
 	rtype dm_mget_##field(void);       \
 	rtype dm_mset_##field(const mtype adr);
 
-DM_AMACRO(uint8_t *, mac_t, final_mac);
-DM_AMACRO(uint8_t *, ip_t, final_ip);
-DM_AMACRO(uint8_t *, ip_t, final_gw);
-DM_AMACRO(uint8_t *, ip_t, final_mask);
-
 #define GET_CSTATE(field) cb_get_##field()	   // call-use
 #define SET_CSTATE(field, v) cb_set_##field(v) // call-use
 
@@ -27,12 +22,6 @@ DM_AMACRO(uint8_t *, ip_t, final_mask);
 #define CB_MACRO(mtype, field)           \
 	mtype CB_TYPES_GET_CSTATE_FX(field); \
 	mtype CB_TYPES_SET_CSTATE_FX(mtype, field, v);
-
-CB_MACRO(uint16_t, irqst);
-
-/* HCC: Hard Core Candidate (hcc)
- */
-extern const struct eth_node_t node_candidate[1];
 
 /* APIs.identify
  */
@@ -68,9 +57,22 @@ extern const struct eth_node_t node_candidate[1];
 #define identified_tcpip_gw() GET_FIELD(final_gw)
 #define identified_tcpip_mask() GET_FIELD(final_mask)
 
-/* irqstate.identify
- */
-const char *level_str_impl(dm9051_eth_debug_level_t level);
+#if 1
+	DM_AMACRO(uint8_t *, mac_t, final_mac);
+	DM_AMACRO(uint8_t *, ip_t, final_ip);
+	DM_AMACRO(uint8_t *, ip_t, final_gw);
+	DM_AMACRO(uint8_t *, ip_t, final_mask);
+
+	CB_MACRO(uint16_t, irqst);
+
+	/* HCC: Hard Core Candidate (hcc)
+	 */
+	extern const struct eth_node_t node_candidate[1];
+
+	/* irqstate.identify
+	 */
+	const char *level_str_impl(dm9051_eth_debug_level_t level);
+#endif
 
 #endif
 
@@ -188,11 +190,8 @@ const char *level_str_impl(dm9051_eth_debug_level_t level)
 #define ISTAT_IRQ_NOW2 (1 << 8)
 #define ISTAT_IRQ_NOW2END (1 << 9)
 
-// void deidentify_irq_stat(uint16_t bitflg);
-// void identify_irq_stat(uint16_t bitflg);
 #define deidentify_irq_stat(bitflg) SET_CSTATE(irqst, GET_CSTATE(irqst) & ~bitflg)
 #define identify_irq_stat(bitflg) SET_CSTATE(irqst, GET_CSTATE(irqst) | bitflg)
-// uint16_t identified_irq_stat(void);
 #define identified_irq_stat() GET_CSTATE(irqst)
 
 /* irqstate.identified

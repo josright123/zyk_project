@@ -88,7 +88,7 @@ typedef enum {
 /* Implementation the essential-printf
  *  - printkey is essential print. while
  *  - printf, printk are optional print, 
- *    check to dm9051_ap_debug.h/dm9051_eth_debug.h (and dm9051_rt_debug.h)
+ *    check to dm9051_ap_debug.h/dm9051_drv_debug.h (and dm9051_plat_debug.h)
  */
 
 #define	printkey(fmt, ...) \

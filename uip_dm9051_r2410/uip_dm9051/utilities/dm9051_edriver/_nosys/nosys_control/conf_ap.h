@@ -7,6 +7,6 @@
 #include "control/conf.h"
 
 //#include "dm/dm_api.h"
-#include "eth/eth_api.h"
+//#include "eth/eth_api.h"
 
 #endif //__DM_CONF_AP_H__

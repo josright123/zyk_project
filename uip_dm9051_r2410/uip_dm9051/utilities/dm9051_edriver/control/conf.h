@@ -10,10 +10,10 @@
 #include "hal/hal_api.h" //#include "hal/dm9051_hal.h"
 
 /* common util */
-#define DM_DEBUG_TYPE 0
-#include "eth/debug_types_define.h"
-#define DM_TYPE 0
-#include "core/dm_types_define.h"
+//.#define DM_DEBUG_TYPE 0
+//.#include "eth/debug_types_define.h"
+//.#define DM_TYPE 0
+//.#include "core/dm_types_define.h"
 
 /* all common */
 #include "dm9051opts.h" //"temp"

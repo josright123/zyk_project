@@ -53,7 +53,7 @@ clock_time_t clock_time(void)
     return xTaskGetTickCount();
 #else
 		//[20241108] Joseph Debug to it, relate to freertos's xTaskGetTickCount().
-		return dm_sys_now();
+		return dm9051_boards_heartbeat_now(); //dm_sys_now();
 #endif
 }
 /*---------------------------------------------------------------------------*/

@@ -308,38 +308,6 @@ button_type button_is_pressed(void)
 }
 
 /**
- * @brief  Init to Demo button control led3
- */
-void button_toggle_led3_init(void)
-{
-	config_button();
-	config_led3();
-}
-
-/**
- * @brief  Periodically to Demo button control led3
- */
-void polling_button(void)
-{
-	static int button_stat = 0;
-
-	if (button_is_pressed() == USER_BUTTON) {
-		if (!button_stat) {
-			dm_eth_show_app_help_info();
-			button_stat = 1;
-		}
-		operate_led3(VIA_BUTTON, LED_FLASH);
-	} else {
-		if (button_stat) { //release button
-			dm_eth_show_identified_ip("display config ip");
-			dm_eth_show_identified_gw("display config gw");
-			button_stat = 0;
-		}
-		operate_led3(VIA_BUTTON, LED_OFF);
-	}
-}
-
-/**
  * @brief  Periodically to Demo toggle led3
  */
 #define NMS 250
@@ -375,7 +343,7 @@ void operate_led3(trigger_type trigger, led_ops_state ops)
 
 	if (ops == LED_FLASH)
 	{
-		uint32_t now = dm_sys_now();
+		uint32_t now = dm9051_boards_heartbeat_now();
 		if (!ctrl->is_active) //(!statime[trigger])
 		{
 			led_start_alloc(trigger, now); //ctrl->start_time = now; //statime[trigger] = now;

@@ -93,8 +93,8 @@ const uint8_t *dm9051_init(const uint8_t *adr)
   mac = impl_dm9051_init(adr);
 
   printf("[heartbeat %lu] heartbeat %s\r\n", 
-         dm_sys_now(), 
-         dm_sys_now() ? "OK" : "No Good fail");
+         dm9051_boards_heartbeat_now(), 
+         dm9051_boards_heartbeat_now() ? "OK" : "No Good fail");
   printf("[%s] config OK\r\n\r\n", RX_MODE_STR);
   return mac;
 }

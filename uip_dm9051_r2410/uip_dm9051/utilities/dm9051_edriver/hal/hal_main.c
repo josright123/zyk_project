@@ -331,12 +331,12 @@ void cspi_write_mem(uint8_t *buf, uint16_t len)
  ******************************************************************************/
 void ctick_delay_us(uint32_t nus)
 {
-    uint32_t start = dm_sys_now();
-    while ((dm_sys_now() - start) < ((nus + 999) / 1000));
+    uint32_t start = dm9051_boards_heartbeat_now();
+    while ((dm9051_boards_heartbeat_now() - start) < ((nus + 999) / 1000));
 }
 
 void ctick_delay_ms(uint16_t nms)
 {
-    uint32_t start = dm_sys_now();
-    while ((dm_sys_now() - start) < nms);
+    uint32_t start = dm9051_boards_heartbeat_now();
+    while ((dm9051_boards_heartbeat_now() - start) < nms);
 }

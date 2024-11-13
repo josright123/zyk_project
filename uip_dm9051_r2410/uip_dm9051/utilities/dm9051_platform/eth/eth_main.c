@@ -41,6 +41,16 @@ static volatile int flgSemaphore_r = 0;
 #define DM_DEBUG_TYPE 21
 #include "debug_types_define.h"
 
+/*-----------------------------------------------------------------------------
+ * Public dm_impl Functions
+ *-----------------------------------------------------------------------------*/
+
+/* Type Definitions [Public dm_types Functions, belong to dm9051.c] */
+#define DM_TYPE 1
+#include "dm_types_define.h"
+#define DM_TYPE 2
+#include "dm_types_define.h"
+
 /**
  * @brief  Interrupt service routine for Ethernet events
  * @note   Handles packet reception and updates interrupt statistics
@@ -211,12 +221,12 @@ int dm_eth_polling_downup(void)
 #define PRINT_ETH_WITH_HEADER	0
 
 //with head-str
-void eth_printf(char *str) {
+static void eth_printf(char *str) {
 	printf("%s", str);
 }
 
 //no head-str
-void eth_printkey(char *str) {
+static void eth_printkey(char *str) {
 	printkey("%s", str);
 }
 
@@ -242,7 +252,39 @@ const uint8_t *dm_eth_show_identified_gw(char *headtypestr)
   return identified_tcpip_gw();
 }
 
-void dm_eth_show_app_help_info(void)
+void dm_eth_show_app_help_info(char *contentStr)
 {
-	printkey("\r\n\r\n\r\n/ZYK_project /R2410 [uip_dm9051_r2410] %s\r\n", __DATE__);
+	printkey("\r\n\r\n\r\n/ZYK_project /R2410 [uip_dm9051_r2410] %s\r\n", contentStr);
+}
+
+/**
+ * @brief  Init to Demo button control led3
+ */
+void dm_eth_polling_button_led3_init(void)
+{
+	config_button();
+	config_led3();
+}
+
+/**
+ * @brief  Periodically to Demo button control led3
+ */
+void dm_eth_polling_button(void)
+{
+	static int button_stat = 0;
+
+	if (button_is_pressed() == USER_BUTTON) {
+		if (!button_stat) {
+			dm_eth_show_app_help_info("polling_button_pressed");
+			button_stat = 1;
+		}
+		operate_led3(VIA_BUTTON, LED_FLASH);
+	} else {
+		if (button_stat) { //release button
+			dm_eth_show_identified_ip("display config ip");
+			dm_eth_show_identified_gw("display config gw");
+			button_stat = 0;
+		}
+		operate_led3(VIA_BUTTON, LED_OFF);
+	}
 }

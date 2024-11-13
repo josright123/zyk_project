@@ -118,8 +118,6 @@ void diag_hi(void);
 void config_inpt(void);
 flag_status inpt_get(void);
 
-void button_toggle_led3_init(void);
-void polling_button(void);
 void operate_led3(trigger_type trigger, led_ops_state ops);
 
 /* hal_main api
@@ -130,7 +128,7 @@ void AT_hal_init(void);
 #define AT_hal_tick dm9051_boards_heartbeat_tick
 void AT_hal_tick(void);
 
-#define AT_hal_tick_count dm_sys_now
+#define AT_hal_tick_count dm9051_boards_heartbeat_now //dm_sys_now
 uint32_t AT_hal_tick_count(void);
 
 #endif //__HAL_API_MCU_H

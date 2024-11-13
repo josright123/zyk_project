@@ -113,7 +113,7 @@ void AT_hal_stdpin_config(const struct gpio_config_t *gpio)
 #if defined(_DLW_AT32F437xx)
 	if (gpio->pinland.mode == GPIO_MODE_MUX)
 		gpio_pin_mux_config(gpio->port, gpio->pinland.source, gpio->pinland.mux);
-#endif
+#endif /* _DLW_AT32F437xx */
 }
 
 /**

@@ -292,7 +292,7 @@ static PT_THREAD(handle_dhcp(void))
 #endif
 
 #if 1
-	printf("handle_dhcp.s (%s mode)\r\n", RX_MODE_STR);
+	printf("handle_dhcp.s\r\n"); //" (%s mode)", RX_MODE_STR
 #endif
 
     //printf("handle_dhcp...\r\n");
@@ -379,10 +379,11 @@ send_request_section:
 
             if (msg_type == DHCPACK)
             {
-                printf("DHCPACK\r\n");
-#if 1
-								printf("handle_dhcp.e= s.serverid %u.%u.%u.%u [%d end]...\r\n",
-									s.serverid[0], s.serverid[1], s.serverid[2], s.serverid[3], 3);
+                printf("DHCPACK, from server %u.%u.%u.%u\r\n",
+						s.serverid[0], s.serverid[1], s.serverid[2], s.serverid[3]);
+#if 0
+				printf("handle_dhcp.e= s.serverid %u.%u.%u.%u [%d end]...\r\n",
+					s.serverid[0], s.serverid[1], s.serverid[2], s.serverid[3], 3);
 #endif
                 printkey("\r\n");
 

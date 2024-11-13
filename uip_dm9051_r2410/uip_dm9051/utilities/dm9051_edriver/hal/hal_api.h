@@ -1,12 +1,15 @@
 #ifndef __HAL_API_MCU_H
 #define __HAL_API_MCU_H
 
-// option: _DLW_AT32F415xx
-// option: _DLW_AT32F437xx
-// option: _DLW_M051xx
-#ifndef _DLW_AT32F437xx
-#define _DLW_AT32F437xx
+//	option: _DLW_M051xx
+//	option: _DLW_AT32F437xx
+//	option: _DLW_AT32F415xx
+	#define _DLW_AT32F437xx
 
+#ifdef __HAL_API_MCU_H
+//	apply to config MCU _DLW_M051xx
+//	apply to config MCU _DLW_AT32F437xx
+//	apply to config MCU _DLW_AT32F415xx, ...,etc.
 #if defined(_DLW_M051xx)
 #include "M051Series.h"
 #elif defined(_DLW_AT32F437xx)
@@ -35,7 +38,10 @@
 		ex: _AT32F407xx,USE_STDPERIPH_DRIVER,AT_START_F407_V1 \r\n \
 		ex: _AT32F437xx,USE_STDPERIPH_DRIVER,AT_START_F437_V1 \r\n \ "
 #endif
-#endif //_DLW_AT32F437xx
+#endif //__HAL_API_MCU_H
+
+typedef enum {VIA_BUTTON = 0, VIA_NET} trigger_type; //#define LED_VIA_BUTTON 0 //#define LED_VIA_LINK 1
+typedef enum {LED_OFF = 0, LED_FLASH = !LED_OFF} led_ops_state;
 
 // Interrupt Configuration Structure
 struct interrupt_pack_t
@@ -67,24 +73,8 @@ struct gpio_config_t
 	} pinland;
 };
 
-typedef enum {VIA_BUTTON = 0, VIA_NET} trigger_type; //#define LED_VIA_BUTTON 0 //#define LED_VIA_LINK 1
-typedef enum {LED_OFF = 0, LED_FLASH = !LED_OFF} led_ops_state;
-
-/* hal_intr api
- */
-extern const struct interrupt_pack_t intr_cset[1];
-#define intr_set() &intr_cset[0]
-#define irq_line() intr_cset[0].cf.line
-#define nvic_irqn() intr_cset[0].cf.irqn
-#define nvic_prio() intr_cset[0].cf.priority_group
-
 #define AT_interrupt_config_init dm9051if_intr_config
 void AT_interrupt_config_init(const struct interrupt_pack_t *pack);
-
-/* hal_gpio api
- */
-extern const struct gpio_config_t cs_gpio;
-extern const struct gpio_config_t intr_gpio;
 
 #define AT_hal_stdpin_config dm9051if_stdpin_config //..........
 void AT_hal_stdpin_config(const struct gpio_config_t *gpio); //..........
@@ -130,5 +120,19 @@ void AT_hal_tick(void);
 
 #define AT_hal_tick_count dm9051_boards_heartbeat_now //dm_sys_now
 uint32_t AT_hal_tick_count(void);
+
+/* hal_intr api
+ */
+#define intr_set() &intr_cset[0]
+#define irq_line() intr_cset[0].cf.line
+#define nvic_irqn() intr_cset[0].cf.irqn
+#define nvic_prio() intr_cset[0].cf.priority_group
+
+extern const struct interrupt_pack_t intr_cset[1];
+
+/* hal_gpio api
+ */
+extern const struct gpio_config_t cs_gpio;
+extern const struct gpio_config_t intr_gpio;
 
 #endif //__HAL_API_MCU_H

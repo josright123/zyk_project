@@ -270,16 +270,17 @@ void dm_eth_show_app_help_info(char *contentStr)
 /**
  * @brief  Init to Demo button control led3
  */
-void dm_eth_polling_button_led3_init(void)
+void dm_eth_polling_button_init(enum operate_tag tag)
 {
 	config_button();
-	config_led3();
+	if (tag == OPS_LED3)
+		config_led3();
 }
 
 /**
  * @brief  Periodically to Demo button control led3
  */
-void dm_eth_polling_button(void)
+void dm_eth_polling_button_ops(enum operate_tag tag)
 {
 	static int button_stat = 0;
 
@@ -288,13 +289,15 @@ void dm_eth_polling_button(void)
 			dm_eth_show_app_help_info("polling_button_pressed");
 			button_stat = 1;
 		}
-		operate_led3(VIA_BUTTON, LED_FLASH);
+		if (tag == OPS_LED3)
+			operate_led3(VIA_BUTTON, LED_FLASH);
 	} else {
 		if (button_stat) { //release button
 			dm_eth_show_identified_ip("display config ip");
 			dm_eth_show_identified_gw("display config gw");
 			button_stat = 0;
 		}
-		operate_led3(VIA_BUTTON, LED_OFF);
+		if (tag == OPS_LED3)
+			operate_led3(VIA_BUTTON, LED_OFF);
 	}
 }

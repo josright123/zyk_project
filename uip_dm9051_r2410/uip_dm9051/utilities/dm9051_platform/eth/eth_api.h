@@ -18,8 +18,10 @@ int dm_eth_polling_downup(void);
 void dm_eth_show_app_help_info(char *contentStr);
 const uint8_t *dm_eth_show_identified_ip(char *headtypestr);
 const uint8_t *dm_eth_show_identified_gw(char *headtypestr);
-void dm_eth_polling_button_led3_init(void);
-void dm_eth_polling_button(void);
+
+enum operate_tag {OPS_LED3 = 0, };
+void dm_eth_polling_button_init(enum operate_tag tag);
+void dm_eth_polling_button_ops(enum operate_tag tag);
 
 #ifdef ETHERNET_INTERRUPT_MODE
 int DM_ETH_GetInterruptEvent(void);

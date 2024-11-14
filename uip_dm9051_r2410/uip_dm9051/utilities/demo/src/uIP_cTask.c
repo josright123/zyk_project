@@ -182,7 +182,7 @@ void vuIP_Task(void *pvParameters)
 	
     tapdev_init(&uip_ethaddr.addr[0]); //DM_ETH_Init(&uip_ethaddr.addr[0]); //DM_Eth_Open();
 #if 1
-    dm_eth_polling_button_led3_init();
+    dm_eth_polling_button_init(OPS_LED3);
 #endif
 	
     uip_init();
@@ -357,7 +357,7 @@ void vuIP_Task(void *pvParameters)
             vTaskDelayUntil(&xLastWakeTime, xFrequency);
         }
 	#if 1
-        dm_eth_polling_button();
+        dm_eth_polling_button_ops(OPS_LED3);
 	#endif
     } //while
 }

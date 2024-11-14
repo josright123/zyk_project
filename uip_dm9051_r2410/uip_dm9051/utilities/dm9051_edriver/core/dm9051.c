@@ -96,9 +96,6 @@ const uint8_t *dm9051_init(const uint8_t *adr)
   
   mac = impl_dm9051_init(adr);
 
-  printf("[heartbeat %lu] heartbeat %s\r\n", 
-         dm9051_boards_heartbeat_now(), 
-         dm9051_boards_heartbeat_now() ? "OK" : "No Good fail");
   printf("[%s] config OK\r\n\r\n", RX_MODE_STR);
   return mac;
 }
@@ -350,6 +347,7 @@ void cspi_tx_write(uint8_t *buf, uint16_t len)
  */
 int env_init_setup(uint16_t *id) 
 {
+  int n = 1000, heartbeat_stamp = dm9051_boards_heartbeat_now();
   uint8_t rev = cspi_read_reg(0x5c);
   
   /* Read and verify chip ID */
@@ -365,7 +363,18 @@ int env_init_setup(uint16_t *id)
 	else {
     printf("DM9051 not found, chipid: %04x\r\n", id);
 	}
-  return (*id == 0x9051) ? 1 : 0;
+
+  /* Read and verify heartbeat */
+  while (n--)
+	  heartbeat_stamp = dm9051_boards_heartbeat_now();
+
+  printf("%s: %lu, %s\r\n",
+		 dm9051_boards_heartbeat_now() - heartbeat_stamp ? "Heartbeat found" : "Heartbeat not found",
+         dm9051_boards_heartbeat_now() - heartbeat_stamp, 
+         dm9051_boards_heartbeat_now() - heartbeat_stamp ? "heartbeat OK" : "heartbeat not exist fail");
+	
+  //return (*id == 0x9051) ? 1 : 0;
+  return (*id == 0x9051) && (dm9051_boards_heartbeat_now() - heartbeat_stamp) ? 1 : 0;
 }
 
 /**

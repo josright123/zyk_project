@@ -40,7 +40,7 @@ void AT_spi_mem2x_read(uint8_t *pd);
 void AT_spi_mem_read(uint8_t *buf, uint16_t len);
 void AT_spi_mem_write(uint8_t *buf, uint16_t len);
 
-void AT_hal_init(void);
+void AT_hal_init(struct board_init_type *board_init_struct);
 uint32_t AT_hal_tick_count(void);
 void AT_hal_tick(void);
 void ctick_delay_us(uint32_t nus);
@@ -104,12 +104,14 @@ static const struct spi_config_t spi_cset[1] = {
 #define AT_spi_config_init dm9051if_spi_config
 void AT_spi_config_init(const struct spi_config_t *config);
 
+struct board_init_type dm_init_struct; //temp here!
+
 /*******************************************************************************
  * SPI Core Functions
  ******************************************************************************/
 #if defined(_DLW_AT32F437xx)
 // SPI Initialization Function
-void AT_hal_init(void)
+void AT_hal_init(struct board_init_type *board_init_struct)
 {
     // Initialize SPI and GPIO configurations
     dm9051if_spi_config(&spi_set());
@@ -117,8 +119,13 @@ void AT_hal_init(void)
     dm9051if_stdpin_config(&spi_set().miso);
     dm9051if_stdpin_config(&spi_set().mosi);
     dm9051if_stdpin_config(&cs_gpio);
-    dm9051if_stdpin_config(&intr_gpio);
-    dm9051if_intr_config(intr_set());
+	if (board_init_struct->interrrpt_mode) {
+		dm9051if_stdpin_config(&intr_gpio);
+		dm9051if_intr_config(intr_set());
+		board_init_struct->line = intr_cset[0].cf.line; //=irq_line()
+	}
+	
+	memcpy(&dm_init_struct, board_init_struct, sizeof(struct board_init_type));
 }
 
 // SPI Configuration Function

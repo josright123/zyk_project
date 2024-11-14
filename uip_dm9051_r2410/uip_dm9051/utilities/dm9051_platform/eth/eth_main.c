@@ -103,8 +103,15 @@ void DM_ETH_ToRst_ISR(void)
  */
 const uint8_t *DM_ETH_Init(const uint8_t *adr)
 {
+  struct board_init_type board_init_struct = { 0 };
+	
   flgSemaphore_r = 0;
-  dm9051_boards_initialize();
+
+#ifdef ETHERNET_INTERRUPT_MODE
+  board_init_struct.interrrpt_mode = 1;
+#endif
+
+  dm9051_boards_initialize(&board_init_struct);
   return dm9051_init(adr);
 }
 

@@ -113,7 +113,7 @@ void operate_led3(trigger_type trigger, led_ops_state ops);
 /* hal_main api
  */
 #define AT_hal_init dm9051_boards_initialize
-void AT_hal_init(void);
+void AT_hal_init(struct board_init_type *board_init_struct);
 
 #define AT_hal_tick dm9051_boards_heartbeat_tick
 void AT_hal_tick(void);

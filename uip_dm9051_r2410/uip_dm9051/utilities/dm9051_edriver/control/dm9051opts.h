@@ -7,13 +7,13 @@
 /* __DRV_H
  */
 
-#define DRV_INTR_MODE // define 'DRV_INTR_MODE' to configure the mcu EXTINT
-//#undef DRV_INTR_MODE
+//#define ETHERNET_INTERRUPT_MODE // interrupt mode
+//#undef ETHERNET_INTERRUPT_MODE
 
-#define FORCE_MODE_10M
+#define FORCE_MODE_10M // 10M mode
 //#undef FORCE_MODE_10M
 
-#define FORCE_CHKSUM_OFFLOAD
+#define FORCE_CHKSUM_OFFLOAD // checksum offload mode
 //#undef FORCE_CHKSUM_OFFLOAD
 
 /* __USR_H

@@ -31,7 +31,7 @@
 #include "control/drv_control/conf_core.h"
 
 /* eth api */
-#include "eth/types_eth_api.h"
+#include "eth/eth_types.h"
 
 #if defined(_DLW_AT32F437xx)
 
@@ -56,7 +56,9 @@ const struct gpio_config_t
 			GPIO_MODE_OUTPUT,
 		}
 },
-	intr_gpio = {
+	intr_gpio
+#ifdef ETHERNET_INTERRUPT_MODE
+	= {
 		GPIOC,
 		GPIO_PINS_7,
 		CRM_GPIOC_PERIPH_CLOCK,
@@ -64,9 +66,13 @@ const struct gpio_config_t
 			GPIO_PULL_UP,
 			GPIO_MODE_INPUT,
 		}
-};
+}
+#endif
+;
 
-const struct interrupt_pack_t intr_cset[1] = {{
+const struct interrupt_pack_t intr_cset[1]
+#ifdef ETHERNET_INTERRUPT_MODE
+= {{
 		{
 			CRM_SCFG_PERIPH_CLOCK,
 			CRM_GPIOC_PERIPH_CLOCK,
@@ -77,7 +83,9 @@ const struct interrupt_pack_t intr_cset[1] = {{
 			EXINT9_5_IRQn,
 		},
 		EXINT_TRIGGER_FALLING_EDGE,
-	}};
+	}}
+#endif
+	;
 
 // ---------------------- hw_impl -------------------------------------------------------------
 /**
@@ -162,7 +170,10 @@ flag_status AT_hal_stdpin_get(const struct gpio_config_t *gpio)
 // Static function prototypes
 void AT_interrupt_config_init(const struct interrupt_pack_t *pack)
 {
-#ifdef ETHERNET_INTERRUPT_MODE
+//#ifdef ETHERNET_INTERRUPT_MODE
+//#endif
+	//if (dm_init_info.interrrpt_mode) {
+	//}
 	const struct interrupt_config_t *cf = &(pack->cf);
 	exint_polarity_config_type pol = pack->polarity; //EXINT_TRIGGER_FALLING_EDGE;
 	exint_init_type exint_init_struct;
@@ -187,27 +198,28 @@ void AT_interrupt_config_init(const struct interrupt_pack_t *pack)
 
 	identify_irq_stat(ISTAT_LOW_TRIGGER);
 	trace_irq_stat(ISTAT_LOW_TRIGGER);
-#endif
 }
 
 void AT_hal_disable_mcu_irq(void)
 {
 	deidentify_irq_stat(ISTAT_IRQ_ENAB);
-	nvic_irq_disable(nvic_irqn());
+	nvic_irq_disable(dm_init_info.intp->cf.irqn); //(nvic_irqn())
 }
 
 void AT_hal_enable_mcu_irq(void)
 {
+	//if (dm_init_info.interrrpt_mode) {
+	//}
 	identify_irq_stat(ISTAT_IRQ_ENAB);
 	trace_irq_stat(ISTAT_IRQ_ENAB);
 
-	nvic_priority_group_config(nvic_prio());
-	nvic_irq_enable(nvic_irqn(), 1, 0);
+	nvic_priority_group_config(dm_init_info.intp->cf.priority_group); //nvic_prio()
+	nvic_irq_enable(dm_init_info.intp->cf.irqn, 1, 0);
 }
 
 uint32_t AT_hal_irqline(void)
 {
-	return irq_line();
+	return dm_init_info.intp->cf.line; //irq_line();
 }
 
 /*-----------------------------------------------------------------------------

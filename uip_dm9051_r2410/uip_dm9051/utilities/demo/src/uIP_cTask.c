@@ -58,7 +58,7 @@
 #include "nosys/nosys_control/dm9051_ap_debug.h"
 
 /* eth api */
-#include "eth/types_eth_api.h"
+#include "eth/eth_types.h"
 #include "eth/eth_api.h"
 
 //[version_1]
@@ -123,13 +123,11 @@ int input_intr(void)
 #endif
 
 #if defined(ETHERNET_POLLING_MODE)
-.......... old version_0...
-uint16_t DM_ETH_RXHandler_Poll(void)
+uint16_t DM_ETH_RXHandler_Poll(void) //...
 {
 	uip_len = tapdev_read(uip_buf);
 	if (uip_len)
-		/* Polling, per 1 packet */
-		rcx_handler_direct();
+		rcx_handler_direct(); /* Polling, per 1 packet */
 	return uip_len;
 }
 #endif

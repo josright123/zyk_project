@@ -26,7 +26,7 @@
 #include "control/drv_control/dm9051_drv_debug.h"
 
 /* Basic Type Definitions */
-#include "types_eth_api.h"
+#include "eth_types.h"
 //#define DM_DEBUG_TYPE 0
 //#include "debug_types_define.h"
 //#define DM_TYPE 0
@@ -194,12 +194,20 @@ uint16_t DM_ETH_ToCalc_rx_pointers(int state, const uint16_t *mdra_rd_org, uint1
  */
 int DM_Eth_Regs_Info_Linkup(uint8_t *stat)
 {
-#if LINK_STATE_SOURCE == DM9051_CHECK_MAC
-  return stat[1] & 0x40 ? 1 : 0;  /* NSR register */
-#endif
-#if LINK_STATE_SOURCE == DM9051_CHECK_PHY
-  return stat[5] & 0x04 ? 1 : 0;  /* BMSR register */
-#endif
+	enum link_state_t lst = LINK_STATE_SOURCE;
+	if (lst == DM9051_CHECK_MAC) {
+		return stat[1] & 0x40 ? 1 : 0;  /* NSR register */
+	}
+	else if (lst == DM9051_CHECK_PHY) {
+		return stat[5] & 0x04 ? 1 : 0;  /* BMSR register */
+	}
+	return 1;
+//#define DM9051_CHECK_MAC				1
+//#define DM9051_CHECK_PHY				2
+//#if LINK_STATE_SOURCE == DM9051_CHECK_MAC
+//#endif
+//#if LINK_STATE_SOURCE == DM9051_CHECK_PHY
+//#endif
 }
 
 /**

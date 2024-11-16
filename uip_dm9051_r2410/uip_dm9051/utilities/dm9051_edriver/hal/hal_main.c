@@ -104,7 +104,7 @@ static const struct spi_config_t spi_cset[1] = {
 #define AT_spi_config_init dm9051if_spi_config
 void AT_spi_config_init(const struct spi_config_t *config);
 
-struct board_init_type dm_init_struct; //temp here!
+struct board_init_type dm_init_info; //temp here!
 
 /*******************************************************************************
  * SPI Core Functions
@@ -119,13 +119,24 @@ void AT_hal_init(struct board_init_type *board_init_struct)
     dm9051if_stdpin_config(&spi_set().miso);
     dm9051if_stdpin_config(&spi_set().mosi);
     dm9051if_stdpin_config(&cs_gpio);
+
+	//memcpy(&dm_init_info, board_init_struct, sizeof(struct board_init_type));
+	memset(&dm_init_info, 0, sizeof(struct board_init_type));
 	if (board_init_struct->interrrpt_mode) {
-		dm9051if_stdpin_config(&intr_gpio);
-		dm9051if_intr_config(intr_set());
-		board_init_struct->line = intr_cset[0].cf.line; //=irq_line()
+		dm_init_info.interrrpt_mode = 1;
+		dm_init_info.gpiop = intr_gpo();
+		dm_init_info.intp = intr_set(); //=&intr_cset[0]
+		AT_hal_intr_init(&dm_init_info);
 	}
-	
-	memcpy(&dm_init_struct, board_init_struct, sizeof(struct board_init_type));
+}
+
+// Interrupt Initialization Function
+void AT_hal_intr_init(struct board_init_type *info)
+{
+	if (info->interrrpt_mode) {
+		dm9051if_stdpin_config(info->gpiop);
+		dm9051if_intr_config(info->intp);
+	}
 }
 
 // SPI Configuration Function

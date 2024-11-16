@@ -45,7 +45,7 @@
 #include "nosys/nosys_control/dm9051_ap_debug.h"
 
 /* eth api */
-#include "eth/types_eth_api.h"
+#include "eth/eth_types.h"
 
 #if defined PORT_APP_MAPPER
     bool dhcpc_running = 0;

@@ -73,6 +73,13 @@ struct gpio_config_t
 	} pinland;
 };
 
+struct board_init_type
+{
+	int	interrrpt_mode;
+	const struct gpio_config_t *gpiop;
+	const struct interrupt_pack_t *intp; //uint32_t line;
+};
+
 #define AT_interrupt_config_init dm9051if_intr_config
 void AT_interrupt_config_init(const struct interrupt_pack_t *pack);
 
@@ -114,6 +121,7 @@ void operate_led3(trigger_type trigger, led_ops_state ops);
  */
 #define AT_hal_init dm9051_boards_initialize
 void AT_hal_init(struct board_init_type *board_init_struct);
+void AT_hal_intr_init(struct board_init_type *info);
 
 #define AT_hal_tick dm9051_boards_heartbeat_tick
 void AT_hal_tick(void);
@@ -123,11 +131,13 @@ uint32_t AT_hal_tick_count(void);
 
 /* hal_intr api
  */
+#define intr_gpo() &intr_gpio
 #define intr_set() &intr_cset[0]
-#define irq_line() intr_cset[0].cf.line
-#define nvic_irqn() intr_cset[0].cf.irqn
-#define nvic_prio() intr_cset[0].cf.priority_group
+//#define irq_line() intr_cset[0].cf.line
+//#define nvic_irqn() intr_cset[0].cf.irqn
+//#define nvic_prio() intr_cset[0].cf.priority_group
 
+extern struct board_init_type dm_init_info; //temp here!
 extern const struct interrupt_pack_t intr_cset[1];
 
 /* hal_gpio api

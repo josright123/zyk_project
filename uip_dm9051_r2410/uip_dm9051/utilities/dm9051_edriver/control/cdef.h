@@ -9,12 +9,6 @@
 #define MAC_ADDR_LENGTH                  		(6)
 #define ADDR_LENGTH                      		(4)
 
-struct board_init_type
-{
-	int	interrrpt_mode;
-	uint32_t line;
-};
-
 /* struct define */
   struct eth_node_t
   {

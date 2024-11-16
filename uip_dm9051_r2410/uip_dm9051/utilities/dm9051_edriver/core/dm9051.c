@@ -32,7 +32,7 @@
 #include "control/drv_control/dm9051_drv_debug.h"
 
 /* eth api */
-#include "eth/types_eth_api.h"
+#include "eth/eth_types.h"
 #include "eth/eth_api.h"
 
 /*-----------------------------------------------------------------------------
@@ -637,9 +637,11 @@ static void cspi_core_reset(void)
  */
 static const uint8_t *cspi_dm_start1(const uint8_t *adr) 
 {
-#ifdef ETHERNET_INTERRUPT_MODE
-  cint_enable_mcu_irq();
-#endif
+//#ifdef ETHERNET_INTERRUPT_MODE
+//#endif
+  if (dm_init_info.interrrpt_mode) {
+	cint_enable_mcu_irq();
+  }
 
   /* Configure MAC and multicast addresses */
   cspi_set_par(adr);

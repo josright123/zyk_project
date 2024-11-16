@@ -53,7 +53,7 @@ void main_tick_handler(void);
 
 int Web_LED_FLASH = 1; // Default set 1 use freertos task control led, if set 0 web control
 
-void network_task(void *pvParameters);
+//void network_task(void *pvParameters);
 void create_network_task(void);
 
 /** @addtogroup UTILITIES_examples
@@ -124,23 +124,21 @@ void main_tick_handler(void)
 //  }
 //}
 
-void network_task(void *pvParameters)
-{
-  (void) pvParameters;
+//void network_task(void *pvParameters)
+//{
+//  (void) pvParameters;
 
-#if 0 
-	//[uip no-need]
-	dm_eth_create_mutex_print();
-#endif
-//if (_intr_gpio_mptr()) {
-//  DM_Eth_Initialize();
+//#if 0 
+//	//[uip no-need]
+//	dm_eth_create_mutex_print();
+//#endif
+
+//  vuIP_Task(NULL); //task_periodic_polling();
 //}
-  vuIP_Task(NULL); //task_periodic_polling();
-}
 
 void create_network_task(void)
 {
-  if(xTaskCreate((TaskFunction_t )network_task,     
+  if(xTaskCreate((TaskFunction_t )vuIP_Task,     
                  (const char*    )"net_task",   
                  (uint16_t       )512+128, 
                  (void*          )NULL,

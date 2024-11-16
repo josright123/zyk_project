@@ -279,7 +279,7 @@ const uint8_t *dm_eth_show_identified_gw(char *headtypestr)
 
 void dm_eth_show_app_help_info(char *contentStr)
 {
-	printkey("\r\n\r\n\r\n/ZYK_project /R2410 [uip_dm9051_r2410] %s\r\n", contentStr);
+	printkey("\r\n\r\n\r\n[%s mode] /ZYK_project /R2410 [uip_dm9051_r2410] %s\r\n", RX_MODE_STR, contentStr);
 }
 
 /**

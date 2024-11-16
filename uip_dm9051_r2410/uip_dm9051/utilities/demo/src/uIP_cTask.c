@@ -42,18 +42,19 @@
 /*------------------------------------------------------------*/
 #include "stdio.h"
 
-/* uIP include */
+// FreeRTOS includes 
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+
+// uIP includes
 #include "uip.h"
 #include "uip_arp.h"
 #include "tapdev.h"
 #include "dhcpc.h"
 #include "timer.h"
-/* FreeRTOS include */
-#include "FreeRTOS.h"
-#include "task.h"
-#include "queue.h"
 
-//#include "control/cdef.h"
+// Project specific includes
 #include "nosys/nosys_control/conf_ap.h"
 #include "nosys/nosys_control/dm9051_ap_debug.h"
 
@@ -91,48 +92,25 @@
 #endif
 
 uint32_t LED_flag;
+
+uint32_t downupcount = 0, dhcpccount = 0;
+
+static struct timer periodic_timer, arp_timer;
+
+/*---------------------------------------------------------------------------*/
 	
 static void uip_update_ip_config(const uint8_t *ip, const uint8_t *gw, const uint8_t *mask)
 {
-//	uip_ipaddr_t ipaddr;
+    // If any parameter is NULL, use default configuration
 	const uint8_t *ipn = tapdev_set_ip(ip);
 	const uint8_t *gwn = tapdev_set_gw(gw);
 	const uint8_t *maskn = tapdev_set_mask(mask);
 
-//	uip_ipaddr(&ipaddr, ip[0], ip[1], ip[2], ip[3]);
-//	uip_sethostaddr(ipaddr);
-//	uip_ipaddr(&ipaddr, gw[0], gw[1], gw[2], gw[3]);
-//	uip_setdraddr(ipaddr);
-//	uip_ipaddr(&ipaddr, mask[0], mask[1], mask[2], mask[3]);
-//	uip_setnetmask(ipaddr);
-	uip_sethostaddr(ipn);
-	uip_setdraddr(gwn);
-	uip_setnetmask(maskn);
+    uip_sethostaddr(ipn);
+    uip_setdraddr(gwn);
+    uip_setnetmask(maskn);
 }
 
-#if defined(ETHERNET_INTERRUPT_MODE)
-
-uint16_t isrSemaphore_src;
-int isrSemaphore_n = 0;
-
-int input_intr(void)
-{
-	uip_len = tapdev_read(uip_buf);
-	return (uip_len > 0) ? 1 : 0;
-}
-#endif
-
-#if defined(ETHERNET_POLLING_MODE)
-uint16_t DM_ETH_RXHandler_Poll(void) //...
-{
-	uip_len = tapdev_read(uip_buf);
-	if (uip_len)
-		rcx_handler_direct(); /* Polling, per 1 packet */
-	return uip_len;
-}
-#endif
-
-/*---------------------------------------------------------------------------*/
 static int dbg_expire(void)
 {
 	clock_time_t now = clock_time();
@@ -160,19 +138,60 @@ void printf_dhcp_dbg(char *head, uint32_t op_count, uint32_t now)
 	printf("--.\r\n");
 }
 
-uint32_t downupcount = 0, dhcpccount = 0;
+#if defined(ETHERNET_INTERRUPT_MODE)
+uint16_t isrSemaphore_src;
+int isrSemaphore_n = 0;
+#endif
 
-void vuIP_Task(void *pvParameters)
+static int input_packet(void)
 {
-	int i; //n = 0;
-    const TickType_t xFrequency = 10;
-    TickType_t xLastWakeTime = clock_time(); //xTaskGetTickCount();
+	uip_len = tapdev_read(uip_buf);
+	return (uip_len > 0) ? 1 : 0;
+}
 
+static void handle_packet(void) {			
+	if (BUF->type == htons(UIP_ETHTYPE_IP))
+	{
+		uip_input();        // uip_process(UIP_DATA)
+
+		/* If the above function invocation resulted in data that
+		should be sent out on the network, the global variable
+		uip_len is set to a value > 0. */
+		if (uip_len > 0)
+		{
+			uip_arp_out();
+			tapdev_send(uip_buf, uip_len);
+		}
+	}
+	else if (BUF->type == htons(UIP_ETHTYPE_ARP))
+	{
+		uip_arp_arpin();
+
+		/* If the above function invocation resulted in data that
+			 should be sent out on the network, the global variable
+			 uip_len is set to a value > 0. */
+		if (uip_len > 0)
+		{
+			tapdev_send(uip_buf, uip_len);
+		}
+	}
+}
+
+#if defined(ETHERNET_POLLING_MODE)
+uint16_t DM_ETH_RXHandler_Poll(void)
+{
+	if (input_packet()) /* Polling, per 1 packet */
+		handle_packet();
+	return uip_len;
+}
+/*---------------------------------------------------------------------------*/
+#endif
+
+void vuIP_Init(void)
+{
 #ifndef __DHCPC_H__
     uip_ipaddr_t ip, gw, mask; //ipaddr={0,0};
 #endif
-
-    struct timer periodic_timer, arp_timer;
 
     /* FreeRTOS  task delay */
     timer_set(&periodic_timer, CLOCK_SECOND / 2); 		//500ms
@@ -224,140 +243,158 @@ void vuIP_Task(void *pvParameters)
     printf("---------------------------------------------\n");
 #endif
     httpd_init();
+}
 
+int vuIP_Process(void)
+{
+	int i; //n = 0;
+
+#if defined(ETHERNET_INTERRUPT_MODE)
+//[version_1]
+/* Interrupt */
+	if (tapdev_get_ievent()) {
+		isrSemaphore_src = 0x5555 >> 8;
+
+		do { //[isrSemaphore_n = net_pkts_handle_intr(tcpip_stack_netif());]
+			//uint16_t mdra_rds;
+			isrSemaphore_n = 0;
+			while (1) {
+				
+				diff_rx_s(); //diff_rx_pointers_s(&mdra_rds);
+				
+				if (input_packet()) { /* Interrupt, exhaust every exist packet */
+				
+					if (BUF->type == htons(UIP_ETHTYPE_IP))
+					{
+						uip_input();        // uip_process(UIP_DATA)
+
+						/* If the above function invocation resulted in data that
+						should be sent out on the network, the global variable
+						uip_len is set to a value > 0. */
+						if (uip_len > 0)
+						{
+							uip_arp_out();
+							tapdev_send(uip_buf, uip_len);
+						}
+					}
+					else if (BUF->type == htons(UIP_ETHTYPE_ARP))
+					{
+						uip_arp_arpin();
+
+						/* If the above function invocation resulted in data that
+							 should be sent out on the network, the global variable
+							 uip_len is set to a value > 0. */
+						if (uip_len > 0)
+						{
+							tapdev_send(uip_buf, uip_len);
+						}
+					}
+					
+					isrSemaphore_n++;
+					
+					#if 1
+					diff_rx_e(); //diff_rx_pointers_e(1, &mdra_rds);
+					#endif
+				} else
+					break;
+			}
+		} while(0);
+		
+		tapdev_clr_ievent(); //DM_ETH_ToRst_ISR(); //DM_ETH_IRQEnable(); //dm9051_isr_enab();
+	}
+#else
+//[version_1, to be continued.]
+/* Polling */
+	if (DM_ETH_RXHandler_Poll())
+		return 1; //continue;
+#endif
+
+	if (timer_expired(&periodic_timer))
+	{
+		timer_reset(&periodic_timer);
+		for (i = 0; i < UIP_CONNS; i++)
+		{
+			uip_periodic(i);
+			/* If the above function invocation resulted in data that
+			should be sent out on the network, the global variable
+			uip_len is set to a value > 0. */
+			if (uip_len > 0)
+			{
+				uip_arp_out();
+				tapdev_send(uip_buf, uip_len);
+			}
+		}
+
+#if UIP_UDP
+
+		for (i = 0; i < UIP_UDP_CONNS; i++)
+		{
+			uip_udp_periodic(i);
+			/* If the above function invocation resulted in data that
+			should be sent out on the network, the global variable
+			uip_len is set to a value > 0. */
+			if (uip_len > 0)
+			{
+				uip_arp_out();
+				tapdev_send(uip_buf, uip_len);
+			}
+		}
+
+#endif /* UIP_UDP */
+
+		/* Call the ARP timer function every 10 seconds. */
+		if (timer_expired(&arp_timer))
+		{
+			timer_reset(&arp_timer);
+			uip_arp_timer();
+		}
+	}
+#ifdef __DHCPC_H__
+	else if (dbg_expire()) //if (dbg_timer_expired(&dhcp_timer, clock_time())) //of timer_expired(&dhcp_timer)
+	{
+		// for now turn off the led when we start the dhcp process
+		dhcpccount++;
+		dhcpc_renew(); //timer hit...
+		timer_reset(&dhcp_timer);
+		printf_dhcp_dbg("Expire", dhcpccount, clock_time());
+	}
+#endif // __DHCPC_H__
+	else if (dm_eth_polling_downup())
+	{
+#ifdef __DHCPC_H__
+		downupcount++;
+		dhcpc_renew(); //net hit...
+		#if 1
+		uip_update_ip_config(NULL, NULL, NULL); //[TESTING.]
+		#endif
+		timer_restart(&dhcp_timer); //instead, fixed the bug if using "timer_reset(&dhcp_timer)"; //as well
+		printf_dhcp_dbg("Linkup", downupcount, clock_time());
+#endif // __DHCPC_H__
+	}
+	else
+	{
+		return 0;
+	}
+#if 1
+	dm_eth_polling_button_ops(OPS_LED3);
+#endif
+	return 1;
+}
+
+void vuIP_Task(void *pvParameters)
+{
+    const TickType_t xFrequency = 10;
+    TickType_t xLastWakeTime = clock_time(); //xTaskGetTickCount();
+    (void) pvParameters;
+
+	vuIP_Init();
+	
     while (1)
     {
-	#if defined(ETHERNET_INTERRUPT_MODE)
-	//[version_1]
-	/* Interrupt */
-		if (tapdev_get_ievent()) {
-			isrSemaphore_src = 0x5555 >> 8;
-
-			do { //[isrSemaphore_n = net_pkts_handle_intr(tcpip_stack_netif());]
-				//uint16_t mdra_rds;
-				isrSemaphore_n = 0;
-				while (1) {
-					
-					diff_rx_s(); //diff_rx_pointers_s(&mdra_rds);
-					
-					if (input_intr()) {
-					
-						if (BUF->type == htons(UIP_ETHTYPE_IP))
-						{
-							uip_input();        // uip_process(UIP_DATA)
-
-							/* If the above function invocation resulted in data that
-							should be sent out on the network, the global variable
-							uip_len is set to a value > 0. */
-							if (uip_len > 0)
-							{
-								uip_arp_out();
-								tapdev_send(uip_buf, uip_len);
-							}
-						}
-						else if (BUF->type == htons(UIP_ETHTYPE_ARP))
-						{
-							uip_arp_arpin();
-
-							/* If the above function invocation resulted in data that
-								 should be sent out on the network, the global variable
-								 uip_len is set to a value > 0. */
-							if (uip_len > 0)
-							{
-								tapdev_send(uip_buf, uip_len);
-							}
-						}
-						
-						isrSemaphore_n++;
-						
-						#if 1
-						diff_rx_e(); //diff_rx_pointers_e(1, &mdra_rds);
-						#endif
-					} else
-						break;
-				}
-			} while(0);
-			
-			tapdev_clr_ievent(); //DM_ETH_ToRst_ISR(); //DM_ETH_IRQEnable(); //dm9051_isr_enab();
-		}
-	#else
-	//[version_1, to be continued.]
-	/* Polling */
-		if (DM_ETH_RXHandler_Poll())
-			continue;
-	#endif
-
-        if (timer_expired(&periodic_timer))
-        {
-            timer_reset(&periodic_timer);
-            for (i = 0; i < UIP_CONNS; i++)
-            {
-                uip_periodic(i);
-                /* If the above function invocation resulted in data that
-                should be sent out on the network, the global variable
-                uip_len is set to a value > 0. */
-                if (uip_len > 0)
-                {
-                    uip_arp_out();
-                    tapdev_send(uip_buf, uip_len);
-                }
-            }
-
-	#if UIP_UDP
-
-            for (i = 0; i < UIP_UDP_CONNS; i++)
-            {
-                uip_udp_periodic(i);
-                /* If the above function invocation resulted in data that
-                should be sent out on the network, the global variable
-                uip_len is set to a value > 0. */
-                if (uip_len > 0)
-                {
-                    uip_arp_out();
-                    tapdev_send(uip_buf, uip_len);
-                }
-            }
-
-	#endif /* UIP_UDP */
-
-            /* Call the ARP timer function every 10 seconds. */
-            if (timer_expired(&arp_timer))
-            {
-                timer_reset(&arp_timer);
-                uip_arp_timer();
-            }
-        }
-	#ifdef __DHCPC_H__
-        else if (dbg_expire()) //if (dbg_timer_expired(&dhcp_timer, clock_time())) //of timer_expired(&dhcp_timer)
-        {
-            // for now turn off the led when we start the dhcp process
-            dhcpccount++;
-            dhcpc_renew(); //timer hit...
-            timer_reset(&dhcp_timer);
-            printf_dhcp_dbg("Expire", dhcpccount, clock_time());
-        }
-	#endif // __DHCPC_H__
-		else if (dm_eth_polling_downup())
-		{
-	#ifdef __DHCPC_H__
-			downupcount++;
-			dhcpc_renew(); //net hit...
-			#if 1
-			uip_update_ip_config(NULL, NULL, NULL); //[TESTING.]
-			#endif
-			timer_restart(&dhcp_timer); //instead, fixed the bug if using "timer_reset(&dhcp_timer)"; //as well
-			printf_dhcp_dbg("Linkup", downupcount, clock_time());
-	#endif // __DHCPC_H__
-		}
-        else
-        {
-            /* task delay */
-            vTaskDelayUntil(&xLastWakeTime, xFrequency);
-        }
-	#if 1
-        dm_eth_polling_button_ops(OPS_LED3);
-	#endif
-    } //while
+		if (!vuIP_Process())
+			/* task delay */
+			vTaskDelayUntil(&xLastWakeTime, xFrequency);
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -456,4 +493,3 @@ void    webclient_datahandler(char *data, u16_t len)
 {
     printf("Webclient: got %d bytes of data.\n", len);
 }
-/*---------------------------------------------------------------------------*/

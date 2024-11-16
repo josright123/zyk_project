@@ -96,7 +96,7 @@ const uint8_t *dm9051_init(const uint8_t *adr)
   
   mac = impl_dm9051_init(adr);
 
-  printf("[%s] config OK\r\n\r\n", RX_MODE_STR);
+  printf("init done\r\n\r\n");
   return mac;
 }
 

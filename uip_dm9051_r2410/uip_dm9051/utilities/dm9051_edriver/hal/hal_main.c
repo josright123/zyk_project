@@ -110,24 +110,35 @@ struct board_init_type dm_init_info; //temp here!
  * SPI Core Functions
  ******************************************************************************/
 #if defined(_DLW_AT32F437xx)
+// Get SPI Information Function
+void dm9051_boards_get_info(struct board_init_type *board_init_struct)
+{
+	board_init_struct->spip = &spi_set();
+	board_init_struct->sck = &spi_set().sck;
+	board_init_struct->mi = &spi_set().miso;
+	board_init_struct->mo = &spi_set().mosi;
+	board_init_struct->csp = &cs_gpio;
+
+	board_init_struct->interrrpt_mode = 0;
+	board_init_struct->gpiop = intr_gpo();
+	board_init_struct->intp = intr_set(); //=&intr_cset[0]
+}
+
 // SPI Initialization Function
 void AT_hal_init(struct board_init_type *board_init_struct)
 {
-    // Initialize SPI and GPIO configurations
-    dm9051if_spi_config(&spi_set());
-    dm9051if_stdpin_config(&spi_set().sck);
-    dm9051if_stdpin_config(&spi_set().miso);
-    dm9051if_stdpin_config(&spi_set().mosi);
-    dm9051if_stdpin_config(&cs_gpio);
+	memcpy(&dm_init_info, board_init_struct, sizeof(struct board_init_type));
 
-	//memcpy(&dm_init_info, board_init_struct, sizeof(struct board_init_type));
-	memset(&dm_init_info, 0, sizeof(struct board_init_type));
-	if (board_init_struct->interrrpt_mode) {
-		dm_init_info.interrrpt_mode = 1;
-		dm_init_info.gpiop = intr_gpo();
-		dm_init_info.intp = intr_set(); //=&intr_cset[0]
-		AT_hal_intr_init(&dm_init_info);
-	}
+    // Initialize SPI and GPIO configurations
+    dm9051if_spi_config(dm_init_info.spip);
+    dm9051if_stdpin_config(dm_init_info.sck);
+    dm9051if_stdpin_config(dm_init_info.mi);
+    dm9051if_stdpin_config(dm_init_info.mo);
+    dm9051if_stdpin_config(dm_init_info.csp);
+
+	AT_hal_intr_init(&dm_init_info);
+	//if (dm_init_info.interrrpt_mode) {
+	//}
 }
 
 // Interrupt Initialization Function

@@ -75,6 +75,12 @@ struct gpio_config_t
 
 struct board_init_type
 {
+	const struct spi_config_t *spip;
+	const struct gpio_config_t *sck;
+	const struct gpio_config_t *mi;
+	const struct gpio_config_t *mo;
+	const struct gpio_config_t *csp;
+
 	int	interrrpt_mode;
 	const struct gpio_config_t *gpiop;
 	const struct interrupt_pack_t *intp; //uint32_t line;
@@ -119,6 +125,8 @@ void operate_led3(trigger_type trigger, led_ops_state ops);
 
 /* hal_main api
  */
+void dm9051_boards_get_info(struct board_init_type *board_init_struct);
+
 #define AT_hal_init dm9051_boards_initialize
 void AT_hal_init(struct board_init_type *board_init_struct);
 void AT_hal_intr_init(struct board_init_type *info);

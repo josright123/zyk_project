@@ -26,6 +26,7 @@
   */
 
 #include "at32f435_437_board.h"
+#include "control/drv_control/conf_core.h"
 
 /** @addtogroup AT32F435_437_board
   * @{
@@ -105,6 +106,77 @@ PUTCHAR_PROTOTYPE
 //  usart_data_transmit(PRINT_UART, ch);
 //}
 
+struct gpio_config_t uartpin = {	
+	PRINT_UART_TX_GPIO, 
+	PRINT_UART_TX_PIN, 
+	
+	PRINT_UART_TX_GPIO_CRM_CLK, 
+	
+	{
+		GPIO_PULL_NONE, 
+		GPIO_MODE_MUX,
+		GPIO_PINS_SOURCE5, GPIO_MUX_5
+	}, 
+};
+
+// GPIO Configuration Function
+void dm9051if_uartpin_config(void)
+{
+  struct gpio_config_t *uart = &uartpin;
+
+  /* configure the uart tx pin */
+  gpio_init_type gpio_init_struct;
+
+  /* Enable peripheral clock for selected GPIO port */
+  crm_periph_clock_enable(PRINT_UART_TX_GPIO_CRM_CLK, TRUE);
+
+  /* Initialize GPIO structure with default values */
+  gpio_default_para_init(&gpio_init_struct);
+
+  /* Configure GPIO parameters */
+  gpio_init_struct.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
+  gpio_init_struct.gpio_out_type = GPIO_OUTPUT_PUSH_PULL;
+  gpio_init_struct.gpio_mode = GPIO_MODE_MUX;
+  gpio_init_struct.gpio_pins = PRINT_UART_TX_PIN;
+  gpio_init_struct.gpio_pull = GPIO_PULL_NONE;
+	
+  /* Apply configuration */
+  gpio_init(PRINT_UART_TX_GPIO, &gpio_init_struct);
+
+  /* Configure multiplexing if in MUX mode */
+#if defined(_DLW_AT32F437xx)
+  /* if (GPIO_MODE_MUX) */
+  gpio_pin_mux_config(PRINT_UART_TX_GPIO, PRINT_UART_TX_PIN_SOURCE, PRINT_UART_TX_PIN_MUX_NUM);
+#endif /* _DLW_AT32F437xx */
+}
+
+// Uart Configuration Structure
+struct uart_config_t {
+    usart_type* usart;                     // UART instance
+    crm_periph_clock_type clock;         // Peripheral clock type
+//    struct gpio_config_t sck;               // SCK pin configuration
+//    struct gpio_config_t miso;              // MISO pin configuration
+//    struct gpio_config_t mosi;              // MOSI pin configuration
+};
+struct uart_config_t usaet_set[1] = {{
+	.usart = PRINT_UART,
+	.clock = PRINT_UART_CRM_CLK,
+}};
+
+// UART Configuration Function
+void dm9051if_uart_config(uint32_t baudrate)
+{
+  const struct uart_config_t *config = &usaet_set[0];
+
+  /* enable the uart clock */
+  crm_periph_clock_enable(config->clock, TRUE);
+
+  /* configure uart param */
+  usart_init(config->usart, baudrate, USART_DATA_8BITS, USART_STOP_1_BIT);
+  usart_transmitter_enable(config->usart, TRUE);
+  usart_enable(config->usart, TRUE);
+}
+
 /**
   * @brief  initialize uart
   * @param  baudrate: uart baudrate
@@ -112,28 +184,10 @@ PUTCHAR_PROTOTYPE
   */
 void uart_print_init(uint32_t baudrate)
 {
-  gpio_init_type gpio_init_struct;
-
-  /* enable the uart and gpio clock */
-  crm_periph_clock_enable(PRINT_UART_CRM_CLK, TRUE);
-  crm_periph_clock_enable(PRINT_UART_TX_GPIO_CRM_CLK, TRUE);
-
-  gpio_default_para_init(&gpio_init_struct);
-
-  /* configure the uart tx pin */
-  gpio_init_struct.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
-  gpio_init_struct.gpio_out_type  = GPIO_OUTPUT_PUSH_PULL;
-  gpio_init_struct.gpio_mode = GPIO_MODE_MUX;
-  gpio_init_struct.gpio_pins = PRINT_UART_TX_PIN;
-  gpio_init_struct.gpio_pull = GPIO_PULL_NONE;
-  gpio_init(PRINT_UART_TX_GPIO, &gpio_init_struct);
-
-  gpio_pin_mux_config(PRINT_UART_TX_GPIO, PRINT_UART_TX_PIN_SOURCE, PRINT_UART_TX_PIN_MUX_NUM); 
-
-  /* configure uart param */
-  usart_init(PRINT_UART, baudrate, USART_DATA_8BITS, USART_STOP_1_BIT);
-  usart_transmitter_enable(PRINT_UART, TRUE);
-  usart_enable(PRINT_UART, TRUE);
+    // Initialize UART and GPIO configurations
+    dm9051if_uartpin_config();
+    dm9051if_uart_config(baudrate);
+	//vs. dm9051if_spi_config
 }
 
 /**

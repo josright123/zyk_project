@@ -142,12 +142,26 @@ void DM_ETH_Output(uint8_t *bff, uint16_t len)
  */
 const uint8_t *DM_ETH_Ip_Configuration(const uint8_t *ip)
 {
+	static uint8_t ip_printag = 0x1;
+
+	if (!(ip_printag & 0x01))
+		return identify_tcpip_ip(ip);
+		
+	//if (ip_printag & 0x01) {
+	ip_printag &= ~0x01;
 	identify_tcpip_ip(ip);
 	return dm_eth_show_identified_ip(ip ? "config ip" : "candidate ip");
+	//}
 }
 
 const uint8_t *DM_ETH_Gw_Configuration(const uint8_t *ip)
 {
+	static uint8_t gw_printag = 0x1;
+
+	if (!(gw_printag & 0x01))
+		return identify_tcpip_gw(ip);
+
+	gw_printag &= ~0x01;
 	identify_tcpip_gw(ip);
 	return dm_eth_show_identified_gw(ip ? "config gw" : "candidate gw");
 }
@@ -241,40 +255,6 @@ int dm_eth_polling_downup(void)
 		return 0;
 	}
 	return 0;
-}
-
-#define PRINT_ETH_WITH_HEADER	0
-
-//with head-str
-static void eth_printf(char *str) {
-	printf("%s", str);
-}
-
-//no head-str
-static void eth_printkey(char *str) {
-	printkey("%s", str);
-}
-
-const uint8_t *dm_eth_show_identified_ip(char *headtypestr)
-{
-	print_eth_configuration(
-		headtypestr, 
-		identified_tcpip_ip(), 
-		PRINT_ETH_WITH_HEADER ? 
-			eth_printf: 
-			eth_printkey);
-	return identified_tcpip_ip();
-}
-
-const uint8_t *dm_eth_show_identified_gw(char *headtypestr)
-{
-	print_eth_configuration(
-		headtypestr, 
-		identified_tcpip_gw(),
-		PRINT_ETH_WITH_HEADER ? 
-			eth_printf: 
-			eth_printkey);
-  return identified_tcpip_gw();
 }
 
 void dm_eth_show_app_help_info(char *contentStr)

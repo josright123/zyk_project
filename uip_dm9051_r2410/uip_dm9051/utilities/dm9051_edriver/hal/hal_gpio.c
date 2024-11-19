@@ -110,8 +110,8 @@ void AT_hal_stdpin_config(const struct gpio_config_t *gpio)
 	/* Configure GPIO parameters */
 	gpio_init_struct.gpio_out_type = GPIO_OUTPUT_PUSH_PULL;
 	gpio_init_struct.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
-	gpio_init_struct.gpio_mode = gpio->pinland.mode;
-	gpio_init_struct.gpio_pull = gpio->pinland.pull;
+	gpio_init_struct.gpio_mode = gpio->mods.mode;
+	gpio_init_struct.gpio_pull = gpio->mods.pull;
 	gpio_init_struct.gpio_pins = gpio->pin;
 
 	/* Apply configuration */
@@ -119,8 +119,8 @@ void AT_hal_stdpin_config(const struct gpio_config_t *gpio)
 
 	/* Configure multiplexing if in MUX mode */
 #if defined(_DLW_AT32F437xx)
-	if (gpio->pinland.mode == GPIO_MODE_MUX)
-		gpio_pin_mux_config(gpio->port, gpio->pinland.source, gpio->pinland.mux);
+	if (gpio->mods.mode == GPIO_MODE_MUX)
+		gpio_pin_mux_config(gpio->port, gpio->mods.mux_source, gpio->mods.mux);
 #endif /* _DLW_AT32F437xx */
 }
 
@@ -136,7 +136,7 @@ void AT_hal_stdpin_config(const struct gpio_config_t *gpio)
 
 	/* Configure multiplexing if in MUX mode */
 //	if (gpio->mode == GPIO_MODE_MUX)
-//		gpio_pin_mux_config(gpio->port, gpio->pinland.source, gpio->pinland.mux);
+//		gpio_pin_mux_config(gpio->port, gpio->mods.source, gpio->mods.mux);
 //}
 
 /**

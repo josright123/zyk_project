@@ -68,9 +68,9 @@ struct gpio_config_t
 	struct {
 		gpio_pull_type pull;
 		gpio_mode_type mode;
-		gpio_pins_source_type source;
+		gpio_pins_source_type mux_source;
 		gpio_mux_sel_type mux;
-	} pinland;
+	} mods;
 };
 
 struct board_init_type

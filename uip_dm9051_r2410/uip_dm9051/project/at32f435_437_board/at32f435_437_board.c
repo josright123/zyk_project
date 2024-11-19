@@ -26,66 +26,60 @@
   */
 
 #include "at32f435_437_board.h"
+#include "control/drv_control/conf_core.h"
 
 /** @addtogroup AT32F435_437_board
   * @{
   */
 
-/** @defgroup BOARD
-  * @brief onboard periph driver
-  * @{
-  */
-
-/* delay macros */
-#define STEP_DELAY_MS                    50
-
-/* at-start led resouce array */
-gpio_type *led_gpio_port[LED_NUM]        = {LED2_GPIO, LED3_GPIO, LED4_GPIO};
-uint16_t led_gpio_pin[LED_NUM]           = {LED2_PIN, LED3_PIN, LED4_PIN};
-crm_periph_clock_type led_gpio_crm_clk[LED_NUM] = {LED2_GPIO_CRM_CLK, LED3_GPIO_CRM_CLK, LED4_GPIO_CRM_CLK};
-
-/* delay variable */
-static __IO uint32_t fac_us;
-static __IO uint32_t fac_ms;
-
 /* support printf function, usemicrolib is unnecessary */
-#if (__ARMCC_VERSION > 6000000)
-  __asm (".global __use_no_semihosting\n\t");
-  void _sys_exit(int x)
-  {
-    x = x;
-  }
-  /* __use_no_semihosting was requested, but _ttywrch was */
-  void _ttywrch(int ch)
-  {
-    ch = ch;
-  }
-  //FILE __stdout;
-#else
- #ifdef __CC_ARM
-  #pragma import(__use_no_semihosting)
-  struct __FILE
-  {
-    int handle;
-  };
-  FILE __stdout;
-  void _sys_exit(int x)
-  {
-    x = x;
-  }
-  /* __use_no_semihosting was requested, but _ttywrch was */
-  void _ttywrch(int ch)
-  {
-    ch = ch;
-  }
- #endif
+#if 1
+	#if (__ARMCC_VERSION > 6000000)
+	  __asm (".global __use_no_semihosting\n\t");
+	  //FILE __stdout;
+	  void _sys_exit(int x)
+	  {
+		x = x;
+	  }
+	  /* __use_no_semihosting was requested, but _ttywrch was */
+	  void _ttywrch(int ch)
+	  {
+		ch = ch;
+	  }
+	#else
+	 #ifdef __CC_ARM
+	  #pragma import(__use_no_semihosting)
+	  struct __FILE
+	  {
+		int handle;
+	  };
+	  FILE __stdout;
+	  void _sys_exit(int x)
+	  {
+		x = x;
+	  }
+	  /* __use_no_semihosting was requested, but _ttywrch was */
+	  void _ttywrch(int ch)
+	  {
+		ch = ch;
+	  }
+	 #endif //__CC_ARM
+	#endif
 #endif
+
+#if 1
 
 #if defined (__GNUC__) && !defined (__clang__)
   #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
 #else
   #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f) //xxx
 #endif
+
+//void fputc_dbg(uint16_t ch)
+//{
+//  while(usart_flag_get(PRINT_UART, USART_TDBE_FLAG) == RESET);
+//  usart_data_transmit(PRINT_UART, ch);
+//}
 
 /**
   * @brief  retargets the c library printf function to the usart.
@@ -98,24 +92,57 @@ PUTCHAR_PROTOTYPE
   usart_data_transmit(PRINT_UART, ch);
   return ch;
 }
-
-//void fputc_dbg(uint16_t ch)
-//{
-//  while(usart_flag_get(PRINT_UART, USART_TDBE_FLAG) == RESET);
-//  usart_data_transmit(PRINT_UART, ch);
-//}
-
-/**
-  * @brief  initialize uart
-  * @param  baudrate: uart baudrate
-  * @retval none
+	
+/** @defgroup made BOARD
+  * @brief onboard periph driver
+  * @{
   */
+
+struct uart_config_t {
+	usart_type *usart;
+	crm_periph_clock_type clock;
+	struct gpio_config_t gpio;
+//	gpio_type *port;
+//	uint32_t pin;
+//	crm_periph_clock_type clock;
+//	struct {
+//		gpio_pull_type pull;
+//		gpio_mode_type mode;
+//		gpio_pins_source_type mux_source;
+//		gpio_mux_sel_type mux;
+//	} mods;
+};
+
+const struct uart_config_t uart_cset[1] = {{
+		.usart = USART1,
+		.clock = CRM_USART1_PERIPH_CLOCK, //PRINT_UART_CRM_CLK,
+		.gpio = {
+			.port = GPIOA, //PRINT_UART_TX_GPIO,
+			.pin = GPIO_PINS_9, //PRINT_UART_TX_PIN,
+			.clock = CRM_GPIOA_PERIPH_CLOCK, //PRINT_UART_TX_GPIO_CRM_CLK,
+			.mods = {
+				.pull = GPIO_PULL_NONE,
+				.mode = GPIO_MODE_MUX,
+				.mux_source = GPIO_PINS_SOURCE9, //PRINT_UART_TX_PIN_SOURCE,
+				.mux= GPIO_MUX_7, //PRINT_UART_TX_PIN_MUX_NUM,
+			},
+		},
+	}};
+
 void uart_print_init(uint32_t baudrate)
 {
+  crm_periph_clock_enable(uart_cset[0].clock, TRUE);
+  dm9051if_stdpin_config(&uart_cset[0].gpio);
+  usart_init(uart_cset[0].usart, baudrate, USART_DATA_8BITS, USART_STOP_1_BIT);
+  usart_transmitter_enable(uart_cset[0].usart, TRUE);
+  usart_enable(uart_cset[0].usart, TRUE);
+
+#if 0
   gpio_init_type gpio_init_struct;
 
   /* enable the uart and gpio clock */
   crm_periph_clock_enable(PRINT_UART_CRM_CLK, TRUE);
+	
   crm_periph_clock_enable(PRINT_UART_TX_GPIO_CRM_CLK, TRUE);
 
   gpio_default_para_init(&gpio_init_struct);
@@ -134,7 +161,116 @@ void uart_print_init(uint32_t baudrate)
   usart_init(PRINT_UART, baudrate, USART_DATA_8BITS, USART_STOP_1_BIT);
   usart_transmitter_enable(PRINT_UART, TRUE);
   usart_enable(PRINT_UART, TRUE);
+#endif
 }
+
+
+/**
+  * @}
+  */
+#endif
+
+#if 0
+/** @defgroup BOARD
+  * @brief onboard periph driver
+  * @{
+  */
+
+/* delay macros */
+#define STEP_DELAY_MS                    50
+
+/* at-start led resouce array */
+gpio_type *led_gpio_port[LED_NUM]        = {LED2_GPIO, LED3_GPIO, LED4_GPIO};
+uint16_t led_gpio_pin[LED_NUM]           = {LED2_PIN, LED3_PIN, LED4_PIN};
+crm_periph_clock_type led_gpio_crm_clk[LED_NUM] = {LED2_GPIO_CRM_CLK, LED3_GPIO_CRM_CLK, LED4_GPIO_CRM_CLK};
+
+/* delay variable */
+static __IO uint32_t fac_us;
+static __IO uint32_t fac_ms;
+
+/* support printf function, usemicrolib is unnecessary */
+#if 0
+//	#if (__ARMCC_VERSION > 6000000)
+//	  __asm (".global __use_no_semihosting\n\t");
+//	  void _sys_exit(int x)
+//	  {
+//		x = x;
+//	  }
+//	  /* __use_no_semihosting was requested, but _ttywrch was */
+//	  void _ttywrch(int ch)
+//	  {
+//		ch = ch;
+//	  }
+//	  //FILE __stdout;
+//	#else
+//	 #ifdef __CC_ARM
+//	  #pragma import(__use_no_semihosting)
+//	  struct __FILE
+//	  {
+//		int handle;
+//	  };
+//	  FILE __stdout;
+//	  void _sys_exit(int x)
+//	  {
+//		x = x;
+//	  }
+//	  /* __use_no_semihosting was requested, but _ttywrch was */
+//	  void _ttywrch(int ch)
+//	  {
+//		ch = ch;
+//	  }
+//	 #endif
+//	#endif
+
+//	#if defined (__GNUC__) && !defined (__clang__)
+//	  #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+//	#else
+//	  #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f) //xxx
+//	#endif
+
+//	/**
+//	  * @brief  retargets the c library printf function to the usart.
+//	  * @param  none
+//	  * @retval none
+//	  */
+//	PUTCHAR_PROTOTYPE
+//	{
+//	  while(usart_flag_get(PRINT_UART, USART_TDBE_FLAG) == RESET);
+//	  usart_data_transmit(PRINT_UART, ch);
+//	  return ch;
+//	}
+#endif
+
+/**
+  * @brief  initialize uart
+  * @param  baudrate: uart baudrate
+  * @retval none
+  */
+//void uart_print_init(uint32_t baudrate)
+//{
+//  gpio_init_type gpio_init_struct;
+
+//  /* enable the uart and gpio clock */
+//  crm_periph_clock_enable(PRINT_UART_CRM_CLK, TRUE);
+//  crm_periph_clock_enable(PRINT_UART_TX_GPIO_CRM_CLK, TRUE);
+
+//  gpio_default_para_init(&gpio_init_struct);
+
+//  /* configure the uart tx pin */
+//  gpio_init_struct.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
+//  gpio_init_struct.gpio_out_type  = GPIO_OUTPUT_PUSH_PULL;
+//  gpio_init_struct.gpio_mode = GPIO_MODE_MUX;
+//  gpio_init_struct.gpio_pins = PRINT_UART_TX_PIN;
+//  gpio_init_struct.gpio_pull = GPIO_PULL_NONE;
+//  gpio_init(PRINT_UART_TX_GPIO, &gpio_init_struct);
+
+//  gpio_pin_mux_config(PRINT_UART_TX_GPIO, PRINT_UART_TX_PIN_SOURCE, PRINT_UART_TX_PIN_MUX_NUM); 
+
+//  /* configure uart param */
+//  usart_init(PRINT_UART, baudrate, USART_DATA_8BITS, USART_STOP_1_BIT);
+//  usart_transmitter_enable(PRINT_UART, TRUE);
+//  usart_enable(PRINT_UART, TRUE);
+//}
 
 /**
   * @brief  board initialize interface init led and button
@@ -374,6 +510,7 @@ void delay_sec(uint16_t sec)
 /**
   * @}
   */
+#endif
 
 /**
   * @}

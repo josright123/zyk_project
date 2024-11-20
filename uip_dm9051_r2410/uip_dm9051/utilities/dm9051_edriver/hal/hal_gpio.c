@@ -120,7 +120,7 @@ void AT_hal_stdpin_config(const struct gpio_config_t *gpio)
 	/* Configure multiplexing if in MUX mode */
 #if defined(_DLW_AT32F437xx)
 	if (gpio->mods.mode == GPIO_MODE_MUX)
-		gpio_pin_mux_config(gpio->port, gpio->mods.mux_source, gpio->mods.mux);
+		gpio_pin_mux_config(gpio->port, gpio->mods.source, gpio->mods.mux);
 #endif /* _DLW_AT32F437xx */
 }
 

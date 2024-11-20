@@ -247,11 +247,11 @@ int dm_eth_polling_downup(void)
 	#endif
 	if (DM_Eth_Regs_Info_Linkup(statdat) && !link_stat) {
 		link_stat = 1;
-		printf("(down to link up)\r\n");
+		//printf("(down to link up)\r\n");
 		return 1;
 	} else if (!DM_Eth_Regs_Info_Linkup(statdat) && link_stat) {
 		link_stat = 0;
-		printf("(up2down to link down)\r\n");
+		//printf("(up2down to link down)\r\n");
 		return 0;
 	}
 	return 0;

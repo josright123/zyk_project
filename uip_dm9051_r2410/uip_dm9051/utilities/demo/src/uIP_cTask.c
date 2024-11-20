@@ -130,12 +130,16 @@ static int dbg_expire(void)
 void printf_dhcp_dbg(char *head, uint32_t op_count, uint32_t now)
 {
 	//DM_NONUSED_ARG(head);
+	DM_NONUSED_ARG(now);
 	printf("--. %s, times %lu\r\n", head, op_count);
+
+	#if 0
 	printf("--. dhcp_time: start heartbeat %lu, now %lu, elapsed %lu elaps-expire %lu\r\n",
 				dhcp_timer.start, now, 
 				now - dhcp_timer.start,
 				dhcp_timer.interval);
 	printf("--.\r\n");
+	#endif
 }
 
 #if defined(ETHERNET_INTERRUPT_MODE)
@@ -216,7 +220,7 @@ void vuIP_Init(void)
 
 	downupcount = 0;
 	dhcpccount = 0;
-	printf_dhcp_dbg("Init", dhcpccount, clock_time());
+	//printf_dhcp_dbg("Init", dhcpccount, clock_time());
     //dhcpc_request();
 #else //Fixed IP set
 

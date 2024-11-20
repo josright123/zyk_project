@@ -106,27 +106,51 @@ PUTCHAR_PROTOTYPE
 //  usart_data_transmit(PRINT_UART, ch);
 //}
 
-struct gpio_config_t uartpin = {	
-	PRINT_UART_TX_GPIO, 
-	PRINT_UART_TX_PIN, 
-	
-	PRINT_UART_TX_GPIO_CRM_CLK, 
-	
-	{
-		GPIO_PULL_NONE, 
-		GPIO_MODE_MUX,
-		GPIO_PINS_SOURCE5, GPIO_MUX_5
-	}, 
+// Uart Configuration Structure
+struct uart_config_t {
+    usart_type* usart;						// UART instance
+    crm_periph_clock_type clock;			// Peripheral clock type
+	struct gpio_config_t uartpin;			// gpio pin
+//    struct gpio_config_t sck;               // SCK pin configuration
+//    struct gpio_config_t miso;              // MISO pin configuration
+//    struct gpio_config_t mosi;              // MOSI pin configuration
+};
+struct uart_config_t uart1_s = {
+	.usart = PRINT_UART, //USART1
+	.clock = PRINT_UART_CRM_CLK, //CRM_USART1_PERIPH_CLOCK
+	.uartpin = {
+		.port = PRINT_UART_TX_GPIO, //GPIOA
+		.pin = PRINT_UART_TX_PIN, //GPIO_PINS_9
+		.clock = PRINT_UART_TX_GPIO_CRM_CLK, //CRM_GPIOA_PERIPH_CLOCK
+		.mods = {
+			.pull = GPIO_PULL_NONE,
+			.mode = GPIO_MODE_MUX,
+			.source = GPIO_PINS_SOURCE9,
+			.mux = GPIO_MUX_7,
+		},
+	},
 };
 
+//struct gpio_config_t uartpin = {	
+//	PRINT_UART_TX_GPIO, 
+//	PRINT_UART_TX_PIN, 
+//	PRINT_UART_TX_GPIO_CRM_CLK, 
+//	{
+//		GPIO_PULL_NONE, 
+//		GPIO_MODE_MUX,
+//		GPIO_PINS_SOURCE9, GPIO_MUX_7
+//	}, 
+//};
+
 // GPIO Configuration Function
+#if 0
 void dm9051if_uartpin_config(void)
 {
-  struct gpio_config_t *uart = &uartpin;
+  struct gpio_config_t *uart_gpio = &uart1_s.uartpin; //&uartpin;
 
   /* configure the uart tx pin */
   gpio_init_type gpio_init_struct;
-
+#if 1
   /* Enable peripheral clock for selected GPIO port */
   crm_periph_clock_enable(PRINT_UART_TX_GPIO_CRM_CLK, TRUE);
 
@@ -148,33 +172,21 @@ void dm9051if_uartpin_config(void)
   /* if (GPIO_MODE_MUX) */
   gpio_pin_mux_config(PRINT_UART_TX_GPIO, PRINT_UART_TX_PIN_SOURCE, PRINT_UART_TX_PIN_MUX_NUM);
 #endif /* _DLW_AT32F437xx */
-}
+#endif
 
-// Uart Configuration Structure
-struct uart_config_t {
-    usart_type* usart;                     // UART instance
-    crm_periph_clock_type clock;         // Peripheral clock type
-//    struct gpio_config_t sck;               // SCK pin configuration
-//    struct gpio_config_t miso;              // MISO pin configuration
-//    struct gpio_config_t mosi;              // MOSI pin configuration
-};
-struct uart_config_t usaet_set[1] = {{
-	.usart = PRINT_UART,
-	.clock = PRINT_UART_CRM_CLK,
-}};
+}
+#endif
 
 // UART Configuration Function
 void dm9051if_uart_config(uint32_t baudrate)
 {
-  const struct uart_config_t *config = &usaet_set[0];
-
   /* enable the uart clock */
-  crm_periph_clock_enable(config->clock, TRUE);
+  crm_periph_clock_enable(uart1_s.clock, TRUE);
 
   /* configure uart param */
-  usart_init(config->usart, baudrate, USART_DATA_8BITS, USART_STOP_1_BIT);
-  usart_transmitter_enable(config->usart, TRUE);
-  usart_enable(config->usart, TRUE);
+  usart_init(uart1_s.usart, baudrate, USART_DATA_8BITS, USART_STOP_1_BIT);
+  usart_transmitter_enable(uart1_s.usart, TRUE);
+  usart_enable(uart1_s.usart, TRUE);
 }
 
 /**
@@ -185,7 +197,12 @@ void dm9051if_uart_config(uint32_t baudrate)
 void uart_print_init(uint32_t baudrate)
 {
     // Initialize UART and GPIO configurations
+#if 1
+	dm9051if_stdpin_config(&uart1_s.uartpin);
+#endif
+#if 0
     dm9051if_uartpin_config();
+#endif
     dm9051if_uart_config(baudrate);
 	//vs. dm9051if_spi_config
 }

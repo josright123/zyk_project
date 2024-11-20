@@ -422,13 +422,18 @@ void    resolv_found(char *name, u16_t *ipaddr)
     }
 }
 
-void ap_printkey(char *str) {
+static void ap_printf(char *str) {
 	printf("%s", str);
+}
+static void ap_printkey(char *str) {
+	printkey("%s", str);
 }
 
 #ifdef __DHCPC_H__
 void    dhcpc_configured(const struct dhcpc_state *s)
 {
+	static uint8_t ap_printag = 0x3;
+
 		//uip_ipaddr_t ip, gw, mask;
     if (s->state == STATE_FAIL)
     {
@@ -445,8 +450,12 @@ void    dhcpc_configured(const struct dhcpc_state *s)
 				
 				uip_update_ip_config(NULL, NULL, NULL);
 				ap_print_ipconfig("--Fixed IP address ----------------------",
-					uip_ethaddr.addr, ap_printkey
+					uip_ethaddr.addr,
+					ap_printag & 0x01 ? 
+						ap_printf : 
+						ap_printkey
 					);
+				ap_printag &= ~0x01;
     }
     else
     {
@@ -463,8 +472,12 @@ void    dhcpc_configured(const struct dhcpc_state *s)
 					(const uint8_t *) s->netmask);
 				/* Display system information */
 				ap_print_ipconfig("--IP address setting from DHCP-----------",
-					uip_ethaddr.addr, ap_printkey
+					uip_ethaddr.addr,
+					ap_printag & 0x02 ? 
+						ap_printf : 
+						ap_printkey
 					);
+				ap_printag &= ~0x02;
     }
 }
 #endif /* __DHCPC_H__ */

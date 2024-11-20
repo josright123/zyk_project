@@ -23,6 +23,43 @@
  *  - non-debug static sub
  */
 #if DM_DEBUG_TYPE == 10
+/* define PRINT_ETH_WITH_HEADER	0 */
+//with head-str
+static void eth_printf(char *str) {
+	printf("%s", str);
+}
+
+//no head-str
+static void eth_printkey(char *str) {
+	printkey("%s", str);
+}
+
+static const uint8_t *dm_eth_show_identified_ip(char *headtypestr)
+{
+	const int eth_pnt = 0;
+
+	print_eth_configuration(
+		headtypestr, 
+		identified_tcpip_ip(), 
+		eth_pnt ? 
+			eth_printf: 
+			eth_printkey);
+	return identified_tcpip_ip();
+}
+
+static const uint8_t *dm_eth_show_identified_gw(char *headtypestr)
+{
+	const int eth_pnt = 0;
+
+	print_eth_configuration(
+		headtypestr, 
+		identified_tcpip_gw(),
+		eth_pnt ? 
+			eth_printf: 
+			eth_printkey);
+  return identified_tcpip_gw();
+}
+
 /* Buffer Management */
 static uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e)
 {

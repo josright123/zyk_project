@@ -16,8 +16,8 @@ int DM_Eth_Regs_Info_Linkup(uint8_t *stat);
 void DM_Eth_ReadRegsInfo(uint8_t *stat);
 int dm_eth_polling_downup(void);
 void dm_eth_show_app_help_info(char *contentStr);
-const uint8_t *dm_eth_show_identified_ip(char *headtypestr);
-const uint8_t *dm_eth_show_identified_gw(char *headtypestr);
+//const uint8_t *dm_eth_show_identified_ip(char *headtypestr);
+//const uint8_t *dm_eth_show_identified_gw(char *headtypestr);
 
 enum operate_tag {OPS_LED3 = 0, };
 void dm_eth_polling_button_init(enum operate_tag tag);

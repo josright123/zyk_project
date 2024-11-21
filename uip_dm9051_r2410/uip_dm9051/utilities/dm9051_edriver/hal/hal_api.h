@@ -59,7 +59,7 @@ struct interrupt_pack_t
 	exint_polarity_config_type polarity;
 };
 
-// general programable input/output Structure
+// general programable gpio input/output Structure
 struct gpio_config_t
 {
 	gpio_type *port;

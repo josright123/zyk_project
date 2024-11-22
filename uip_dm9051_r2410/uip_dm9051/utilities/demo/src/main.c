@@ -41,7 +41,7 @@
 #if freeRTOS
 #error "freeRTOS check defined, WRONG CONDITION!"
 #else
-#warning "freeRTOS is exactly NOT NEED defined"
+#warning "freeRTOS is exactly UIP not need defined"
 #endif
 
 #define NET_TASK_PRIO           		2 //FOR 'net_task'

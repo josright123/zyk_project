@@ -716,7 +716,7 @@
             <File>
               <FileName>eth_main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\dm9051_platform\eth\eth_main.c</FilePath>
+              <FilePath>..\..\dm9051_platform\nosys\eth\eth_main.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -744,5 +744,14 @@
     <components/>
     <files/>
   </RTE>
+
+  <LayerInfo>
+    <Layers>
+      <Layer>
+        <LayName>dm9051_demo</LayName>
+        <LayPrjMark>1</LayPrjMark>
+      </Layer>
+    </Layers>
+  </LayerInfo>
 
 </Project>

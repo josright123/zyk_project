@@ -7,14 +7,20 @@
 /* __DRV_H
  */
 
-//#define ETHERNET_INTERRUPT_MODE // interrupt mode
+#define ETHERNET_INTERRUPT_MODE // interrupt mode
 //#undef ETHERNET_INTERRUPT_MODE
 
 #define FORCE_MODE_10M // 10M mode
 //#undef FORCE_MODE_10M
 
-#define FORCE_CHKSUM_OFFLOAD // checksum offload mode
+//#define FORCE_CHKSUM_OFFLOAD // checksum offload mode
 //#undef FORCE_CHKSUM_OFFLOAD
+
+//#define FORCE_RCR_ALL // Pass all multi-cast
+//#undef FORCE_RCR_ALL
+
+//#define FORCE_STOP_IF_DM9051_NOT_FOUND // not pass through mode
+//#undef FORCE_STOP_IF_DM9051_NOT_FOUND
 
 /* __USR_H
  */

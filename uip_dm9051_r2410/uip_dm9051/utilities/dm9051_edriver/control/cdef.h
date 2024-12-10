@@ -28,11 +28,14 @@
     CS_EACH = 0,
     CS_LONG,
   } csmode_t;
-  
-	enum sema_tag_t {
-		SEMA_OFF = 0,
-		SEMA_ON,
-	};
+
+//[use define otherwise not validated retrival by #.if (xxx == SEMA_ON)]
+//	enum sema_tag_t {
+//		SEMA_OFF = 0,
+//		SEMA_ON,
+//	};
+#define	SEMA_OFF	0
+#define	SEMA_ON		1
 
 //[1.1]
 typedef enum
@@ -59,7 +62,7 @@ typedef enum
 #define PRINT_INFO_APIN	"[APIN] "
 
 //rt
-#define	PRINT_SEMA_RT	SEMA_ON	//ON to print with sema, OFF without sema.
+#define	PRINT_SEMA_RT	SEMA_OFF //SEMA_ON //ON to print with sema, OFF without sema.
 #define PRINT_INFO_RT	"[iRT]  "
 
 //drv
@@ -73,6 +76,13 @@ typedef enum {
     DM9051_ETH_DEBUG_LEVEL_WARN,
     DM9051_ETH_DEBUG_LEVEL_INFO,
 } dm9051_eth_debug_level_t;
+
+static const char* const LEVEL_STRINGS[] = {
+	"ERROR", //[DM9051_ETH_DEBUG_LEVEL_ERROR] = 
+	"DEBUG", //[DM9051_ETH_DEBUG_LEVEL_DEBUG] = 
+	"WARN", //[DM9051_ETH_DEBUG_LEVEL_WARN]  = 
+	"INFO", //[DM9051_ETH_DEBUG_LEVEL_INFO]  = 
+};
 
 /* Implementation of the debug handler
  */

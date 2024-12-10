@@ -35,8 +35,8 @@
 #include "nosys/nosys_control/dm9051_ap_debug.h"
 
 /* eth api */
-#include "eth/eth_types.h"
-#include "eth/eth_api.h"
+#include "nosys/eth/eth_types.h"
+#include "nosys/eth/eth_api.h"
 
 #if freeRTOS
 #error "freeRTOS check defined, WRONG CONDITION!"
@@ -88,7 +88,7 @@ int main(void)
   system_clock_config();
   uart_print_init(115200);
   
-  dm_eth_show_app_help_info(__DATE__); //printkey("\r\n\r\n\r\n/ZYK_project /R2410 [uip_dm9051_r2410] %s\r\n", __DATE__);
+  dm_eth_show_app_help_info(RX_MODE_STR, "polling_button_pressed", __DATE__); //printkey("\r\n\r\n\r\n/ZYK_project /R2410 [uip_dm9051_r2410] %s\r\n", __DATE__);
 
   /* enter critical */
   taskENTER_CRITICAL(); 

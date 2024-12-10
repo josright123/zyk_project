@@ -31,9 +31,14 @@
 #include "control/drv_control/conf_core.h"
 #include "control/drv_control/dm9051_drv_debug.h"
 
-/* eth api */
-#include "eth/eth_types.h"
-#include "eth/eth_api.h"
+/*-----------------------------------------------------------------------------
+ * Public drv_impl Functions
+ *-----------------------------------------------------------------------------*/
+ 
+#define DRV_TYPE 1
+#include "control/drv_types_define.h"
+#define DRV_TYPE 2
+#include "control/drv_types_define.h"
 
 /*-----------------------------------------------------------------------------
  * Public dm_impl Functions
@@ -68,6 +73,7 @@ uint8_t   cspi_read_rxb(void);
 void      cspi_tx_req(void);
 void      cspi_read_mem(uint8_t *buf, uint16_t len);
 void      cspi_write_mem(uint8_t *buf, uint16_t len);
+void      ctick_delay_us(uint32_t nus);
 void      ctick_delay_ms(uint16_t nms);
 
 /* Internal Function Prototypes */
@@ -95,8 +101,8 @@ const uint8_t *dm9051_init(const uint8_t *adr)
   const uint8_t *mac;
   
   mac = impl_dm9051_init(adr);
-
-  printf("init done\r\n\r\n");
+  
+  printf("%s\r\n\r\n", mac ? "init done" : "dm9051 not found");
   return mac;
 }
 
@@ -127,8 +133,14 @@ uint16_t dm9051_rx(uint8_t *buff)
  */
 void dm9051_tx(uint8_t *buf, uint16_t len) 
 {
+  int us = 0;
   cspi_tx_write(buf, len);
   cspi_tx_req();
+    //DM9051_TX_DELAY((cspi_read_reg(DM9051_TCR) & TCR_TXREQ), ctick_delay_us(5));
+  do {
+	  ctick_delay_us(5);
+	  us += 5;
+  } while((us < 2000) && (cspi_read_reg(DM9051_TCR) & TCR_TXREQ));
 }
 
 /**
@@ -245,7 +257,23 @@ void cspi_soft_default(void)
   cspi_write_reg(DM9051_PPCR, PPCR_PAUSE_COUNT);
   cspi_write_reg(DM9051_LMCR, LMCR_MODE1);
   cspi_write_reg(DM9051_INTR, INTR_ACTIVE_LOW);
-  
+
+#ifdef FORCE_CHKSUM_OFFLOAD
+  /* CHECKSUM_GEN_IP==1: Generate checksums in software for outgoing IP packets.*/
+  /* CHECKSUM_GEN_IP */
+  /* CHECKSUM_GEN_UDP==1: Generate checksums in software for outgoing UDP packets.*/
+  /* CHECKSUM_GEN_UDP */
+  /* CHECKSUM_GEN_TCP==1: Generate checksums in software for outgoing TCP packets.*/
+  /* CHECKSUM_GEN_TCP */  //(1 << 2) | (1 << 1) | (1 << 0)
+  cspi_write_reg(DM9051_CSCR, TCSCR_UDPCS_ENABLE | TCSCR_TCPCS_ENABLE | TCSCR_IPCS_ENABLE);
+  /* CHECKSUM_CHECK_IP==1: Check checksums in software for incoming IP packets.*/
+  /* CHECKSUM_CHECK_IP */
+  /* CHECKSUM_CHECK_UDP==1: Check checksums in software for incoming UDP packets.*/
+  /* CHECKSUM_CHECK_UDP */
+  /* CHECKSUM_CHECK_TCP==1: Check checksums in software for incoming TCP packets.*/
+  /* CHECKSUM_CHECK_TCP */  //(1 << 1) | (1 << 0)
+  cspi_write_reg(DM9051_RCSSR, RCSSR_RCSEN | RCSSR_DCSE);
+#endif
   identify_irq_stat(ISTAT_LOW_ACTIVE);
   trace_irq_stat(ISTAT_LOW_ACTIVE);
 }
@@ -376,7 +404,9 @@ int env_init_setup(uint16_t *id)
 	  printf("%s: %lu, %s\r\n",
 			 n ? "Heartbeat found" : "Heartbeat not found",
 			 n, 
-			 n ? "heartbeat OK" : "heartbeat not exist fail");
+			 n == 1 ? "heartbeat increase type" :
+			 n ? "heartbeat OK" :
+				"heartbeat for delay function not exist fail");
   }
 
   //return (*id == 0x9051) ? 1 : 0;
@@ -609,8 +639,12 @@ static const uint8_t *impl_dm9051_init(const uint8_t *adr)
 
   /* Initialize and verify device */
   if (!env_init_setup(&id)) {
+#ifdef FORCE_STOP_IF_DM9051_NOT_FOUND
     printf("system stop\r\n");
     while (1);
+#else
+	return NULL;
+#endif
   }
 
   /* Configure MAC address */

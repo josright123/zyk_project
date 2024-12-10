@@ -1,0 +1,41 @@
+[1]
+https://github.com/LiangtaoZhong/linux-mangopi-kernel5.2.git
+
+
+git clone -c core.protectNTFS=false <repo url>
+git clone -c core.protectNTFS=false https://github.com/LiangtaoZhong/linux-mangopi-kernel5.2.git
+
+[2]
+warning: Clone succeeded, but checkout failed.
+You can inspect what was checked out with 'git status'
+and retry with 
+
+'git restore --source=HEAD :/'  (no good)
+'git restore --source=HEAD -SW :/' (recommanded, unstage all from staged)
+'git reset --hard' (said, succeed, still has unstaged files(touched files))
+
+[3]
+ref
+
+drivers/gpu/drm/nouveau/nvkm/subdev/i2c/aux.c
+drivers/gpu/drm/nouveau/nvkm/subdev/i2c/aux.h
+include/soc/arc/aux.h
+
+[4]
+Git offers you several commands to discard local changes in your working directory. These include the following:
+
+The git stash command, which saves uncommitted changes and reset your workspace.
+The git reset command, which only touches tracked files.
+The git clean command, that deletes every untracked file.
+The git clean -f command.
+
+The git clean command is dangerous, destructive and unrecoverable. In most cases, 
+a developer must only use a git stash or a hard git reset to discard local changes 
+and revert their workspace back to its state before a prior commit occurred.
+
+
+
+
+
+
+

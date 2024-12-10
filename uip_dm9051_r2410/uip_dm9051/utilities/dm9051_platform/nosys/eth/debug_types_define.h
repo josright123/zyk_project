@@ -12,8 +12,9 @@
 #define TOTAL_DIFF_OFFSET     0x3400
 
 /* Debug Configuration */
-#define MAX_RX_LOG_ENTRIES    1
-#define MIN_HEADER_LENGTH     14
+#define MAX_RX_LOG_ENTRIES		2 //1
+#define MIN_HEADER_LENGTH		14
+#define MIDL_HEADER_LENGTH		46
 #define MIN(a, b)             ((a < b) ? a : b)
 #define LIMIT_LEN(n, nTP)     ((n <= nTP) ? n : nTP)
 
@@ -101,37 +102,44 @@ static void inc_interrupt_count(void)
 
 /* Hex Dump Implementation */
 #if (defined(__DM9051_ETH_DEBUG_H) && drv_print)  || (defined(__DM9051_AP_DEBUG_H) && ap_print) //org 'drv_print'
-static int room_printf_space(char *lineroom, int offset, int n)
+static void room_printf_space(char *lineroom, int n)
 {
-    while (n--)
-        offset += sprintf(lineroom + offset, "%c", ' ');
-    return offset;
+	int offset;
+	//offset = 0;
+    //while (n--)
+    //    offset += sprintf(lineroom + offset, "%c", ' ');
+    //return offset;
+	
+	for (offset = 0; offset < n; offset++)
+		lineroom[offset] = ' ';
 }
 
-static int room_printf_space_init(char *lineroom, size_t tlen)
+static int room_printf_rxlen_head(char *lineroom, int nspc)
 {
-    int offset = 0;
+    //if (!nspc)
+    //    nspc = sprint_headspace_dump0(lineroom, tlen, 0);
+
+    room_printf_space(lineroom, nspc);
+    return nspc;
+}
+
+static int sprint_headspace_dump0(size_t tlen, int also_print)
+{
+    //int offset = 0;
+	char lineroombuff[MAX_HEX_LINE_BUF];
     char textspace[16];
     int n = sprintf(textspace, "rxlen %4d", tlen);
 
-    offset = room_printf_space(lineroom, offset, n);
-    offset += sprintf(lineroom + offset, " %s", textspace);
-    printf("%s\r\n", lineroom);
+    room_printf_space(lineroombuff, n);
+    sprintf(lineroombuff + n, " %s", textspace);
+	if (also_print)
+		printf("%s\r\n", lineroombuff);
 
     return n;
 }
-
-static int room_printf_rxlen_head(char *lineroom, size_t tlen, int nspc)
-{
-    if (!nspc)
-        nspc = room_printf_space_init(lineroom, tlen);
-
-    room_printf_space(lineroom, 0, nspc);
-    return nspc;
-}
 #endif
 
-static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
+static void sprint_hex_dump0(int initspace, int titledn, char *prefix_str,
                            size_t tlen, int rowsize, const void *buf, 
                            int seg_start, size_t len, int cast_lf)
 {
@@ -144,7 +152,10 @@ static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
     int nspace = 0;
 		int i;
 
-    (void)head_space;
+	/*int head_space, 
+    (void)head_space;*/
+	
+	//initspace = sprint_headspace_dump0(lineroombuff, tlen, 0);
 
     for (i = si; i < se; i += rowsize)
     {
@@ -155,7 +166,7 @@ static void sprint_hex_dump0(int head_space, int titledn, char *prefix_str,
         int nb = 0;
         int j;
 
-        nspace = room_printf_rxlen_head(lineroombuff, tlen, nspace);
+        nspace = room_printf_rxlen_head(lineroombuff, initspace);
         
         /* Format hex values */
         for (j = 0; j < linelen && (size_t)nb < sizeof(linebuf); j++)
@@ -201,13 +212,19 @@ static void dm_eth_input_hexdump_reset(void)
 
 static void dm_eth_input_hexdump(const void *buf, size_t len)
 {
+	int initspace;
+	if (!len)
+		return;
     if (link_log_reset_allow_num >= rx_modle_log_reset_allow_num) {
         return;
     }
-
     link_log_reset_allow_num++;
-    sprint_hex_dump0(2, 0, "dm9 head   <<rx", len, MAX_HEX_SEGMENT,
-                    buf, 0, LIMIT_LEN(len, MIN_HEADER_LENGTH), DM_TRUE);
+	printf("(dumpRPkt %d / allowMax %d) rxlen %4d\r\n",
+		link_log_reset_allow_num, rx_modle_log_reset_allow_num, len);
+	
+	initspace = sprint_headspace_dump0(len, 0);
+    sprint_hex_dump0(initspace, 0, "dm9 head   <<rx", len, MAX_HEX_SEGMENT,
+                    buf, 0, LIMIT_LEN(len, MIDL_HEADER_LENGTH), DM_TRUE);
 }
 
 //uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e);
@@ -349,8 +366,11 @@ unsigned long get_interrupt_count(void)
  */
 #if DM_DEBUG_TYPE == 21
 #if DM_ETH_DEBUG_MODE
+static int fifoTurn_n = 0; //...
+uint16_t gkeep_mdra_rds;
+
 /* debug */
-void diff_rx_pointers_s(uint16_t *pMdra_rds) {
+static void diff_rx_pointers_s(uint16_t *pMdra_rds) {
 	uint16_t dummy_rds= 0xc00;
 	DM_ETH_ToCalc_rx_pointers(0, &dummy_rds, pMdra_rds);
 }
@@ -361,10 +381,7 @@ void diff_rx_s(void)
 		diff_rx_pointers_s(&gkeep_mdra_rds); //&mdra_rds
 }
 
-int fifoTurn_n = 0;
-uint16_t gkeep_mdra_rds;
-
-void diff_rx_pointers_e(uint16_t *pMdra_rds) {
+static void diff_rx_pointers_e(uint16_t *pMdra_rds) {
 	uint16_t mdra_rd, diff;
 	diff = DM_ETH_ToCalc_rx_pointers(1, pMdra_rds, &mdra_rd); //......................
 

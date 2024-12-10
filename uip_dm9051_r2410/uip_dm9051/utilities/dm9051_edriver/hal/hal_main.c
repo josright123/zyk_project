@@ -216,18 +216,6 @@ void AT_spi_mem_write(uint8_t *buf, uint16_t len)
         dm9051_spi_command_write(buf[i]);
 }
 
-// Tick Management
-static uint32_t AT_HalTicks = 0;
-
-uint32_t AT_hal_tick_count(void) {
-    return AT_HalTicks;
-}
-
-void AT_hal_tick(void) {
-    AT_HalTicks++;
-}
-#endif //_DLW_AT32F437xx
-
 /*******************************************************************************
  * Register Access Functions
  ******************************************************************************/
@@ -335,7 +323,6 @@ uint8_t cspi_read_rxb(void) {
 // TX Request Function
 void cspi_tx_req(void) {
     cspi_write_reg(DM9051_TCR, TCR_TXREQ); // Cleared after TX complete
-    DM9051_TX_DELAY((cspi_read_reg(DM9051_TCR) & TCR_TXREQ), ctick_delay_us(5));
 }
 
 /*******************************************************************************
@@ -358,6 +345,27 @@ void cspi_write_mem(uint8_t *buf, uint16_t len)
 /*******************************************************************************
  * Utility Functions
  ******************************************************************************/
+// Tick Management
+static uint32_t AT_HalTicks = 0;
+
+uint32_t AT_hal_tick_count(void) {
+	static uint32_t hal_tick_count = 0; 
+	#if 1 //[Not only by SysTick counting]
+	hal_tick_count++;
+	if (hal_tick_count >= 1000000) {
+		hal_tick_count = 0;
+		AT_HalTicks++;
+	}
+	#endif
+    return AT_HalTicks;
+}
+
+// SysTick counting (NOT must essential)
+void AT_hal_tick(void) {
+    AT_HalTicks++;
+}
+#endif //_DLW_AT32F437xx
+
 void ctick_delay_us(uint32_t nus)
 {
     uint32_t start = dm9051_boards_heartbeat_now();

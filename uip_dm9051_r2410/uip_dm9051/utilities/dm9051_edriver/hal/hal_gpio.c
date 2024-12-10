@@ -30,9 +30,6 @@
 
 #include "control/drv_control/conf_core.h"
 
-/* eth api */
-#include "eth/eth_types.h"
-
 #if defined(_DLW_AT32F437xx)
 
 //#define gpio_stdpin_lo AT_hal_stdpin_lo

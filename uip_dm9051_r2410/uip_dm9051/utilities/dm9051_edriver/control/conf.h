@@ -9,6 +9,10 @@
 /* hal, such as designed a MCU */
 #include "hal/hal_api.h" //#include "hal/dm9051_hal.h"
 
+/* drv util */
+#define DRV_TYPE 0
+#include "control/drv_types_define.h"
+
 /* common util */
 //.#define DM_DEBUG_TYPE 0
 //.#include "eth/debug_types_define.h"

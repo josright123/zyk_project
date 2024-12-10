@@ -138,7 +138,11 @@ extern "C"
 #define RCR_RUNT (1 << 2)
 #define RCR_PRMSC (1 << 1)
 #define RCR_RXEN (1 << 0)
+#ifdef FORCE_RCR_ALL 
+#define RCR_DEFAULT (RCR_DIS_LONG | RCR_DIS_CRC | RCR_ALL)
+#else
 #define RCR_DEFAULT (RCR_DIS_LONG | RCR_DIS_CRC)
+#endif
 
 #define RSR_RF (1 << 7)
 #define RSR_MF (1 << 6)

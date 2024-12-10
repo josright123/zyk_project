@@ -59,8 +59,8 @@
 #include "nosys/nosys_control/dm9051_ap_debug.h"
 
 /* eth api */
-#include "eth/eth_types.h"
-#include "eth/eth_api.h"
+#include "nosys/eth/eth_types.h"
+#include "nosys/eth/eth_api.h"
 
 //[version_1]
 #define	DM9051_init									DM_ETH_Init
@@ -153,6 +153,7 @@ static int input_packet(void)
 	return (uip_len > 0) ? 1 : 0;
 }
 
+#if defined(ETHERNET_POLLING_MODE)
 static void handle_packet(void) {			
 	if (BUF->type == htons(UIP_ETHTYPE_IP))
 	{
@@ -180,6 +181,7 @@ static void handle_packet(void) {
 		}
 	}
 }
+#endif
 
 #if defined(ETHERNET_POLLING_MODE)
 uint16_t DM_ETH_RXHandler_Poll(void)

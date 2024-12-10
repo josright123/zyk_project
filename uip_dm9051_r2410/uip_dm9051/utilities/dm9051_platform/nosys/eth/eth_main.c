@@ -127,6 +127,15 @@ uint16_t DM_ETH_Input(uint8_t *bff)
   return len;
 }
 
+//.#if LWIP_PTP
+uint16_t DM_ETH_PTP_Input(uint8_t *bff, uint8_t *ts_bff)
+{
+  uint16_t len = dm9051_rx(bff);
+  dm_eth_input_hexdump(bff, len);
+  return len;
+}
+//#endif
+
 /**
  * @brief  Handles packet transmission
  * @param  bff: Buffer containing packet to send
@@ -136,6 +145,20 @@ void DM_ETH_Output(uint8_t *bff, uint16_t len)
 {
   dm9051_tx(bff, len);
 }
+
+//.#if LWIP_PTP
+void DM_ETH_PTP_Output(uint8_t *bff, uint16_t len, uint8_t *ts_bff)
+{
+  dm9051_tx(bff, len);
+  //dm9051_get_tx_time(ts_bff);
+}
+
+void DM_ETH_PTP_HW_TIMESTAMP_Output(uint8_t *bff, uint16_t len, uint8_t *ts_bff)
+{
+  dm9051_tx(bff, len); //[send with hw-timestamp]
+  //dm9051_get_tx_time(ts_bff);
+}
+//#endif
 
 /**
  * @brief  Network configuration functions
@@ -247,19 +270,20 @@ int dm_eth_polling_downup(void)
 	#endif
 	if (DM_Eth_Regs_Info_Linkup(statdat) && !link_stat) {
 		link_stat = 1;
-		//printf("(down to link up)\r\n");
+		printf("(down to link up)\r\n");
 		return 1;
 	} else if (!DM_Eth_Regs_Info_Linkup(statdat) && link_stat) {
 		link_stat = 0;
-		//printf("(up2down to link down)\r\n");
+		printf("(up2down to link down)\r\n");
 		return 0;
 	}
 	return 0;
 }
 
-void dm_eth_show_app_help_info(char *contentStr)
+void dm_eth_show_app_help_info(char *drv_modeS, char *statusS, char *dateS)
 {
-	printkey("\r\n\r\n\r\n[%s mode] /ZYK_project /R2410 [uip_dm9051_r2410] %s\r\n", RX_MODE_STR, contentStr);
+	//printf
+	printkey("\r\n\r\n\r\n[%s mode] /ZYK_project /R2410 [uip_dm9051_r2410] %s %s\r\n", drv_modeS, statusS, dateS);
 }
 
 /**
@@ -281,7 +305,7 @@ void dm_eth_polling_button_ops(enum operate_tag tag)
 
 	if (button_is_pressed() == USER_BUTTON) {
 		if (!button_stat) {
-			dm_eth_show_app_help_info("polling_button_pressed");
+			dm_eth_show_app_help_info(RX_MODE_STR, "polling_button_pressed", __DATE__);
 			button_stat = 1;
 		}
 		if (tag == OPS_LED3)

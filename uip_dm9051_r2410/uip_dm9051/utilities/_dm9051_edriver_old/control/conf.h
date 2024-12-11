@@ -25,7 +25,4 @@
 /* all common */
 //#include "dbg_opts.h"
 
-/* api */
-#include "nosys/eth/eth_api.h"
-
 #endif //__DM_CONF_H__

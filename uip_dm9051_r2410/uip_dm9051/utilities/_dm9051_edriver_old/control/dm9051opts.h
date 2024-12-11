@@ -16,7 +16,7 @@
 //#define FORCE_CHKSUM_OFFLOAD // checksum offload mode
 //#undef FORCE_CHKSUM_OFFLOAD
 
-#define FORCE_RCR_ALL // Pass all multi-cast
+//#define FORCE_RCR_ALL // Pass all multi-cast
 //#undef FORCE_RCR_ALL
 
 //#define FORCE_STOP_IF_DM9051_NOT_FOUND // not pass through mode

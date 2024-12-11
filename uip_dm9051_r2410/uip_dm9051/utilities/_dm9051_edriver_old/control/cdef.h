@@ -13,11 +13,6 @@
   struct eth_node_t
   {
     uint8_t mac_addresse[MAC_ADDR_LENGTH];
-  };
-
-  struct ip_node_t
-  {
-    //uint8_t mac_addresse[MAC_ADDR_LENGTH];
     uint8_t local_ipaddr[ADDR_LENGTH];
     uint8_t local_gwaddr[ADDR_LENGTH];
     uint8_t local_maskaddr[ADDR_LENGTH];

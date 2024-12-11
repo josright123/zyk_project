@@ -4,8 +4,8 @@
 #if DRV_TYPE == 0
 
 /* [ identify.h/identify.c ] */
-#define DR_GET_FIELD(field) dr_mget_##field()		   // call-use
-#define DR_SET_FIELD(field, val) dr_mset_##field(val) // call-use
+#define GET_FIELD(field) dm_mget_##field()		   // call-use
+#define SET_FIELD(field, val) dm_mset_##field(val) // call-use
 
 #define GET_CSTATE(field) cb_get_##field()	   // call-use
 #define SET_CSTATE(field, v) cb_set_##field(v) // call-use
@@ -13,21 +13,17 @@
 #define CB_TYPES_GET_CSTATE_FX(field) cb_get_##field(void)
 #define CB_TYPES_SET_CSTATE_FX(mtype, field, v) cb_set_##field(const mtype v)
 
-#undef DR_RMACRO
-#define DR_RMACRO(rtype, mtype, field) \
-	rtype dr_mget_##field(void);       \
-	rtype dr_mset_##field(const mtype adr);
+#undef DM_AMACRO
+#define DM_AMACRO(rtype, mtype, field) \
+	rtype dm_mget_##field(void);       \
+	rtype dm_mset_##field(const mtype adr);
 
 #undef CB_MACRO
 #define CB_MACRO(mtype, field)           \
 	mtype CB_TYPES_GET_CSTATE_FX(field); \
 	mtype CB_TYPES_SET_CSTATE_FX(mtype, field, v);
 
-/* HCC: Hard Core Candidate (hcc)
- */
-extern const struct eth_node_t node_candidate[1];
-
-DR_RMACRO(uint8_t *, mac_t, final_mac);
+DM_AMACRO(uint8_t *, mac_t, final_mac);
 
 CB_MACRO(uint16_t, irqst);
 
@@ -35,12 +31,12 @@ CB_MACRO(uint16_t, irqst);
  * identify_mac
  */
 
-#define identified_eth_mac() DR_GET_FIELD(final_mac)
-#define identify_eth_mac(macadr) DR_SET_FIELD(final_mac, macadr ? macadr : candidate_eth_mac())
+#define identified_eth_mac() GET_FIELD(final_mac)
+#define identify_eth_mac(macadr) SET_FIELD(final_mac, macadr ? macadr : candidate_eth_mac())
 #define trace_identify_eth_mac()                            \
   do                                                        \
   {                                                         \
-    const uint8_t *mac = DR_GET_FIELD(final_mac);              \
+    const uint8_t *mac = GET_FIELD(final_mac);              \
 	  printf("mac address %02x:%02x:%02x:%02x:%02x:%02x\r\n",      \
            mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]); \
   } while (0)
@@ -137,71 +133,28 @@ const char *level_str_impl(dm9051_eth_debug_level_t level);
 
 
 #if DRV_TYPE == 1
-
-#undef DR_MACRO
-#define DR_MACRO(mtype, field) \
-	mtype field;
-	
-/* Network candidate Configuration */
+/* Network Configuration */
 const struct eth_node_t node_candidate[1] = {
 	{
 		{0, 0x60, 0x6e, 0x00, 0x00, 0x17},
+		{192, 168, 6, 17},
+		{192, 168, 6, 1},
+		{255, 255, 255, 0},
 	}, 
 	/*
 	{
 	 {0, 0x60, 0x6e, 0x00, 0x01, 0x25,},
+	 {192, 168, 6,  25},
+	 {192, 168, 6,   1},
+	 {255, 255, 255, 0},
 	},
 	   */
 	// ... other nodes can be uncommented and added here
 };
-
-static struct cbtype_data
-{
-	uint16_t irqst;
-} cb = {
-	0x0000,
-};
-
-static struct drtype_data
-{
-	DR_MACRO(mac_t, final_mac)
-} dr;
 #endif
 
 
 #if DRV_TYPE == 2
-
-#define CB_TYPES_GET_CSTATE_FUNC(field) cb_get_##field(void)
-#define CB_TYPES_SET_CSTATE_FUNC(mtype, field, v) cb_set_##field(const mtype v)
-
-#undef CB_MACRO
-#define CB_MACRO(mtype, field)                      \
-	mtype CB_TYPES_GET_CSTATE_FUNC(field)           \
-	{                                               \
-		return cb.field;                            \
-	}                                               \
-	mtype CB_TYPES_SET_CSTATE_FUNC(mtype, field, v) \
-	{                                               \
-		cb.field = v;                               \
-		return v;                                   \
-	}
-
-CB_MACRO(uint16_t, irqst);
-
-#undef DR_RMACRO
-#define DR_RMACRO(rtype, mtype, field, adr_len)                               \
-	rtype dr_mget_##field(void)                                    \
-	{                                               						\
-		return dr.field;                                                      \
-	}                                                                         \
-	rtype dr_mset_##field(const mtype adr)                         \
-	{                                  \
-		memcpy(dr.field, adr, adr_len);                                       \
-		return dr.field;                                                      \
-	}
-
-DR_RMACRO(uint8_t *, mac_t, final_mac, MAC_ADDR_LENGTH)
-
 /* Debug Level Implementation */
 const char *level_str_impl(dm9051_eth_debug_level_t level)
 {

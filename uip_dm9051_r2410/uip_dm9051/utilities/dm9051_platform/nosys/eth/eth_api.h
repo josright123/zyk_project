@@ -33,7 +33,7 @@ void dm_eth_polling_button_ops(enum operate_tag tag);
 int DM_ETH_GetInterruptEvent(void);
 #endif
 void DM_ETH_ToRst_ISR(void);
-
+#if DM_ETH_DEBUG_MODE
 uint16_t DM_ETH_ToCalc_rx_pointers(int state, const uint16_t *mdra_rd_org, uint16_t *mdra_rdp);
-
+#endif
 #endif //__DM_ETH_H__

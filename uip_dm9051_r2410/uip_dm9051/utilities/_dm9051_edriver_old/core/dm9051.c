@@ -32,6 +32,25 @@
 #include "control/drv_control/dm9051_drv_debug.h"
 
 /*-----------------------------------------------------------------------------
+ * Public drv_impl Functions
+ *-----------------------------------------------------------------------------*/
+ 
+#define DRV_TYPE 1
+#include "control/drv_types_define.h"
+#define DRV_TYPE 2
+#include "control/drv_types_define.h"
+
+/*-----------------------------------------------------------------------------
+ * Public dm_impl Functions
+ *-----------------------------------------------------------------------------*/
+
+/* Type Definitions [Public dm_types Functions, belong to dm9051.c] */
+//#define DM_TYPE 1
+//#include "dm_types_define.h"
+//#define DM_TYPE 2
+//#include "dm_types_define.h"
+
+/*-----------------------------------------------------------------------------
  * Configuration and Definitions
  *-----------------------------------------------------------------------------*/
 
@@ -82,8 +101,8 @@ const uint8_t *dm9051_init(const uint8_t *adr)
   const uint8_t *mac;
   
   mac = impl_dm9051_init(adr);
-
-  printf("%s\r\n\r\n", mac ? "[ --- dm9051 found ok --- ] init done" : "[ --- dm9051 not found --- ]");
+  
+  printf("%s\r\n\r\n", mac ? "init done" : "dm9051 not found");
   return mac;
 }
 
@@ -666,87 +685,4 @@ static const uint8_t *cspi_dm_start1(const uint8_t *adr)
   cspi_set_recv();
   
   return adr;
-}
-
-/* Hardware Interface Functions */
-uint8_t   cspi_read_reg(uint8_t reg);
-void      cspi_write_reg(uint8_t reg, uint8_t val);
-void      ctick_delay_us(uint32_t nus);
-
-// Additional Functions for Register Operations
-void cspi_read_regs_long(uint8_t reg, uint8_t *buf, uint16_t len);
-void cspi_read_regs_each(uint8_t reg, uint8_t *buf, uint16_t len);
-
-void cspi_read_regs(uint8_t reg, uint8_t *buf, uint16_t len, csmode_t csmode) {
-    if (csmode == CS_LONG) {
-        cspi_read_regs_long(reg, buf, len);
-    } else { // CS_EACH
-        cspi_read_regs_each(reg, buf, len);
-    }
-}
-
-void cspi_write_regs(uint8_t reg, const uint8_t *buf, uint16_t len)
-{
-	uint16_t i;
-    for (i = 0; i < len; i++, reg++) {
-        cspi_write_reg(reg, buf[i]);
-    }
-}
-
-/*******************************************************************************
- * PHY Access Functions
- ******************************************************************************/
-uint16_t cspi_phy_read(uint16_t uReg)
-{
-    int w = 0;
-    uint16_t uData;
-
-    cspi_write_reg(DM9051_EPAR, DM9051_PHY | uReg);
-    cspi_write_reg(DM9051_EPCR, 0xc);
-    ctick_delay_us(1);
-    
-    while (cspi_read_reg(DM9051_EPCR) & 0x1) {
-        ctick_delay_us(1);
-        if (++w >= 500) break; // Timeout
-    }
-
-    cspi_write_reg(DM9051_EPCR, 0x0);
-    uData = (cspi_read_reg(DM9051_EPDRH) << 8) | cspi_read_reg(DM9051_EPDRL);
-    return uData;
-}
-
-void cspi_phy_write(uint16_t reg, uint16_t value)
-{
-    int w = 0;
-
-    cspi_write_reg(DM9051_EPAR, DM9051_PHY | reg);
-    cspi_write_reg(DM9051_EPDRL, (value & 0xff));
-    cspi_write_reg(DM9051_EPDRH, ((value >> 8) & 0xff));
-    cspi_write_reg(DM9051_EPCR, 0xa);
-    ctick_delay_us(1);
-    
-    while (cspi_read_reg(DM9051_EPCR) & 0x1) {
-        ctick_delay_us(1);
-        if (++w >= 500) break; // Timeout
-    }
-
-    cspi_write_reg(DM9051_EPCR, 0x0);
-}
-
-// TX Request Function
-void cspi_tx_req(void) {
-    cspi_write_reg(DM9051_TCR, TCR_TXREQ); // Cleared after TX complete
-}
-
-// Delay Function
-void ctick_delay_us(uint32_t nus)
-{
-    uint32_t start = dm9051_boards_heartbeat_now();
-    while ((dm9051_boards_heartbeat_now() - start) < ((nus + 999) / 1000));
-}
-
-void ctick_delay_ms(uint16_t nms)
-{
-    uint32_t start = dm9051_boards_heartbeat_now();
-    while ((dm9051_boards_heartbeat_now() - start) < nms);
 }

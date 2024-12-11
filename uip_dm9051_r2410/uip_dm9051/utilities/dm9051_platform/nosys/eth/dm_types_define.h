@@ -3,14 +3,18 @@
 
 #if DM_TYPE == 0
 
-/* [ identify.h/identify.c ] */
-//#define GET_FIELD(field) dm_mget_##field()		   // call-use
-//#define SET_FIELD(field, val) dm_mset_##field(val) // call-use
+/* HCC: Hard Core Candidate (hcc)
+ */
+extern const struct ip_node_t ip_candidate[1];
 
-//#undef DM_AMACRO
-//#define DM_AMACRO(rtype, mtype, field) \
-//	rtype dm_mget_##field(void);       \
-//	rtype dm_mset_##field(const mtype adr);
+/* [ identify.h/identify.c ] */
+#define GET_FIELD(field) dm_mget_##field()		   // call-use
+#define SET_FIELD(field, val) dm_mset_##field(val) // call-use
+
+#undef DM_RMACRO
+#define DM_RMACRO(rtype, mtype, field) \
+	rtype dm_mget_##field(void);       \
+	rtype dm_mset_##field(const mtype adr);
 
 //#define GET_CSTATE(field) cb_get_##field()	   // call-use
 //#define SET_CSTATE(field, v) cb_set_##field(v) // call-use
@@ -26,9 +30,9 @@
 /* APIs.identify
  */
 //#define candidate_eth_mac() &node_candidate[0].mac_addresse[0]    //[pin_code]
-#define candidate_eth_ip() &node_candidate[0].local_ipaddr[0]     //[pin_code]
-#define candidate_eth_gw() &node_candidate[0].local_gwaddr[0]     //[pin_code]
-#define candidate_eth_mask() &node_candidate[0].local_maskaddr[0] //[pin_code]
+#define candidate_eth_ip() &ip_candidate[0].local_ipaddr[0]     //[pin_code]
+#define candidate_eth_gw() &ip_candidate[0].local_gwaddr[0]     //[pin_code]
+#define candidate_eth_mask() &ip_candidate[0].local_maskaddr[0] //[pin_code]
 // const uint8_t *identify_eth_mac(const uint8_t *macadr);
 // uint8_t *identify_tcpip_ip(uint8_t *ip4adr);
 // uint8_t *identify_tcpip_gw(uint8_t *ip4adr);
@@ -51,16 +55,12 @@
 #define identified_tcpip_mask() GET_FIELD(final_mask)
 
 #if 1
-//	DM_AMACRO(uint8_t *, mac_t, final_mac);
-	DM_AMACRO(uint8_t *, ip_t, final_ip);
-	DM_AMACRO(uint8_t *, ip_t, final_gw);
-	DM_AMACRO(uint8_t *, ip_t, final_mask);
+//	DM_RMACRO(uint8_t *, mac_t, final_mac);
+	DM_RMACRO(uint8_t *, ip_t, final_ip);
+	DM_RMACRO(uint8_t *, ip_t, final_gw);
+	DM_RMACRO(uint8_t *, ip_t, final_mask);
 
 //	CB_MACRO(uint16_t, irqst);
-
-	/* HCC: Hard Core Candidate (hcc)
-	 */
-	extern const struct eth_node_t node_candidate[1];
 
 	/* irqstate.identify
 	 */
@@ -70,6 +70,25 @@
 #endif
 
 #if DM_TYPE == 1
+
+/* IP candidate Configuration */
+const struct ip_node_t ip_candidate[1] = {
+	{
+		//{0, 0x60, 0x6e, 0x00, 0x00, 0x17},
+		{192, 168, 6, 17},
+		{192, 168, 6, 1},
+		{255, 255, 255, 0},
+	}, 
+	/*
+	{
+	 //{0, 0x60, 0x6e, 0x00, 0x00, 0x25},
+	 {192, 168, 6,  25},
+	 {192, 168, 6,   1},
+	 {255, 255, 255, 0},
+	},
+	   */
+	// ... other nodes can be uncommented and added here
+};
 
 #undef DM_MACRO
 #define DM_MACRO(mtype, field) \
@@ -81,18 +100,11 @@ static struct dmtype_data
 	//	ip_t final_ip;
 	//	ip_t final_gw;
 	//	ip_t final_mask;
-	DM_MACRO(mac_t, final_mac)
+	//DM_MACRO(mac_t, final_mac)
 	DM_MACRO(ip_t, final_ip)
 	DM_MACRO(ip_t, final_gw)
 	DM_MACRO(ip_t, final_mask)
 } dm;
-
-static struct cbtype_data
-{
-	uint16_t irqst;
-} cb = {
-	0x0000,
-};
 
 #elif DM_TYPE == 2
 
@@ -108,27 +120,10 @@ static struct cbtype_data
 		return dm.field;                                                      \
 	}
 
-DM_RMACRO(uint8_t *, mac_t, final_mac, MAC_ADDR_LENGTH)
+//DM_RMACRO(uint8_t *, mac_t, final_mac, MAC_ADDR_LENGTH)
 DM_RMACRO(uint8_t *, ip_t, final_ip, ADDR_LENGTH)
 DM_RMACRO(uint8_t *, ip_t, final_gw, ADDR_LENGTH)
 DM_RMACRO(uint8_t *, ip_t, final_mask, ADDR_LENGTH)
-
-#define CB_TYPES_GET_CSTATE_FUNC(field) cb_get_##field(void)
-#define CB_TYPES_SET_CSTATE_FUNC(mtype, field, v) cb_set_##field(const mtype v)
-
-#undef CB_MACRO
-#define CB_MACRO(mtype, field)                      \
-	mtype CB_TYPES_GET_CSTATE_FUNC(field)           \
-	{                                               \
-		return cb.field;                            \
-	}                                               \
-	mtype CB_TYPES_SET_CSTATE_FUNC(mtype, field, v) \
-	{                                               \
-		cb.field = v;                               \
-		return v;                                   \
-	}
-
-CB_MACRO(uint16_t, irqst);
 
 /* Debug Level Implementation */
 //const char *level_str_impl(dm9051_eth_debug_level_t level)
@@ -143,10 +138,6 @@ CB_MACRO(uint16_t, irqst);
 //    return (level < sizeof(LEVEL_STRINGS)/sizeof(LEVEL_STRINGS[0]) && 
 //            LEVEL_STRINGS[level]) ? LEVEL_STRINGS[level] : "UNKNOWN";
 //}
-#endif
-
-#if DM_TYPE == 0
-
 #endif
 
 #undef DM_TYPE

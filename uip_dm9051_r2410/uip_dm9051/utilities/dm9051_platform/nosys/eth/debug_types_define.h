@@ -61,14 +61,6 @@ static const uint8_t *dm_eth_show_identified_gw(char *headtypestr)
   return identified_tcpip_gw();
 }
 
-/* Buffer Management */
-static uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e)
-{
-    return (rwpa_e >= rwpa_s) ? 
-           rwpa_e - rwpa_s : 
-           (rwpa_e + RX_BUFFER_END - RX_BUFFER_START) - rwpa_s;
-}
-
 #if !DM_ETH_DEBUG_MODE
 static void inc_interrupt_count(void)
 {
@@ -227,7 +219,6 @@ static void dm_eth_input_hexdump(const void *buf, size_t len)
                     buf, 0, LIMIT_LEN(len, MIDL_HEADER_LENGTH), DM_TRUE);
 }
 
-//uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e);
 //void dm_eth_input_hexdump_reset(void);
 //void dm_eth_input_hexdump(const void *buf, size_t len);
 
@@ -274,6 +265,8 @@ static void debug_diff_rx_pointers(int state, uint16_t rd_now)
  */
 #if DM_DEBUG_TYPE == 0
 typedef void (*printkey_ptr)(char *);
+
+uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e);
 
 void diff_rx_s(void);
 void diff_rx_e(void);
@@ -368,6 +361,15 @@ unsigned long get_interrupt_count(void)
 #if DM_ETH_DEBUG_MODE
 static int fifoTurn_n = 0; //...
 uint16_t gkeep_mdra_rds;
+
+/* Buffer Management */
+//static 
+uint16_t wrpadiff(uint16_t rwpa_s, uint16_t rwpa_e)
+{
+    return (rwpa_e >= rwpa_s) ? 
+           rwpa_e - rwpa_s : 
+           (rwpa_e + RX_BUFFER_END - RX_BUFFER_START) - rwpa_s;
+}
 
 /* debug */
 static void diff_rx_pointers_s(uint16_t *pMdra_rds) {

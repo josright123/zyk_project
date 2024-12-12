@@ -134,7 +134,8 @@ uint16_t dm9051_isr_enab(void)
   
   isrs = cspi_read_reg(DM9051_ISR);
   cspi_write_reg(DM9051_ISR, (uint8_t)isrs);
-  
+
+  identify_irq_stat(ISTAT_IRQ_NOW2END);
   return isrs | (0xff << 8);
 }
 

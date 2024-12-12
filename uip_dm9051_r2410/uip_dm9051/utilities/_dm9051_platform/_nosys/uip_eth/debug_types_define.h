@@ -71,9 +71,6 @@ static void dm_eth_input_hexdump_reset(void)
 static void debug_diff_rx_pointers(int state, uint16_t rd_now)
 {
 }
-static void dm_eth_input_hexdump(const void *buf, size_t len)
-{
-}
 #endif //!DM_ETH_DEBUG_MODE
 #endif //DM_DEBUG_TYPE 10
 
@@ -202,23 +199,6 @@ static void dm_eth_input_hexdump_reset(void)
 	}
 }
 
-static void dm_eth_input_hexdump(const void *buf, size_t len)
-{
-	int initspace;
-	if (!len)
-		return;
-    if (link_log_reset_allow_num >= rx_modle_log_reset_allow_num) {
-        return;
-    }
-    link_log_reset_allow_num++;
-	printf("(dumpRPkt %d / allowMax %d) rxlen %4d\r\n",
-		link_log_reset_allow_num, rx_modle_log_reset_allow_num, len);
-	
-	initspace = sprint_headspace_dump0(len, 0);
-    sprint_hex_dump0(initspace, 0, "dm9 head   <<rx", len, MAX_HEX_SEGMENT,
-                    buf, 0, LIMIT_LEN(len, MIDL_HEADER_LENGTH), DM_TRUE);
-}
-
 //void dm_eth_input_hexdump_reset(void);
 //void dm_eth_input_hexdump(const void *buf, size_t len);
 
@@ -273,6 +253,8 @@ void diff_rx_e(void);
 void print_eth_configuration(char *head, const uint8_t *ip, printkey_ptr printky);
 void ap_print_ipconfig(char *head, const uint8_t *mac, printkey_ptr printky);
 unsigned long get_interrupt_count(void);
+/*static*/ 
+void dm_eth_input_hexdump(const void *buf, size_t len);
 #endif //DM_DEBUG_TYPE 0
 
 /*
@@ -351,6 +333,10 @@ unsigned long get_interrupt_count(void)
 {
     return 0;
 }
+/*static*/ 
+void dm_eth_input_hexdump(const void *buf, size_t len)
+{
+}
 #endif //!DM_ETH_DEBUG_MODE
 #endif //DM_DEBUG_TYPE 20
 /*
@@ -412,6 +398,24 @@ void diff_rx_e(void)
 unsigned long get_interrupt_count(void)
 {
     return dispc_int_active;
+}
+
+/*static*/
+void dm_eth_input_hexdump(const void *buf, size_t len)
+{
+	int initspace;
+	if (!len)
+		return;
+    if (link_log_reset_allow_num >= rx_modle_log_reset_allow_num) {
+        return;
+    }
+    link_log_reset_allow_num++;
+	printf("(dumpRPkt %d / allowMax %d) rxlen %4d\r\n",
+		link_log_reset_allow_num, rx_modle_log_reset_allow_num, len);
+	
+	initspace = sprint_headspace_dump0(len, 0);
+    sprint_hex_dump0(initspace, 0, "dm9 head   <<rx", len, MAX_HEX_SEGMENT,
+                    buf, 0, LIMIT_LEN(len, MIDL_HEADER_LENGTH), DM_TRUE);
 }
 #endif //DM_ETH_DEBUG_MODE
 #endif //DM_DEBUG_TYPE 21

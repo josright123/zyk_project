@@ -31,17 +31,17 @@
 
 //#include "control/cdef.h"
 #include "control/drv_control/conf_core.h"
-#include "nosys/nosys_control/conf_ap.h"
-#include "nosys/nosys_control/dm9051_ap_debug.h"
+#include "platform_info/nosys/nosys_control/conf_ap.h"
+#include "platform_info/nosys/nosys_control/dm9051_ap_debug.h"
 
 /* eth api */
-#include "nosys/eth/eth_types.h"
-#include "nosys/eth/eth_api.h"
+#include "platform_info/nosys/uip_eth/eth_types.h"
+#include "platform_info/nosys/uip_eth/eth_api.h"
 
 #if freeRTOS
 #error "freeRTOS check defined, WRONG CONDITION!"
 #else
-#warning "freeRTOS is exactly UIP not need defined"
+//#warning "freeRTOS is exactly UIP not need defined"
 #endif
 
 #define NET_TASK_PRIO           		2 //FOR 'net_task'

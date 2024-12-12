@@ -55,27 +55,31 @@
 #include "timer.h"
 
 // Project specific includes
-#include "nosys/nosys_control/conf_ap.h"
-#include "nosys/nosys_control/dm9051_ap_debug.h"
+#include "platform_info/nosys/nosys_control/conf_ap.h"
+#include "platform_info/nosys/nosys_control/dm9051_ap_debug.h"
 
 /* eth api */
-#include "nosys/eth/eth_types.h"
-#include "nosys/eth/eth_api.h"
+#include "platform_info/nosys/uip_eth/eth_types.h"
+#include "platform_info/nosys/uip_eth/eth_api.h"
 
 //[version_1]
-#define	DM9051_init									DM_ETH_Init
-#define	DM9051_tx										DM_ETH_Output
-#define	DM9051_rx										DM_ETH_Input
 
 //[version_1.ok]
-#define tapdev_init(adr)								DM9051_init(adr)
-#define tapdev_send(buf,len)						DM9051_tx(buf,len)
-#define tapdev_read(buf)								DM9051_rx(buf)
-//#define tapdev_send()							DM_ETH_Output((uint8_t *)uip_buf, uip_len)
-//#define tapdev_read()							DM_ETH_Input((uint8_t *)uip_buf)
+//#define	DM9051_init									DM_ETH_Init
+//#define tapdev_init(adr)								DM9051_init(adr)=
+#define tapdev_init(adr)								DM_ETH_IRQInit(); \
+														dm9051_boards_initialize(); \
+														dm9051_init(adr)
+//#define	DM9051_tx									DM_ETH_Output
+//#define tapdev_send(buf,len)							DM9051_tx(buf,len)=
+#define tapdev_send(buf,len)							dm9051_tx(buf,len)
+//#define	DM9051_rx									DM_ETH_Input
+//#define tapdev_read(buf)								DM9051_rx(buf)
+#define tapdev_read(buf)								dm9051_rx(buf)
 //#define input_intr()							DM9051_rx()
 #define tapdev_get_ievent()					DM_ETH_GetInterruptEvent()
-#define tapdev_clr_ievent()					DM_ETH_ToRst_ISR()
+//#define tapdev_clr_ievent()					DM_ETH_ToRst_ISR()
+#define tapdev_clr_ievent()					dm9051_isr_enab()
 //#define tapdev_ip_configure(i,g,m)	DM_ETH_IpConfiguration(i,g,m)
 #define	tapdev_set_ip(ip)				DM_ETH_Ip_Configuration(ip)
 #define	tapdev_set_gw(ip)				DM_ETH_Gw_Configuration(ip)
@@ -150,6 +154,7 @@ int isrSemaphore_n = 0;
 static int input_packet(void)
 {
 	uip_len = tapdev_read(uip_buf);
+	dm_eth_input_hexdump(uip_buf, uip_len);
 	return (uip_len > 0) ? 1 : 0;
 }
 
@@ -215,6 +220,7 @@ void vuIP_Init(void)
     // setup the dhcp renew timer the make the first request
 	//printf("config: DHCPC\r\n");
 	#if 1
+	identify_dhcpc_en(1);
 	uip_update_ip_config(NULL, NULL, NULL); //[TESTING.]
 	#endif
     timer_set(&dhcp_timer, CLOCK_SECOND * 600);
@@ -230,6 +236,7 @@ void vuIP_Init(void)
     uip_ipaddr(gw, 10, 0, 2, 205);   //Default Gateway
     uip_ipaddr(mask, 255, 255, 255, 0); //Network Mask
 	
+	identify_dhcpc_en(0);
 	uip_update_ip_config(
 		ip, //uip_sethostaddr(ipaddr);
 		gw, //uip_setdraddr(ipaddr);

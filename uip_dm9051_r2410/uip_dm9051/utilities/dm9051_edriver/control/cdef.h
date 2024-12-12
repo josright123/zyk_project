@@ -22,6 +22,11 @@
     uint8_t local_gwaddr[ADDR_LENGTH];
     uint8_t local_maskaddr[ADDR_LENGTH];
   };
+  
+  struct ip_data_t
+  {
+    uint8_t ipaddr[ADDR_LENGTH];
+  };
 
 	/* types define : [ identify.h/identify.c ] */
 	typedef uint8_t mac_t[MAC_ADDR_LENGTH];

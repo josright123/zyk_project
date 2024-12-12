@@ -40,7 +40,7 @@
 
 #include "clock-arch.h"
 #include "FreeRTOS.h"
-#include "nosys/nosys_control/conf_ap.h" //#include "control/conf.h"
+#include "platform_info/nosys/nosys_control/conf_ap.h" //#include "control/conf.h"
 
 //extern __IO int32_t g_RunTime;
 extern portTickType xTaskGetTickCount(void);

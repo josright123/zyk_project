@@ -41,11 +41,11 @@
 #include "dhcpc.h"
 
 //#include "control/cdef.h"
-#include "nosys/nosys_control/conf_ap.h"
-#include "nosys/nosys_control/dm9051_ap_debug.h"
+#include "platform_info/nosys/nosys_control/conf_ap.h"
+#include "platform_info/nosys/nosys_control/dm9051_ap_debug.h"
 
 /* eth api */
-#include "nosys/eth/eth_types.h"
+#include "platform_info/nosys/uip_eth/eth_types.h"
 
 #if defined PORT_APP_MAPPER
     bool dhcpc_running = 0;

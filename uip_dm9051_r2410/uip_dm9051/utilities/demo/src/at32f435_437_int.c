@@ -158,7 +158,6 @@ void DebugMon_Handler(void)
 void EXINT9_5_IRQHandler(void) {
 	if (exint_flag_get(HAL_IRQLine()) != RESET)
 	{
-	//	_DM_ETH_InterruptEvent();
 			EXINT9_5_UserFunction();
 			exint_flag_clear(HAL_IRQLine());
 	}

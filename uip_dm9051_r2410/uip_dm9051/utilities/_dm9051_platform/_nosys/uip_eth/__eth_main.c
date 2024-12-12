@@ -290,106 +290,109 @@ int DM_ETH_GetInterruptEvent(void)
   return 0;
 }
 
+void DM_ETH_IRQInit(void)
+{
+  flgSemaphore_r = 0;
+}
+
 /**
  * @brief  Prepares ISR for reset operation
  */
-void DM_ETH_ToRst_ISR(void)
-{
-  dm9051_isr_enab();
-  identify_irq_stat(ISTAT_IRQ_NOW2END);
-}
+//void DM_ETH_ToRst_ISR(void)
+//{
+//  dm9051_isr_enab();
+//  identify_irq_stat(ISTAT_IRQ_NOW2END);
+//}
 
 /**
  * @brief  Initializes the Ethernet interface
  * @param  adr: MAC address pointer
  * @return Pointer to configured MAC address
  */
-const uint8_t *DM_ETH_Init(const uint8_t *adr)
-{
-  flgSemaphore_r = 0;
+//const uint8_t *DM_ETH_Init(const uint8_t *adr)
+//{
+  //flgSemaphore_r = 0;
 
-  dm9051_boards_initialize(); //(&board_init_struct);
-  return dm9051_init(adr);
-}
+  //dm9051_boards_initialize(); //(&board_init_struct);
+  //return dm9051_init(adr);
+//}
 
 /**
  * @brief  Handles packet reception
  * @param  bff: Buffer for received packet
  * @return Length of received packet
  */
-uint16_t DM_ETH_Input(uint8_t *bff)
-{
-  uint16_t len = dm9051_rx(bff);
-  dm_eth_input_hexdump(bff, len);
-  return len;
-}
+//uint16_t DM_ETH_Input(uint8_t *bff)
+//{
+//  uint16_t len = dm9051_rx(bff);
+//  dm_eth_input_hexdump(bff, len);
+//  return len;
+//}
 
-//.#if LWIP_PTP
-uint16_t DM_ETH_PTP_Input(uint8_t *bff, uint8_t *ts_bff)
-{
-  uint16_t len = dm9051_rx(bff);
-  dm_eth_input_hexdump(bff, len);
-  return len;
-}
-//#endif
+////.#if LWIP_PTP
+//uint16_t DM_ETH_PTP_Input(uint8_t *bff, uint8_t *ts_bff)
+//{
+//  uint16_t len = dm9051_rx(bff);
+//  dm_eth_input_hexdump(bff, len);
+//  return len;
+//}
+////#endif
 
 /**
  * @brief  Handles packet transmission
  * @param  bff: Buffer containing packet to send
  * @param  len: Length of packet
  */
-void DM_ETH_Output(uint8_t *bff, uint16_t len)
-{
-  dm9051_tx(bff, len);
-}
+//void DM_ETH_Output(uint8_t *bff, uint16_t len)
+//{
+//  dm9051_tx(bff, len);
+//}
 
-//.#if LWIP_PTP
-void DM_ETH_PTP_Output(uint8_t *bff, uint16_t len, uint8_t *ts_bff)
-{
-  dm9051_tx(bff, len);
-  //dm9051_get_tx_time(ts_bff);
-}
+////.#if LWIP_PTP
+//void DM_ETH_PTP_Output(uint8_t *bff, uint16_t len, uint8_t *ts_bff)
+//{
+//  dm9051_tx(bff, len);
+//  //dm9051_get_tx_time(ts_bff);
+//}
 
-void DM_ETH_PTP_HW_TIMESTAMP_Output(uint8_t *bff, uint16_t len, uint8_t *ts_bff)
-{
-  dm9051_tx(bff, len); //[send with hw-timestamp]
-  //dm9051_get_tx_time(ts_bff);
-}
-//#endif
+//void DM_ETH_PTP_HW_TIMESTAMP_Output(uint8_t *bff, uint16_t len, uint8_t *ts_bff)
+//{
+//  dm9051_tx(bff, len); //[send with hw-timestamp]
+//  //dm9051_get_tx_time(ts_bff);
+//}
+////#endif
 
 /**
  * @brief  Network configuration functions
  */
 const uint8_t *DM_ETH_Ip_Configuration(const uint8_t *ip)
 {
-	static uint8_t ip_printag = 0x1;
+//	static uint8_t ip_printag = 0x1;
 
-	if (!(ip_printag & 0x01))
-		return identify_tcpip_ip(ip);
-		
-	//if (ip_printag & 0x01) {
-	ip_printag &= ~0x01;
-	identify_tcpip_ip(ip);
-	return dm_eth_show_identified_ip(ip ? "config ip" : "candidate ip");
-	//}
+//	if (ip_printag & 0x01) {
+//		ip_printag &= ~0x01;
+//		identify_tcpip_ip(ip);
+//		return dm_eth_show_identified_ip(ip ? "config ip" : "candidate ip");
+//	}
+	return identify_tcpip_ip(ip);
 }
 
 const uint8_t *DM_ETH_Gw_Configuration(const uint8_t *ip)
 {
-	static uint8_t gw_printag = 0x1;
+//	static uint8_t gw_printag = 0x1;
 
-	if (!(gw_printag & 0x01))
-		return identify_tcpip_gw(ip);
-
-	gw_printag &= ~0x01;
-	identify_tcpip_gw(ip);
-	return dm_eth_show_identified_gw(ip ? "config gw" : "candidate gw");
+//	if (gw_printag & 0x01) {
+//		gw_printag &= ~0x01;
+//		identify_tcpip_gw(ip);
+//		return dm_eth_show_identified_gw(ip ? "config gw" : "candidate gw");
+//	}
+	return identify_tcpip_gw(ip);
 }
 
 const uint8_t *DM_ETH_Mask_Configuration(const uint8_t *ip)
 {
-  identify_tcpip_mask(ip);
-  return identified_tcpip_mask();
+  return identify_tcpip_mask(ip);
+  //return identified_tcpip_mask();
 }
 
 /**
@@ -428,7 +431,7 @@ uint16_t DM_ETH_ToCalc_rx_pointers(int state, const uint16_t *mdra_rd_org, uint1
  * @param  stat: Status register values
  * @return 1 if link is up, 0 otherwise
  */
-int DM_Eth_Regs_Info_Linkup(uint8_t *stat)
+int DM_Eth_Info_Linkup(uint8_t *stat)
 {
 	enum link_state_t lst = LINK_STATE_SOURCE;
 	if (lst == DM9051_CHECK_MAC) {
@@ -450,10 +453,10 @@ int DM_Eth_Regs_Info_Linkup(uint8_t *stat)
  * @brief  Reads and processes register information (could periodic call)
  * @param  stat: Buffer for register values
  */
-void DM_Eth_ReadRegsInfo(uint8_t *stat)
+void DM_Eth_Read_Info(uint8_t *stat)
 {
   dm9051_read_regs_info(stat);
-  if (!DM_Eth_Regs_Info_Linkup(stat))
+  if (!DM_Eth_Info_Linkup(stat))
 		/* Resets the hex dump state for input processing */
     dm_eth_input_hexdump_reset();
 }
@@ -463,15 +466,15 @@ int dm_eth_polling_downup(void)
 	static int link_stat = 0;
 	uint8_t statdat[6];
 
-	DM_Eth_ReadRegsInfo(statdat);
+	DM_Eth_Read_Info(statdat);
 	#if 1
-	operate_led3(VIA_NET, DM_Eth_Regs_Info_Linkup(statdat) ? LED_FLASH : LED_OFF);
+	operate_led3(VIA_NET, DM_Eth_Info_Linkup(statdat) ? LED_FLASH : LED_OFF);
 	#endif
-	if (DM_Eth_Regs_Info_Linkup(statdat) && !link_stat) {
+	if (DM_Eth_Info_Linkup(statdat) && !link_stat) {
 		link_stat = 1;
 		printf("(down to link up)\r\n");
 		return 1;
-	} else if (!DM_Eth_Regs_Info_Linkup(statdat) && link_stat) {
+	} else if (!DM_Eth_Info_Linkup(statdat) && link_stat) {
 		link_stat = 0;
 		printf("(up2down to link down)\r\n");
 		return 0;

@@ -10,4 +10,7 @@
 //#include "dm/dm_api.h"
 //#include "eth/eth_api.h"
 
+/* drv api */
+#include "core/dm9051.h"
+
 #endif //__DM_CONF_AP_H__

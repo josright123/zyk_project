@@ -28,17 +28,17 @@
 #include <stdlib.h>
 
 /* Project Specific Includes */
-#include "platform_info/control/drv_control/conf_core.h"
-#include "platform_info/control/drv_control/dm9051_drv_debug.h"
+#include "control/drv_control/conf_core.h"
+#include "control/drv_control/dm9051_drv_debug.h"
 
 /*-----------------------------------------------------------------------------
  * Public drv_impl Functions
  *-----------------------------------------------------------------------------*/
  
 #define DRV_TYPE 1
-#include "platform_info/control/drv_types_define.h"
+#include "control/drv_types_define.h"
 #define DRV_TYPE 2
-#include "platform_info/control/drv_types_define.h"
+#include "control/drv_types_define.h"
 
 /*-----------------------------------------------------------------------------
  * Public dm_impl Functions

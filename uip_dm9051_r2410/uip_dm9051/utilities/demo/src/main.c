@@ -88,7 +88,7 @@ int main(void)
   system_clock_config();
   uart_print_init(115200);
   
-  dm_eth_show_app_help_info(RX_MODE_STR, "polling_button_pressed", __DATE__); //printkey("\r\n\r\n\r\n/ZYK_project /R2410 [uip_dm9051_r2410] %s\r\n", __DATE__);
+  dm_eth_show_app_help_info(RX_MODE_STR, "polling_button_pressed"); //printkey("\r\n\r\n\r\n/ZYK_project /R2410 [uip_dm9051_r2410] %s\r\n", __DATE__);
 
   /* enter critical */
   taskENTER_CRITICAL(); 

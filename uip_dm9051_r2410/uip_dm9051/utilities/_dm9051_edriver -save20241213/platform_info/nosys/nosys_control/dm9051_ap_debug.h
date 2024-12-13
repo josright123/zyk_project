@@ -1,7 +1,7 @@
 /* define to prevent recursive inclusion -------------------------------------*/
 #ifndef __DM9051_AP_DEBUG_H
 #define __DM9051_AP_DEBUG_H
-#include "platform_info/control/dbg_opts.h"
+#include "control/dbg_opts.h"
 
 //ap
 #if ap_print

@@ -28,8 +28,8 @@
 #include <stdlib.h>
 
 /* Project Specific Includes */
-#include "platform_info/control/drv_control/conf_core.h"
-#include "platform_info/control/drv_control/dm9051_drv_debug.h"
+#include "control/drv_control/conf_core.h"
+#include "control/drv_control/dm9051_drv_debug.h"
 
 /*-----------------------------------------------------------------------------
  * Configuration and Definitions

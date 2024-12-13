@@ -1,6 +1,6 @@
 #ifndef __DM_ETH_H__
 #define __DM_ETH_H__
-#include "platform_info/control/dm9051opts.h"
+#include "control/dm9051opts.h"
 
 //[uip support version]
 //const uint8_t *DM_ETH_Init(const uint8_t *adr);
@@ -19,12 +19,9 @@ uint8_t *DM_ETH_Gw_Configured(void);
 uint8_t *DM_ETH_Mask_Configured(void);
 int DM_Eth_Info_Linkup(uint8_t *stat);
 void DM_Eth_Read_Info(uint8_t *stat);
-void DM_Eth_Show_status_W(char *head, uint8_t *statdat, int force);
 int dm_eth_polling_downup(void);
 //static void dm_eth_poll_event(void);
-void dm_eth_show_app_help_info(char *drv_modeS, char *statusS);
-void dm_eth_show_app_help_info_w(char *drv_modeS, char *root_dirS, char *prjS, char *locStr);
-void dm_eth_show_app_help_info_ptp(char *op_modeStr, char *statStr, char *clkTypeStr);
+void dm_eth_show_app_help_info(char *drv_modeS, char *statusS, char *dateS);
 //const uint8_t *dm_eth_show_identified_ip(char *headtypestr);
 //const uint8_t *dm_eth_show_identified_gw(char *headtypestr);
 
@@ -34,7 +31,7 @@ void dm_eth_polling_button_ops(enum operate_tag tag);
 
 #ifdef ETHERNET_INTERRUPT_MODE
 void DM_ETH_IRQInit(void);
-int DM_ETH_IRQEvent(void);
+int DM_ETH_GetInterruptEvent(void);
 #endif
 //void DM_ETH_ToRst_ISR(void);
 #if DM_ETH_DEBUG_MODE

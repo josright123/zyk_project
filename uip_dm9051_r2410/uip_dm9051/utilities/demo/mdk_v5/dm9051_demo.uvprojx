@@ -704,11 +704,6 @@
               <FilePath>..\..\dm9051_edriver\core\dm9051_data.c</FilePath>
             </File>
             <File>
-              <FileName>eth_info.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\dm9051_edriver\core\eth_info.c</FilePath>
-            </File>
-            <File>
               <FileName>hal_spi.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\dm9051_edriver\hal\hal_spi.c</FilePath>
@@ -717,6 +712,13 @@
         </Group>
         <Group>
           <GroupName>dm9051_platform</GroupName>
+          <Files>
+            <File>
+              <FileName>platform_info.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\dm9051_edriver\platform_info\nosys\platform_info.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>httpd</GroupName>

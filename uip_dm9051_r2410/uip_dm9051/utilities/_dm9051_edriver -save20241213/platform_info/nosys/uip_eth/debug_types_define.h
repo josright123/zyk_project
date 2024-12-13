@@ -224,7 +224,7 @@ static void debug_diff_rx_pointers(int state, uint16_t rd_now)
 		uint16_t diff = wrpadiff(fifo_mdra_rd, rd_now);
 
 		printf("(INT %lu) mdra s %02x%02x e %02x%02x dif %x (nrx %d) .eth\r\n",
-			   dm_eth_interrupt_count(),
+			   get_interrupt_count(),
 			   fifo_mdra_rd >> 8, fifo_mdra_rd & 0xff,
 			   rd_now >> 8, rd_now & 0xff,
 			   diff + compos_totaldiff,
@@ -252,7 +252,7 @@ void diff_rx_s(void);
 void diff_rx_e(void);
 void print_eth_configuration(char *head, const uint8_t *ip, printkey_ptr printky);
 void ap_print_ipconfig(char *head, const uint8_t *mac, printkey_ptr printky);
-unsigned long dm_eth_interrupt_count(void);
+unsigned long get_interrupt_count(void);
 /*static*/ 
 void dm_eth_input_hexdump(const void *buf, size_t len);
 #endif //DM_DEBUG_TYPE 0
@@ -329,7 +329,7 @@ void diff_rx_e(void)
 {
 }
 
-unsigned long dm_eth_interrupt_count(void)
+unsigned long get_interrupt_count(void)
 {
     return 0;
 }
@@ -395,7 +395,7 @@ void diff_rx_e(void)
 	diff_rx_pointers_e(&gkeep_mdra_rds); //&mdra_rds
 }
 
-unsigned long dm_eth_interrupt_count(void)
+unsigned long get_interrupt_count(void)
 {
     return dispc_int_active;
 }

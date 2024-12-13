@@ -4,7 +4,7 @@
 #define	__DM_CONF_AP_H__
 
 /* domain */
-#include "platform_info/control/conf.h"
+#include "control/conf.h"
 
 /* ap api */
 //#include "dm/dm_api.h"

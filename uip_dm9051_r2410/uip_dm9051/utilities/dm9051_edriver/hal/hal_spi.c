@@ -289,7 +289,7 @@ static uint32_t AT_HalTicks = 0;
 
 uint32_t AT_hal_tick_count(void) {
 	static uint32_t hal_tick_count = 0; 
-	#if 1 //[Not only by SysTick counting]
+	#if 1 //[Not only by SysTick counting][if take this, experiment to get 1000000 correction with your system.]
 	hal_tick_count++;
 	if (hal_tick_count >= 1000000) {
 		hal_tick_count = 0;

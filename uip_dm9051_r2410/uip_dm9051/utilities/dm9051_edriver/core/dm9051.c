@@ -640,7 +640,7 @@ static const uint8_t *impl_dm9051_init(const uint8_t *adr)
  */
 static void cspi_core_reset(void) 
 {
-  cspi_ncr_reset(2);
+  cspi_ncr_reset(5);
   cspi_phycore_on(25);
   cspi_soft_default();
 }
